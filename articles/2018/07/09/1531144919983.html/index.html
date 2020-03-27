@@ -1,0 +1,467 @@
+<!DOCTYPE html>
+<html lang="zh-Hans">
+<head>
+  <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=2">
+<meta name="theme-color" content="#222">
+<meta name="generator" content="Hexo 4.2.0">
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png">
+  <link rel="mask-icon" href="/images/logo.svg" color="#222">
+
+<link rel="stylesheet" href="/css/main.css">
+
+
+<link rel="stylesheet" href="/lib/font-awesome/css/font-awesome.min.css">
+
+
+<script id="hexo-configurations">
+  var NexT = window.NexT || {};
+  var CONFIG = {
+    hostname: new URL('http://www.liumapp.com').hostname,
+    root: '/',
+    scheme: 'Gemini',
+    version: '7.7.0',
+    exturl: false,
+    sidebar: {"position":"left","display":"post","padding":18,"offset":12,"onmobile":false},
+    copycode: {"enable":false,"show_result":false,"style":null},
+    back2top: {"enable":true,"sidebar":false,"scrollpercent":false},
+    bookmark: {"enable":false,"color":"#222","save":"auto"},
+    fancybox: false,
+    mediumzoom: false,
+    lazyload: false,
+    pangu: false,
+    comments: {"style":"tabs","active":null,"storage":true,"lazyload":false,"nav":null},
+    algolia: {
+      appID: '',
+      apiKey: '',
+      indexName: '',
+      hits: {"per_page":10},
+      labels: {"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}
+    },
+    localsearch: {"enable":false,"trigger":"auto","top_n_per_article":1,"unescape":false,"preload":false},
+    path: '',
+    motion: {"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}}
+  };
+</script>
+
+  <meta name="description" content="Doc文档的批量上传并转换为PDF文件，前端同步获取转换结果并提供下载   Github项目源码: liumapp&#x2F;synchronizing-doc-convert-results  功能介绍 如何使用 Docker 安装镜像 启动容器 停止容器 删除镜像   IDEA    功能介绍 前端用户上传一个或者多个doc&#x2F;docx文档  后端异步执行对文档的转换操作，利用了rabbitmq队列">
+<meta property="og:type" content="article">
+<meta property="og:title" content="Vue+SpringBoot在docker下操作实践：上传doc转PDF并让前端同步获取转换结果">
+<meta property="og:url" content="http://www.liumapp.com/articles/2018/07/09/1531144919983.html/index.html">
+<meta property="og:site_name" content="liumapp">
+<meta property="og:description" content="Doc文档的批量上传并转换为PDF文件，前端同步获取转换结果并提供下载   Github项目源码: liumapp&#x2F;synchronizing-doc-convert-results  功能介绍 如何使用 Docker 安装镜像 启动容器 停止容器 删除镜像   IDEA    功能介绍 前端用户上传一个或者多个doc&#x2F;docx文档  后端异步执行对文档的转换操作，利用了rabbitmq队列">
+<meta property="article:published_time" content="2018-07-09T06:04:55.000Z">
+<meta property="article:modified_time" content="2018-07-11T18:44:34.000Z">
+<meta property="article:author" content="liumapp">
+<meta property="article:tag" content="Java">
+<meta property="article:tag" content="Vue">
+<meta property="article:tag" content="Docker">
+<meta name="twitter:card" content="summary">
+
+<link rel="canonical" href="http://www.liumapp.com/articles/2018/07/09/1531144919983.html/">
+
+
+<script id="page-configurations">
+  // https://hexo.io/docs/variables.html
+  CONFIG.page = {
+    sidebar: "",
+    isHome: false,
+    isPost: true
+  };
+</script>
+
+  <title>Vue+SpringBoot在docker下操作实践：上传doc转PDF并让前端同步获取转换结果 | liumapp</title>
+  
+
+
+
+
+
+
+  <noscript>
+  <style>
+  .use-motion .brand,
+  .use-motion .menu-item,
+  .sidebar-inner,
+  .use-motion .post-block,
+  .use-motion .pagination,
+  .use-motion .comments,
+  .use-motion .post-header,
+  .use-motion .post-body,
+  .use-motion .collection-header { opacity: initial; }
+
+  .use-motion .site-title,
+  .use-motion .site-subtitle {
+    opacity: initial;
+    top: initial;
+  }
+
+  .use-motion .logo-line-before i { left: initial; }
+  .use-motion .logo-line-after i { right: initial; }
+  </style>
+</noscript>
+
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage">
+  <div class="container use-motion">
+    <div class="headband"></div>
+
+    <header class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-container">
+  <div class="site-meta">
+
+    <div>
+      <a href="/" class="brand" rel="start">
+        <span class="logo-line-before"><i></i></span>
+        <span class="site-title">liumapp</span>
+        <span class="logo-line-after"><i></i></span>
+      </a>
+    </div>
+  </div>
+
+  <div class="site-nav-toggle">
+    <div class="toggle" aria-label="Navigationsleiste an/ausschalten">
+      <span class="toggle-line toggle-line-first"></span>
+      <span class="toggle-line toggle-line-middle"></span>
+      <span class="toggle-line toggle-line-last"></span>
+    </div>
+  </div>
+</div>
+
+
+<nav class="site-nav">
+  
+  <ul id="menu" class="menu">
+        <li class="menu-item menu-item-home">
+
+    <a href="/" rel="section"><i class="fa fa-fw fa-home"></i>Startseite</a>
+
+  </li>
+        <li class="menu-item menu-item-archives">
+
+    <a href="/archives/" rel="section"><i class="fa fa-fw fa-archive"></i>Archiv</a>
+
+  </li>
+  </ul>
+
+</nav>
+</div>
+    </header>
+
+    
+  <div class="back-to-top">
+    <i class="fa fa-arrow-up"></i>
+    <span>0%</span>
+  </div>
+
+  <a href="https://github.com/liumapp" class="github-corner" title="Follow me on GitHub" aria-label="Follow me on GitHub" rel="noopener" target="_blank"><svg width="80" height="80" viewBox="0 0 250 250" aria-hidden="true"><path d="M0,0 L115,115 L130,115 L142,142 L250,250 L250,0 Z"></path><path d="M128.3,109.0 C113.8,99.7 119.0,89.6 119.0,89.6 C122.0,82.7 120.5,78.6 120.5,78.6 C119.2,72.0 123.4,76.3 123.4,76.3 C127.3,80.9 125.5,87.3 125.5,87.3 C122.9,97.6 130.6,101.9 134.4,103.2" fill="currentColor" style="transform-origin: 130px 106px;" class="octo-arm"></path><path d="M115.0,115.0 C114.9,115.1 118.7,116.5 119.8,115.4 L133.7,101.6 C136.9,99.2 139.9,98.4 142.2,98.6 C133.8,88.0 127.5,74.4 143.8,58.0 C148.5,53.4 154.0,51.2 159.7,51.0 C160.3,49.4 163.2,43.6 171.4,40.1 C171.4,40.1 176.1,42.5 178.8,56.2 C183.1,58.6 187.2,61.8 190.9,65.4 C194.5,69.0 197.7,73.2 200.1,77.6 C213.8,80.2 216.3,84.9 216.3,84.9 C212.7,93.1 206.9,96.0 205.4,96.6 C205.1,102.4 203.0,107.8 198.3,112.5 C181.9,128.9 168.3,122.5 157.7,114.1 C157.9,116.9 156.7,120.9 152.7,124.9 L141.0,136.5 C139.8,137.7 141.6,141.9 141.8,141.8 Z" fill="currentColor" class="octo-body"></path></svg></a>
+
+
+    <main class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          
+
+          <div class="content">
+            
+
+  <div class="posts-expand">
+      
+  
+  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block " lang="zh-Hans">
+    <link itemprop="mainEntityOfPage" href="http://www.liumapp.com/articles/2018/07/09/1531144919983.html/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/avatar.gif">
+      <meta itemprop="name" content="liumapp">
+      <meta itemprop="description" content="">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="liumapp">
+    </span>
+      <header class="post-header">
+        <h1 class="post-title" itemprop="name headline">
+          Vue+SpringBoot在docker下操作实践：上传doc转PDF并让前端同步获取转换结果
+        </h1>
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              <span class="post-meta-item-text">Veröffentlicht am</span>
+
+              <time title="Erstellt: 2018-07-09 14:04:55" itemprop="dateCreated datePublished" datetime="2018-07-09T14:04:55+08:00">2018-07-09</time>
+            </span>
+              <span class="post-meta-item">
+                <span class="post-meta-item-icon">
+                  <i class="fa fa-calendar-check-o"></i>
+                </span>
+                <span class="post-meta-item-text">Bearbeitet am</span>
+                <time title="Geändert am: 2018-07-12 02:44:34" itemprop="dateModified" datetime="2018-07-12T02:44:34+08:00">2018-07-12</time>
+              </span>
+
+          
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+        <blockquote>
+<p>Doc文档的批量上传并转换为PDF文件，前端同步获取转换结果并提供下载 </p>
+</blockquote>
+<p>Github项目源码: <a href="https://github.com/liumapp/synchronizing-doc-convert-results" target="_blank" rel="noopener">liumapp/synchronizing-doc-convert-results</a></p>
+<ul>
+<li><a href="#功能介绍">功能介绍</a></li>
+<li><a href="#如何使用">如何使用</a><ul>
+<li><a href="#docker">Docker</a><ul>
+<li><a href="#安装镜像">安装镜像</a></li>
+<li><a href="#启动容器">启动容器</a></li>
+<li><a href="#停止容器">停止容器</a></li>
+<li><a href="#删除镜像">删除镜像</a></li>
+</ul>
+</li>
+<li><a href="#idea">IDEA</a></li>
+</ul>
+</li>
+</ul>
+<h2 id="功能介绍"><a href="#功能介绍" class="headerlink" title="功能介绍"></a>功能介绍</h2><ul>
+<li><p>前端用户上传一个或者多个doc/docx文档</p>
+</li>
+<li><p>后端异步执行对文档的转换操作，利用了rabbitmq队列</p>
+</li>
+<li><p>前端可以同步获取转换结果，并以表格形式提供下载操作</p>
+</li>
+</ul>
+<p>介绍动图您可以在Github项目文档中浏览</p>
+<h2 id="如何使用"><a href="#如何使用" class="headerlink" title="如何使用"></a>如何使用</h2><h3 id="Docker"><a href="#Docker" class="headerlink" title="Docker"></a>Docker</h3><p>首先，请确保您的本地系统中有docker、docker-compose及maven的支持</p>
+<p>其次，请确保您没有修改过synch-service的项目配置文件，如果修改过，请确保spring.profiles.active的值为docker，并且与synch-rabbitmq容器的连接信息与docker-compose.yml的保持一致</p>
+<h4 id="安装镜像"><a href="#安装镜像" class="headerlink" title="安装镜像"></a>安装镜像</h4><p>拷贝项目到本地后，执行脚本build-image.sh来安装镜像</p>
+<p>该镜像的安装，是由docker-maven-plugin驱动的，所以需要您确保在执行脚本前，本机提供maven3版本以上的支持</p>
+<h4 id="启动容器"><a href="#启动容器" class="headerlink" title="启动容器"></a>启动容器</h4><p>利用docker-compose，执行命令:</p>
+<pre><code>docker-compose up -d</code></pre><p>来启动容器</p>
+<p>启动后的视图您可以Github项目文档中浏览</p>
+<p>之所以需要用到docker-compose进行容器的编排操作，是因为系统依赖于rabbitmq的支持</p>
+<p>rabbitmq本身的存在，是以一个独立的容器来运行，并通过配置docker-compose，使两者共享一个网关来进行数据交互</p>
+<p>网关配置如下:</p>
+<pre><code>networks:
+  synchronizing-doc-convert-results:
+    driver: bridge</code></pre><p>并在两个容器的配置项中，添加以下内容:</p>
+<pre><code>networks:
+  - synchronizing-doc-convert-results</code></pre><h4 id="停止容器"><a href="#停止容器" class="headerlink" title="停止容器"></a>停止容器</h4><p>利用docker-compose，执行命令:</p>
+<pre><code>docker-compose down</code></pre><p>来停止容器</p>
+<p>需要注意的是，停止容器本身，并不会删除镜像文件    </p>
+<h4 id="删除镜像"><a href="#删除镜像" class="headerlink" title="删除镜像"></a>删除镜像</h4><p>在项目根目录下，执行脚本rm-image.sh删除镜像文件，请注意，该操作的执行前提是容器处于停止状态</p>
+<h3 id="IDEA"><a href="#IDEA" class="headerlink" title="IDEA"></a>IDEA</h3><p>考虑到部分用户可能对Docker不是太了解，所以这个项目也可以使用传统的方式来运行</p>
+<p>但是项目本身使用了前后端分离的形式，前端项目为synch-ui，采用vue2.0框架实现，后端项目为synch-service，采用springboot1.5.6框架实现</p>
+<p>所以如果您希望同时运行前后端项目的话，需要您的系统同时具备Java环境和Nodejs环境的支持</p>
+<p>但考虑到大部分开发人员并不会选择全栈作为自己的发展发现，所以为纯Java开发人员提供了一定的便利性：</p>
+<p>synch-service利用thymeleaf已经加载了synch-ui编译后的静态文件，并完成了相关配置，所以纯Java开发人员只需要将synch-service导入IDEA（导入过程省略），并且修改application.yml配置文件的spring.profiles.active值为dev，在启动后访问 <a href="http://localhost:2020" target="_blank" rel="noopener">http://localhost:2020</a> 也可以查看系统效果。</p>
+<p>与此同时，如果您是一名纯前端开发人员，在webstorm中打开了synch-ui项目，并利用 </p>
+<pre><code>npm run dev</code></pre><p>启动项目后，您需要同时启动后端项目才能够在 <a href="http://localhost:8080" target="_blank" rel="noopener">http://localhost:8080</a> 查看系统效果。</p>
+<p>如果您对前端代码做了一定的修改，而又希望将最新的效果导入synch-service中，那么请您执行脚本update-ui.sh自动完成synch-ui编译文件的导入工作。    </p>
+
+    </div>
+
+    
+    
+    
+
+      <footer class="post-footer">
+          <div class="post-tags">
+              <a href="/tags/Java/" rel="tag"># Java</a>
+              <a href="/tags/Vue/" rel="tag"># Vue</a>
+              <a href="/tags/Docker/" rel="tag"># Docker</a>
+          </div>
+
+        
+
+
+        
+    <div class="post-nav">
+      <div class="post-nav-item">
+    <a href="/articles/2018/06/27/1530080298660.html/" rel="prev" title="CS架构的SDK实现案例">
+      <i class="fa fa-chevron-left"></i> CS架构的SDK实现案例
+    </a></div>
+      <div class="post-nav-item">
+    <a href="/articles/2018/07/28/1532778240331.html/" rel="next" title="Maven编译失败: package sun.security.pkcs10 doesn't exit">
+      Maven编译失败: package sun.security.pkcs10 doesn't exit <i class="fa fa-chevron-right"></i>
+    </a></div>
+    </div>
+      </footer>
+    
+  </article>
+  
+  
+  
+
+  </div>
+
+
+          </div>
+          
+
+<script>
+  window.addEventListener('tabs:register', () => {
+    let activeClass = CONFIG.comments.activeClass;
+    if (CONFIG.comments.storage) {
+      activeClass = localStorage.getItem('comments_active') || activeClass;
+    }
+    if (activeClass) {
+      let activeTab = document.querySelector(`a[href="#comment-${activeClass}"]`);
+      if (activeTab) {
+        activeTab.click();
+      }
+    }
+  });
+  if (CONFIG.comments.storage) {
+    window.addEventListener('tabs:click', event => {
+      if (!event.target.matches('.tabs-comment .tab-content .tab-pane')) return;
+      let commentClass = event.target.classList[1];
+      localStorage.setItem('comments_active', commentClass);
+    });
+  }
+</script>
+
+        </div>
+          
+  
+  <div class="toggle sidebar-toggle">
+    <span class="toggle-line toggle-line-first"></span>
+    <span class="toggle-line toggle-line-middle"></span>
+    <span class="toggle-line toggle-line-last"></span>
+  </div>
+
+  <aside class="sidebar">
+    <div class="sidebar-inner">
+
+      <ul class="sidebar-nav motion-element">
+        <li class="sidebar-nav-toc">
+          Inhaltsverzeichnis
+        </li>
+        <li class="sidebar-nav-overview">
+          Übersicht
+        </li>
+      </ul>
+
+      <!--noindex-->
+      <div class="post-toc-wrap sidebar-panel">
+          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#功能介绍"><span class="nav-number">1.</span> <span class="nav-text">功能介绍</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#如何使用"><span class="nav-number">2.</span> <span class="nav-text">如何使用</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#Docker"><span class="nav-number">2.1.</span> <span class="nav-text">Docker</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#安装镜像"><span class="nav-number">2.1.1.</span> <span class="nav-text">安装镜像</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#启动容器"><span class="nav-number">2.1.2.</span> <span class="nav-text">启动容器</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#停止容器"><span class="nav-number">2.1.3.</span> <span class="nav-text">停止容器</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#删除镜像"><span class="nav-number">2.1.4.</span> <span class="nav-text">删除镜像</span></a></li></ol></li><li class="nav-item nav-level-3"><a class="nav-link" href="#IDEA"><span class="nav-number">2.2.</span> <span class="nav-text">IDEA</span></a></li></ol></li></ol></div>
+      </div>
+      <!--/noindex-->
+
+      <div class="site-overview-wrap sidebar-panel">
+        <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+  <p class="site-author-name" itemprop="name">liumapp</p>
+  <div class="site-description" itemprop="description"></div>
+</div>
+<div class="site-state-wrap motion-element">
+  <nav class="site-state">
+      <div class="site-state-item site-state-posts">
+          <a href="/archives/">
+        
+          <span class="site-state-item-count">165</span>
+          <span class="site-state-item-name">Artikel</span>
+        </a>
+      </div>
+      <div class="site-state-item site-state-tags">
+        <span class="site-state-item-count">88</span>
+        <span class="site-state-item-name">schlagwörter</span>
+      </div>
+  </nav>
+</div>
+
+
+
+      </div>
+
+    </div>
+  </aside>
+  <div id="sidebar-dimmer"></div>
+
+
+      </div>
+    </main>
+
+    <footer class="footer">
+      <div class="footer-inner">
+        
+
+<div class="copyright">
+  
+  &copy; 
+  <span itemprop="copyrightYear">2020</span>
+  <span class="with-love">
+    <i class="fa fa-user"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">liumapp.com@gmail.com</span>
+</div>
+  <div class="powered-by">Erstellt mit  <a href="https://hexo.io/" class="theme-link" rel="noopener" target="_blank">Hexo</a> v4.2.0
+  </div>
+  <span class="post-meta-divider">|</span>
+  <div class="theme-info">Design – <a href="https://theme-next.org/" class="theme-link" rel="noopener" target="_blank">NexT.Gemini</a> v7.7.0
+  </div>
+
+        
+
+
+
+
+
+
+
+
+      </div>
+    </footer>
+  </div>
+
+  
+  <script src="/lib/anime.min.js"></script>
+  <script src="/lib/velocity/velocity.min.js"></script>
+  <script src="/lib/velocity/velocity.ui.min.js"></script>
+
+<script src="/js/utils.js"></script>
+
+<script src="/js/motion.js"></script>
+
+
+<script src="/js/schemes/pisces.js"></script>
+
+
+<script src="/js/next-boot.js"></script>
+
+
+
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+
+  
+
+</body>
+</html>

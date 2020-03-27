@@ -1,0 +1,523 @@
+<!DOCTYPE html>
+<html lang="zh-Hans">
+<head>
+  <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=2">
+<meta name="theme-color" content="#222">
+<meta name="generator" content="Hexo 4.2.0">
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png">
+  <link rel="mask-icon" href="/images/logo.svg" color="#222">
+
+<link rel="stylesheet" href="/css/main.css">
+
+
+<link rel="stylesheet" href="/lib/font-awesome/css/font-awesome.min.css">
+
+
+<script id="hexo-configurations">
+  var NexT = window.NexT || {};
+  var CONFIG = {
+    hostname: new URL('http://www.liumapp.com').hostname,
+    root: '/',
+    scheme: 'Gemini',
+    version: '7.7.0',
+    exturl: false,
+    sidebar: {"position":"left","display":"post","padding":18,"offset":12,"onmobile":false},
+    copycode: {"enable":false,"show_result":false,"style":null},
+    back2top: {"enable":true,"sidebar":false,"scrollpercent":false},
+    bookmark: {"enable":false,"color":"#222","save":"auto"},
+    fancybox: false,
+    mediumzoom: false,
+    lazyload: false,
+    pangu: false,
+    comments: {"style":"tabs","active":null,"storage":true,"lazyload":false,"nav":null},
+    algolia: {
+      appID: '',
+      apiKey: '',
+      indexName: '',
+      hits: {"per_page":10},
+      labels: {"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}
+    },
+    localsearch: {"enable":false,"trigger":"auto","top_n_per_article":1,"unescape":false,"preload":false},
+    path: '',
+    motion: {"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}}
+  };
+</script>
+
+  <meta name="description" content="转自：https:&#x2F;&#x2F;www.cnblogs.com&#x2F;aspirant&#x2F;p&#x2F;8628843.html 一道经典考题，如果corePolllSize&#x3D;10,MaxPollSize&#x3D;20,如果来了25个线程 怎么办，  先达到 corePoolSize，然后 优先放入队列，然后在到MaxPollSize，然后拒绝； 答案： 当一个任务通过execute(Runnable)方法欲添加到线程池时：1、 如">
+<meta property="og:type" content="article">
+<meta property="og:title" content="多线程之线程池-各个参数的含义">
+<meta property="og:url" content="http://www.liumapp.com/articles/2019/08/26/1566821421592.html/index.html">
+<meta property="og:site_name" content="liumapp">
+<meta property="og:description" content="转自：https:&#x2F;&#x2F;www.cnblogs.com&#x2F;aspirant&#x2F;p&#x2F;8628843.html 一道经典考题，如果corePolllSize&#x3D;10,MaxPollSize&#x3D;20,如果来了25个线程 怎么办，  先达到 corePoolSize，然后 优先放入队列，然后在到MaxPollSize，然后拒绝； 答案： 当一个任务通过execute(Runnable)方法欲添加到线程池时：1、 如">
+<meta property="og:image" content="http://img.blog.csdn.net/20161107130709586?watermark/2/text/aHR0cDovL2Jsb2cuY3Nkbi5uZXQv/font/5a6L5L2T/fontsize/400/fill/I0JBQkFCMA==/dissolve/70/gravity/Center">
+<meta property="og:image" content="http://img.blog.csdn.net/20161107130723836?watermark/2/text/aHR0cDovL2Jsb2cuY3Nkbi5uZXQv/font/5a6L5L2T/fontsize/400/fill/I0JBQkFCMA==/dissolve/70/gravity/Center">
+<meta property="article:published_time" content="2019-08-26T12:10:21.000Z">
+<meta property="article:modified_time" content="2019-08-26T12:11:16.000Z">
+<meta property="article:author" content="liumapp">
+<meta property="article:tag" content="Java">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="http://img.blog.csdn.net/20161107130709586?watermark/2/text/aHR0cDovL2Jsb2cuY3Nkbi5uZXQv/font/5a6L5L2T/fontsize/400/fill/I0JBQkFCMA==/dissolve/70/gravity/Center">
+
+<link rel="canonical" href="http://www.liumapp.com/articles/2019/08/26/1566821421592.html/">
+
+
+<script id="page-configurations">
+  // https://hexo.io/docs/variables.html
+  CONFIG.page = {
+    sidebar: "",
+    isHome: false,
+    isPost: true
+  };
+</script>
+
+  <title>多线程之线程池-各个参数的含义 | liumapp</title>
+  
+
+
+
+
+
+
+  <noscript>
+  <style>
+  .use-motion .brand,
+  .use-motion .menu-item,
+  .sidebar-inner,
+  .use-motion .post-block,
+  .use-motion .pagination,
+  .use-motion .comments,
+  .use-motion .post-header,
+  .use-motion .post-body,
+  .use-motion .collection-header { opacity: initial; }
+
+  .use-motion .site-title,
+  .use-motion .site-subtitle {
+    opacity: initial;
+    top: initial;
+  }
+
+  .use-motion .logo-line-before i { left: initial; }
+  .use-motion .logo-line-after i { right: initial; }
+  </style>
+</noscript>
+
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage">
+  <div class="container use-motion">
+    <div class="headband"></div>
+
+    <header class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-container">
+  <div class="site-meta">
+
+    <div>
+      <a href="/" class="brand" rel="start">
+        <span class="logo-line-before"><i></i></span>
+        <span class="site-title">liumapp</span>
+        <span class="logo-line-after"><i></i></span>
+      </a>
+    </div>
+  </div>
+
+  <div class="site-nav-toggle">
+    <div class="toggle" aria-label="Navigationsleiste an/ausschalten">
+      <span class="toggle-line toggle-line-first"></span>
+      <span class="toggle-line toggle-line-middle"></span>
+      <span class="toggle-line toggle-line-last"></span>
+    </div>
+  </div>
+</div>
+
+
+<nav class="site-nav">
+  
+  <ul id="menu" class="menu">
+        <li class="menu-item menu-item-home">
+
+    <a href="/" rel="section"><i class="fa fa-fw fa-home"></i>Startseite</a>
+
+  </li>
+        <li class="menu-item menu-item-archives">
+
+    <a href="/archives/" rel="section"><i class="fa fa-fw fa-archive"></i>Archiv</a>
+
+  </li>
+  </ul>
+
+</nav>
+</div>
+    </header>
+
+    
+  <div class="back-to-top">
+    <i class="fa fa-arrow-up"></i>
+    <span>0%</span>
+  </div>
+
+  <a href="https://github.com/liumapp" class="github-corner" title="Follow me on GitHub" aria-label="Follow me on GitHub" rel="noopener" target="_blank"><svg width="80" height="80" viewBox="0 0 250 250" aria-hidden="true"><path d="M0,0 L115,115 L130,115 L142,142 L250,250 L250,0 Z"></path><path d="M128.3,109.0 C113.8,99.7 119.0,89.6 119.0,89.6 C122.0,82.7 120.5,78.6 120.5,78.6 C119.2,72.0 123.4,76.3 123.4,76.3 C127.3,80.9 125.5,87.3 125.5,87.3 C122.9,97.6 130.6,101.9 134.4,103.2" fill="currentColor" style="transform-origin: 130px 106px;" class="octo-arm"></path><path d="M115.0,115.0 C114.9,115.1 118.7,116.5 119.8,115.4 L133.7,101.6 C136.9,99.2 139.9,98.4 142.2,98.6 C133.8,88.0 127.5,74.4 143.8,58.0 C148.5,53.4 154.0,51.2 159.7,51.0 C160.3,49.4 163.2,43.6 171.4,40.1 C171.4,40.1 176.1,42.5 178.8,56.2 C183.1,58.6 187.2,61.8 190.9,65.4 C194.5,69.0 197.7,73.2 200.1,77.6 C213.8,80.2 216.3,84.9 216.3,84.9 C212.7,93.1 206.9,96.0 205.4,96.6 C205.1,102.4 203.0,107.8 198.3,112.5 C181.9,128.9 168.3,122.5 157.7,114.1 C157.9,116.9 156.7,120.9 152.7,124.9 L141.0,136.5 C139.8,137.7 141.6,141.9 141.8,141.8 Z" fill="currentColor" class="octo-body"></path></svg></a>
+
+
+    <main class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          
+
+          <div class="content">
+            
+
+  <div class="posts-expand">
+      
+  
+  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block " lang="zh-Hans">
+    <link itemprop="mainEntityOfPage" href="http://www.liumapp.com/articles/2019/08/26/1566821421592.html/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/avatar.gif">
+      <meta itemprop="name" content="liumapp">
+      <meta itemprop="description" content="">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="liumapp">
+    </span>
+      <header class="post-header">
+        <h1 class="post-title" itemprop="name headline">
+          多线程之线程池-各个参数的含义
+        </h1>
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              <span class="post-meta-item-text">Veröffentlicht am</span>
+              
+
+              <time title="Erstellt: 2019-08-26 20:10:21 / Geändert am: 20:11:16" itemprop="dateCreated datePublished" datetime="2019-08-26T20:10:21+08:00">2019-08-26</time>
+            </span>
+
+          
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+        <p>转自：<a href="https://www.cnblogs.com/aspirant/p/8628843.html" target="_blank" rel="noopener">https://www.cnblogs.com/aspirant/p/8628843.html</a></p>
+<p>一道经典考题，如果corePolllSize=10,MaxPollSize=20,如果来了25个线程 怎么办，</p>
+<p> 先达到 corePoolSize，然后 优先放入队列，然后在到MaxPollSize，然后拒绝；</p>
+<p>答案：</p>
+<p>当一个任务通过execute(Runnable)方法欲添加到线程池时：<br>1、 如果此时线程池中的数量小于corePoolSize，即使线程池中的线程都处于空闲状态，也要创建新的线程来处理被添加的任务。<br>2、 如果此时线程池中的数量等于 corePoolSize，但是缓冲队列 workQueue未满，那么任务被放入缓冲队列。<br>3、如果此时线程池中的数量大于corePoolSize，缓冲队列workQueue满，再有新的线程，开始增加线程池的线程数量处理新的线程，直到maximumPoolSize；<br>4、 如果此时线程池中的数量大于corePoolSize，缓冲队列workQueue满，并且线程池中的数量等于maximumPoolSize，那么通过 handler所指定的策略来处理此任务。也就是：处理任务的优先级为：核心线程corePoolSize、任务队列workQueue、最大线程 maximumPoolSize，如果三者都满了，使用handler处理被拒绝的任务。<br>5、 当线程池中的线程数量大于 corePoolSize时，如果某线程空闲时间超过keepAliveTime，线程将被终止。这样，线程池可以动态的调整池中的线程数。  </p>
+<ul>
+<li><strong>当线程数小于corePoolSize时,提交一个任务创建一个线程(即使这时有空闲线程)来执行该任务。</strong>  </li>
+<li><strong>当线程数大于等于corePoolSize，首选将任务添加等待队列workQueue中（这里的workQueue是上面的BlockingQueue），等有空闲线程时，让空闲线程从队列中取任务。</strong>  </li>
+<li><strong>当等待队列满时，如果线程数量小于maximumPoolSize则创建新的线程，否则使用拒绝线程处理器来处理提交的任务。</strong></li>
+</ul>
+<p>慢慢的启动到10，然后把剩下的15个放到阻塞队列里面，并开始在线程池里面创建线程，直到最大MaximumPoolSize;</p>
+<p>当然是先放在阻塞队列(如果数量为0，就一直等待,LinkedBlockingDeque是一个由链表结构组成的双向阻塞队列,两边都可以进出的，那种，</p>
+<p>参考：<a href="http://www.cnblogs.com/aspirant/p/8628779.html" target="_blank" rel="noopener">聊聊并发（七）——Java中的阻塞队列</a></p>
+<p>尤其是那个车间里工人的例子，好好看看，理解线程很有用：</p>
+<p>接下来看一下创建newFixedThreadPool的源码。</p>
+<h2 id="创建newFixedThreadPool的方法："><a href="#创建newFixedThreadPool的方法：" class="headerlink" title="创建newFixedThreadPool的方法："></a>创建newFixedThreadPool的方法：</h2><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">public static ExecutorService newFixedThreadPool(int nThreads) &#123; </span><br><span class="line">	return new ThreadPoolExecutor(nThreads, nThreads, 0L,TimeUnit.MILLISECONDS, new LinkedBlockingQueue&lt;Runnable&gt;());  </span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">public static ExecutorService newFixedThreadPool(int nThreads, ThreadFactory threadFactory) &#123; 	return new ThreadPoolExecutor(nThreads, nThreads, 0L, TimeUnit.MILLISECONDS, new LinkedBlockingQueue&lt;Runnable&gt;(),  </span><br><span class="line">                                  threadFactory);  </span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+
+<p>上面这两个方法是创建固定数量的线程池的两种方法，两者的区别是：第二种创建方法多了一个线程工厂的方法。我们继续看ThreadPoolExecutor这个类中的构造函数：</p>
+<h2 id="ThreadPoolExecutor的构造函数："><a href="#ThreadPoolExecutor的构造函数：" class="headerlink" title="ThreadPoolExecutor的构造函数："></a>ThreadPoolExecutor的构造函数：</h2><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">public ThreadPoolExecutor(int corePoolSize, int maximumPoolSize, long keepAliveTime,  </span><br><span class="line">                          TimeUnit unit,  </span><br><span class="line">                          BlockingQueue&lt;Runnable&gt; workQueue) &#123; </span><br><span class="line">	this(corePoolSize, maximumPoolSize, keepAliveTime, unit, workQueue,  </span><br><span class="line">        Executors.defaultThreadFactory(), defaultHandler);  </span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br></pre></td><td class="code"><pre><span class="line">public ThreadPoolExecutor(int corePoolSize, int maximumPoolSize, long keepAliveTime,  </span><br><span class="line">                          TimeUnit unit,  </span><br><span class="line">                          BlockingQueue&lt;Runnable&gt; workQueue,  </span><br><span class="line">                          ThreadFactory threadFactory,  </span><br><span class="line">                          RejectedExecutionHandler handler) &#123; </span><br><span class="line">	if (corePoolSize &lt; 0 || maximumPoolSize &lt;&#x3D; 0 || maximumPoolSize &lt; corePoolSize || keepAliveTime &lt; 0) </span><br><span class="line">		throw new IllegalArgumentException();</span><br><span class="line">	if (workQueue &#x3D;&#x3D; null || threadFactory &#x3D;&#x3D; null || handler &#x3D;&#x3D; null) </span><br><span class="line">		throw new NullPointerException(); </span><br><span class="line">	this.corePoolSize &#x3D; corePoolSize; </span><br><span class="line">	this.maximumPoolSize &#x3D; maximumPoolSize; </span><br><span class="line">	this.workQueue &#x3D; workQueue; </span><br><span class="line">	this.keepAliveTime &#x3D; unit.toNanos(keepAliveTime); </span><br><span class="line">	this.threadFactory &#x3D; threadFactory; this.handler &#x3D; handler;  </span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+
+
+<p>ThreadPollExecutor中的所有的构造函数最终都会调用上面这个构造函数，接下来我们来分析一下这些参数的含义： </p>
+<h3 id="corePoolSize："><a href="#corePoolSize：" class="headerlink" title="corePoolSize："></a>corePoolSize：</h3><p>线程池启动后，在池中保持的线程的最小数量。需要说明的是线程数量是逐步到达corePoolSize值的。例如corePoolSize被设置为10，而任务数量只有5，则线程池中最多会启动5个线程，而不是一次性地启动10个线程。</p>
+<h3 id="maxinumPoolSize："><a href="#maxinumPoolSize：" class="headerlink" title="maxinumPoolSize："></a>maxinumPoolSize：</h3><p>线程池中能容纳的最大线程数量，如果超出，则使用RejectedExecutionHandler拒绝策略处理。 </p>
+<h3 id="keepAliveTime："><a href="#keepAliveTime：" class="headerlink" title="keepAliveTime："></a>keepAliveTime：</h3><p>线程的最大生命周期。这里的生命周期有两个约束条件：一：该参数针对的是超过corePoolSize数量的线程；二：处于非运行状态的线程。举个例子：如果corePoolSize（最小线程数）为10，maxinumPoolSize（最大线程数）为20，而此时线程池中有15个线程在运行，过了一段时间后，其中有3个线程处于等待状态的时间超过keepAliveTime指定的时间，则结束这3个线程，此时线程池中则还有12个线程正在运行。</p>
+<h3 id="unit："><a href="#unit：" class="headerlink" title="unit："></a>unit：</h3><p>这是keepAliveTime的时间单位，可以是纳秒，毫秒，秒，分钟等。</p>
+<h3 id="workQueue："><a href="#workQueue：" class="headerlink" title="workQueue："></a>workQueue：</h3><p>任务队列。当线程池中的线程都处于运行状态，而此时任务数量继续增加，则需要一个容器来容纳这些任务，这就是任务队列。这个任务队列是一个阻塞式的单端队列。 </p>
+<p><strong>newFixedThreadPool</strong>和<strong>newSingleThreadExector使用的是LinkedBlockingQueue的无界模式</strong></p>
+<h3 id="threadFactory："><a href="#threadFactory：" class="headerlink" title="threadFactory："></a>threadFactory：</h3><p>定义如何启动一个线程，可以设置线程的名称，并且可以确定是否是后台线程等。</p>
+<h3 id="handler："><a href="#handler：" class="headerlink" title="handler："></a>handler：</h3><p>拒绝任务处理器。由于超出线程数量和队列容量而对继续增加的任务进行处理的程序。</p>
+<p>OK，ThreadPoolExecutor中的主要参数介绍完了。我们再说一下线程的管理过程：首先创建一个线程池，然后根据任务的数量逐步将线程增大到corePoolSize，如果此时仍有任务增加，则放置到workQueue中， 直到workQueue爆满为止，然后继续增加池中的线程数量（增强处理能力），最终达到maxinumPoolSize。那如果此时还有任务要增加进来呢？这就需要handler来处理了，<strong>或者丢弃新任务，或者拒绝新任务，或者挤占已有的任务（拒绝策略）</strong>。在任务队列和线程池都饱和的情况下，一旦有线程处于等待（任务处理完毕，没有新任务）状态的时间超过keepAliveTime，则该线程终止，也就是说池中的线程数量会逐渐降低，直至为corePoolSize数量为止。</p>
+<p>总结：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line">ThreadPoolExecutor(int corePoolSize, int maximumPoolSize, long keepAliveTime,</span><br><span class="line">TimeUnit unit,</span><br><span class="line">BlockingQueue&lt;Runnable&gt; workQueue</span><br><span class="line">RejectedExecutionHandler handler)</span><br><span class="line"> </span><br><span class="line">corePoolSize: 线程池维护线程的最少线程数,也是核心线程数,包括空闲线程</span><br><span class="line">maximumPoolSize: 线程池维护线程的最大线程数</span><br><span class="line">keepAliveTime: 线程池维护线程所允许的空闲时间</span><br><span class="line">unit: 程池维护线程所允许的空闲时间的单位</span><br><span class="line">workQueue: 线程池所使用的缓冲队列</span><br><span class="line">handler: 线程池对拒绝任务的处理策略</span><br></pre></td></tr></table></figure>
+
+
+
+
+<p>在《编写高质量代码 改善Java程序的151个建议》这本书里举的这个例子很形象：</p>
+<p><img src="http://img.blog.csdn.net/20161107130709586?watermark/2/text/aHR0cDovL2Jsb2cuY3Nkbi5uZXQv/font/5a6L5L2T/fontsize/400/fill/I0JBQkFCMA==/dissolve/70/gravity/Center" alt="1.jpg~~~~">)<img src="http://img.blog.csdn.net/20161107130723836?watermark/2/text/aHR0cDovL2Jsb2cuY3Nkbi5uZXQv/font/5a6L5L2T/fontsize/400/fill/I0JBQkFCMA==/dissolve/70/gravity/Center" alt=""></p>
+<p>OK，接下来我们来看一下怎么往任务队里中放入线程任务：在java.util.concurrent.AbstractExecutorService这个类的submit方法</p>
+<h2 id="submit方法"><a href="#submit方法" class="headerlink" title="submit方法"></a>submit方法</h2><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br></pre></td><td class="code"><pre><span class="line">public Future&lt;?&gt; submit(Runnable task) &#123; if (task &#x3D;&#x3D; null) throw new NullPointerException();  </span><br><span class="line">    RunnableFuture&lt;Void&gt; ftask &#x3D; newTaskFor(task, null);  </span><br><span class="line">    execute(ftask);&#x2F;&#x2F;执行任务 </span><br><span class="line">    return ftask;  </span><br><span class="line">&#125; </span><br><span class="line">&#x2F;** </span><br><span class="line"> * @throws RejectedExecutionException &#123;@inheritDoc&#125; </span><br><span class="line"> * @throws NullPointerException       &#123;@inheritDoc&#125; *&#x2F;  </span><br><span class="line">public &lt;T&gt; Future&lt;T&gt; submit(Runnable task, T result) &#123; </span><br><span class="line">	if (task &#x3D;&#x3D; null) </span><br><span class="line">		throw new NullPointerException();  </span><br><span class="line">	RunnableFuture&lt;T&gt; ftask &#x3D; newTaskFor(task, result);  </span><br><span class="line">	execute(ftask);&#x2F;&#x2F;执行任务 </span><br><span class="line">	return ftask;  </span><br><span class="line">&#125; </span><br><span class="line">&#x2F;** </span><br><span class="line"> * @throws RejectedExecutionException &#123;@inheritDoc&#125; </span><br><span class="line"> * @throws NullPointerException       &#123;@inheritDoc&#125; *&#x2F;  </span><br><span class="line">public &lt;T&gt; Future&lt;T&gt; submit(Callable&lt;T&gt; task) &#123; </span><br><span class="line">	if (task &#x3D;&#x3D; null) throw new NullPointerException();  </span><br><span class="line">        RunnableFuture&lt;T&gt; ftask &#x3D; newTaskFor(task);  </span><br><span class="line">        execute(ftask);&#x2F;&#x2F;执行任务 </span><br><span class="line">        return ftask;  </span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+
+<p>这是三个重载方法，分别对应Runnable、带结果的Runnable接口和Callable回调函数。其中的newTaskFor也是一个重载的方法，它通过层层的包装，把Runnable接口包装成了适配RunnableFuture的实现类，底层实现如下：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">public FutureTask(Runnable runnable, V result) &#123; </span><br><span class="line">	this.callable &#x3D; Executors.callable(runnable, result); </span><br><span class="line">	this.state &#x3D; NEW;       &#x2F;&#x2F; ensure visibility of callable </span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+
+
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">public static &lt;T&gt; Callable&lt;T&gt; callable(Runnable task, T result) &#123; </span><br><span class="line">	if (task &#x3D;&#x3D; null) throw new NullPointerException(); </span><br><span class="line">	return new RunnableAdapter&lt;T&gt;(task, result);  </span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><span class="line">static final class RunnableAdapter&lt;T&gt; implements Callable&lt;T&gt; &#123; </span><br><span class="line"></span><br><span class="line">	final Runnable task; final T result;  </span><br><span class="line"></span><br><span class="line">	RunnableAdapter(Runnable task, T result) &#123; </span><br><span class="line">		this.task &#x3D; task; this.result &#x3D; result;  </span><br><span class="line">	&#125; </span><br><span class="line"></span><br><span class="line">	public T call() &#123;  </span><br><span class="line">        	task.run(); </span><br><span class="line">		return result;  </span><br><span class="line">    	&#125;  </span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+
+<p>在submit中最重要的是execute这个方法，这个方法也是我们分析的重点  </p>
+<h2 id="execute方法："><a href="#execute方法：" class="headerlink" title="execute方法："></a>execute方法：</h2><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br></pre></td><td class="code"><pre><span class="line">public void execute(Runnable command) &#123; </span><br><span class="line">	if (command &#x3D;&#x3D; null) throw new NullPointerException(); </span><br><span class="line">	int c &#x3D; ctl.get();</span><br><span class="line">	if (workerCountOf(c) &lt; corePoolSize) &#123;</span><br><span class="line">        	if (addWorker(command, true)) return;  </span><br><span class="line">	        c &#x3D; ctl.get();  </span><br><span class="line">    	&#125; </span><br><span class="line">	if (isRunning(c) &amp;&amp; workQueue.offer(command)) &#123; </span><br><span class="line">		int recheck &#x3D; ctl.get(); </span><br><span class="line">		if (! isRunning(recheck) &amp;&amp; remove(command))  </span><br><span class="line">            		reject(command); </span><br><span class="line">		else if (workerCountOf(recheck) &#x3D;&#x3D; 0)  </span><br><span class="line">            		addWorker(null, false);  </span><br><span class="line">	&#125; else if (!addWorker(command, false))  </span><br><span class="line">        	reject(command);  </span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+
+<p>在这个方法中分为三部分</p>
+<p>1、如果少于corePoolSize数量的线程在运行，则启动一个新的线程并把传进来的Runnable做为第一个任务。然后会检查线程的运行状态和worker的数量，阻止不符合要求的任务添加到线程中</p>
+<p>2、如果一个任务成功的放入到了队列中，我们仍然需要二次检查我们是否应该添加线程或者停止。因此我们重新检查线程状态，是否需要回滚队列，或者是停止或者是启动一个新的线程</p>
+<p>3、如果我们不能添加队列任务了，但是仍然在往队列中添加任务，如果添加失败的话,用拒绝策略来处理。</p>
+<p>这里最主要的是addWorker这个方法：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br></pre></td><td class="code"><pre><span class="line">try &#123;  </span><br><span class="line">    w &#x3D; new Worker(firstTask);  </span><br><span class="line">    final Thread t &#x3D; w.thread;  </span><br><span class="line">    if (t !&#x3D; null) &#123;  </span><br><span class="line">        final ReentrantLock mainLock &#x3D; this.mainLock;  </span><br><span class="line">        mainLock.lock();  </span><br><span class="line">        try &#123;  </span><br><span class="line">            &#x2F;&#x2F; Recheck while holding lock.  </span><br><span class="line">            &#x2F;&#x2F; Back out on ThreadFactory failure or if  </span><br><span class="line">            &#x2F;&#x2F; shut down before lock acquired.  </span><br><span class="line">            int rs &#x3D; runStateOf(ctl.get());  </span><br><span class="line">  </span><br><span class="line">            if (rs &lt; SHUTDOWN ||  </span><br><span class="line">                (rs &#x3D;&#x3D; SHUTDOWN &amp;&amp; firstTask &#x3D;&#x3D; null)) &#123;  </span><br><span class="line">                if (t.isAlive()) &#x2F;&#x2F; precheck that t is startable  </span><br><span class="line">                    throw new IllegalThreadStateException();  </span><br><span class="line">                workers.add(w);  </span><br><span class="line">                int s &#x3D; workers.size();  </span><br><span class="line">                if (s &gt; largestPoolSize)  </span><br><span class="line">                    largestPoolSize &#x3D; s;  </span><br><span class="line">                workerAdded &#x3D; true;  </span><br><span class="line">            &#125;  </span><br><span class="line">        &#125; finally &#123;  </span><br><span class="line">            mainLock.unlock();  </span><br><span class="line">        &#125;  </span><br><span class="line">        if (workerAdded) &#123;  </span><br><span class="line">            t.start();  </span><br><span class="line">            workerStarted &#x3D; true;  </span><br><span class="line">        &#125;  </span><br><span class="line">    &#125;  </span><br><span class="line">&#125; finally &#123;  </span><br><span class="line">    if (! workerStarted)  </span><br><span class="line">        addWorkerFailed(w);  </span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+
+<p>我们在这个方法里创建一个线程，注意这个线程不是我们的任务线程，而是经过包装的Worker线程。所以这里的run方法是Worker这个类中的run方法。execute方法是通过Worker类启动的一个工作线程，执行的是我们的第一个任务，然后该线程通过getTask方法从任务队列总获取任务，之后再继续执行。这个任务队列是一个BlockingQueue，是一个阻塞式的，也就是说如果该队列元素为0，则保持等待状态。直到有任务进入为止。</p>
+<h1 id="Java中的线程池"><a href="#Java中的线程池" class="headerlink" title="Java中的线程池"></a>Java中的线程池</h1><blockquote>
+<p>我们一般将任务(Task)提交到线程池中运行，对于一个线程池而言，需要关注的内容有以下几点：<br>在什么样的线程中执行任务<br>任务按照什么顺序来执行(FIFO,LIFO,优先级)<br>最多有多少个任务能并发执行<br>最多有多个任务等待执行<br>如果系统过载则需要拒绝一个任务，如何通知任务被拒绝？<br>在执行一个任务之前或之后需要进行哪些操作<br><strong>围绕上面的问题，我们来研究一下java中的线程池</strong></p>
+</blockquote>
+<h2 id="线程池的创建"><a href="#线程池的创建" class="headerlink" title="线程池的创建"></a>线程池的创建</h2><ul>
+<li>Exectors.newFixedThreadPool(int size)：创建一个固定大小的线程池。 每来一个任务创建一个线程，当线程数量为size将会停止创建。当线程池中的线程已满，继续提交任务，如果有空闲线程那么空闲线程去执行任务，否则将任务添加到一个无界的等待队列中。  </li>
+<li>Exectors.newCachedThreadPool():创建一个可缓存的线程池。对线程池的规模没有限制，当线程池的当前规模超过处理需求时(比如线程池中有10个线程，而需要处理的任务只有5个)，那么将回收空闲线程。当需求增加时则会添加新的线程。  </li>
+<li>Exectors.newSingleThreadExcutor():创建一个单线程的Executor,它创建单个工作者线程来执行任务，如果这个线程异常结束，它会创建另一个线程来代替。  </li>
+<li>Exectors.newScheduledThreadPool():创建一个固定长度的线程池，而且以延迟或定时的方式来执行任务。  </li>
+</ul>
+<p>上面都是通过工厂方法来创建线程池，其实它们内部都是通过创建ThreadPoolExector对象来创建线程池的。下面是ThreadPoolExctor的构造函数。</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line">public ThreadPoolExecutor(int corePoolSize, int maximumPoolSize, long keepAliveTime,</span><br><span class="line">                          TimeUnit unit,</span><br><span class="line">                          BlockingQueue&lt;Runnable&gt; workQueue,</span><br><span class="line">                          ThreadFactory threadFactory,</span><br><span class="line">                          RejectedExecutionHandler handler) &#123;</span><br><span class="line">    ...</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+
+
+<p>我们看到构造函数是public类型的，所以我们也可以自定义自己的线程池。</p>
+<h2 id="在什么样的线程中执行任务？"><a href="#在什么样的线程中执行任务？" class="headerlink" title="在什么样的线程中执行任务？"></a>在什么样的线程中执行任务？</h2><p>java中对于任务的描述有两种，一种是Runnable型的任务，一种是Callable型的任务。前者运行结束后不会返回任何东西，而后者可以返回我们需要的计算结果，甚至异常。</p>
+<h5 id="在没有返回值的线程中运行"><a href="#在没有返回值的线程中运行" class="headerlink" title="在没有返回值的线程中运行"></a>在没有返回值的线程中运行</h5><p>创建一个线程池，然后调用其execute方法，并将一个Runnable对象传递进去即可。</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">ExectorService exector &#x3D; Exectors.newCachedThreadPool();</span><br><span class="line">exector.execute(new Runnable()&#123;</span><br><span class="line">	public void run()&#123;</span><br><span class="line">		System.out.println(&quot;running...&quot;);</span><br><span class="line">	&#125;</span><br><span class="line">&#125;);</span><br></pre></td></tr></table></figure>
+
+<h5 id="在有返回值的线程中运行"><a href="#在有返回值的线程中运行" class="headerlink" title="在有返回值的线程中运行"></a>在有返回值的线程中运行</h5><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line">ExectorService exector &#x3D; Exectors.newCachedThreadPool();</span><br><span class="line">Callable&lt;Result&gt; task &#x3D; new Callable&lt;Result&gt;() &#123;</span><br><span class="line">    public Result call() &#123;</span><br><span class="line">        return new Computor().compute();</span><br><span class="line">    &#125;</span><br><span class="line">&#125;;</span><br><span class="line">Future&lt;Result&gt; future &#x3D; exector.submit(task);</span><br><span class="line">result &#x3D; future.get();  &#x2F;&#x2F;改方法会一直阻塞，直到提交的任务被运行完毕</span><br></pre></td></tr></table></figure>
+
+
+<h2 id="任务按照什么顺序来执行-FIFO-优先级"><a href="#任务按照什么顺序来执行-FIFO-优先级" class="headerlink" title="任务按照什么顺序来执行(FIFO,优先级)"></a>任务按照什么顺序来执行(FIFO,优先级)</h2><p>如果任务按照某种顺序来执行的话，则任务一定是串行执行的。我们可以看到在ThreadPoolExecutor中第四个参数是BlockingQueue,提交的任务都先放到该队列中。如果传入不同的BlockQueue就可以实现不同的执行顺序。传入LinkedBlockingQueue则表示先来先服务，传入PriorityBlockingQueue则使用优先级来处理任务</p>
+<p>Exectors.newSingleThreadExcutor()使用的是先来先服务策略</p>
+<h2 id="最多有多少个任务能并发执行"><a href="#最多有多少个任务能并发执行" class="headerlink" title="最多有多少个任务能并发执行"></a>最多有多少个任务能并发执行</h2><p>线程池中的线程会不断从workQueue中取任务来执行，如果没任务可执行，则线程处于空闲状态。<br>在ThreadPoolExecutor中有两个参数corePoolSize和maximumPoolSize，前者被称为基本大小，表示一个线程池初始化时，里面应该有的一定数量的线程。但是默认情况下，ThreadPoolExecutor在初始化是并不会马上创建corePoolSize个线程对象，它使用的是懒加载模式。</p>
+<ul>
+<li>当线程数小于corePoolSize时,提交一个任务创建一个线程(即使这时有空闲线程)来执行该任务。</li>
+<li>当线程数大于等于corePoolSize，首选将任务添加等待队列workQueue中（这里的workQueue是上面的BlockingQueue），等有空闲线程时，让空闲线程从队列中取任务。</li>
+<li>当等待队列满时，如果线程数量小于maximumPoolSize则创建新的线程，否则使用拒绝线程处理器来处理提交的任务。</li>
+</ul>
+<h2 id="最多有多少的任务等待执行"><a href="#最多有多少的任务等待执行" class="headerlink" title="最多有多少的任务等待执行"></a>最多有多少的任务等待执行</h2><p>这个问题和BlockingQueue相关。 BlockingQueue有三个子类，一个是ArrayBlockingQueue(有界队列),一个是LinkedBlockingQueue(默认无界，但可以配置为有界)，PriorityBlockingQueue(默认无界，可配置为有界)。所以，对于有多少个任务等待执行与传入的阻塞队列有关。</p>
+<p><strong>newFixedThreadPool</strong>和<strong>newSingleThreadExector</strong>使用的是LinkedBlockingQueue的无界模式。而<strong>newCachedThreadPool</strong>使用的是SynchronousQueue，这种情况下线程是不需要排队等待的，SynchronousQueue适用于线程池规模无界。</p>
+<h2 id="如果系统过载则需要拒绝一个任务，如何通知任务被拒绝？"><a href="#如果系统过载则需要拒绝一个任务，如何通知任务被拒绝？" class="headerlink" title="如果系统过载则需要拒绝一个任务，如何通知任务被拒绝？"></a>如果系统过载则需要拒绝一个任务，如何通知任务被拒绝？</h2><p>当有界队列被填满或者某个任务被提交到一个已关闭的Executor时将会启动饱和策略，即使用RejectedExecutionHandler来处理。JDK中提供了几种不同的RejectedExecutionHandler的实现：AbortPolicy，CallerRunsPolicy, DiscardPolicy和DiscardOldestPolicy。</p>
+<p><strong>AbortPolicy：</strong>默认的饱和策略。该策略将抛出未检查的<strong>RejectedExcutionException</strong>,调用者可以捕获这个异常，然后根据自己的需求来处理。</p>
+<p><strong>DiscardPolicy：</strong>该策略将会抛弃提交的任务</p>
+<p><strong>DiscardOldestPolicy：</strong>该策略将会抛弃下一个将被执行的任务(处于队头的任务)，然后尝试重新提交该任务到等待队列</p>
+<p><strong>CallerRunsPolicy:</strong>该策略既不会抛弃任务也不会抛出异常，而是在调用execute()的线程中运行任务。比如我们在主线程中调用了execute(task)方法，但是这时workQueue已经满了，并且也不会创建的新的线程了。这时候将会在主线程中直接运行execute中的task。</p>
+<h2 id="在执行一个任务之前或之后需要进行哪些操作"><a href="#在执行一个任务之前或之后需要进行哪些操作" class="headerlink" title="在执行一个任务之前或之后需要进行哪些操作"></a>在执行一个任务之前或之后需要进行哪些操作</h2><p><strong>ThreadPoolExecutor</strong>是可扩展的，它提供了几个可以重载的方法：<strong>beforeExecute</strong>,<strong>afterExecute</strong>和<strong>terminated</strong>,这里用到了面向的切面编程的思想。无论任务是从run中正常返回，还是抛出异常而返回，<strong>afterExectue</strong>都会被调用。如果 <strong>beforeExecute</strong>中抛出了一个 <strong>RunntimeException</strong>,那么任务将不会被执行，并且 <strong>afterExecute</strong>也不会被调用。</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br></pre></td><td class="code"><pre><span class="line">import java.util.concurrent.BlockingQueue;</span><br><span class="line">import java.util.concurrent.LinkedBlockingQueue;</span><br><span class="line">import java.util.concurrent.ThreadPoolExecutor;</span><br><span class="line">import java.util.concurrent.TimeUnit;</span><br><span class="line">import java.util.concurrent.atomic.AtomicLong;</span><br><span class="line"></span><br><span class="line">public class Test &#123;</span><br><span class="line"></span><br><span class="line">    public static void main(String[] args) &#123;</span><br><span class="line">        TimingThreadPool executor &#x3D; new TimingThreadPool(5, 10, 1,</span><br><span class="line">                TimeUnit.MINUTES, new LinkedBlockingQueue&lt;Runnable&gt;());</span><br><span class="line">        for (int i &#x3D; 0; i &lt; 5; i++)</span><br><span class="line">            executor.execute(new Runnable() &#123;</span><br><span class="line">                @Override</span><br><span class="line">                public void run() &#123;</span><br><span class="line">                    System.out.println(&quot;running1....&quot;);</span><br><span class="line">                &#125;</span><br><span class="line">            &#125;);</span><br><span class="line">        executor.shutdown();</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line">class TimingThreadPool extends ThreadPoolExecutor &#123;</span><br><span class="line"></span><br><span class="line">    private final ThreadLocal&lt;Long&gt; startTime &#x3D; new ThreadLocal&lt;Long&gt;();</span><br><span class="line">    private final AtomicLong numTasks &#x3D; new AtomicLong();</span><br><span class="line">    private final AtomicLong totalTime &#x3D; new AtomicLong();</span><br><span class="line"></span><br><span class="line">    public TimingThreadPool(int corePoolSize, int maximumPoolSize,</span><br><span class="line">            long keepAliveTime, TimeUnit unit, BlockingQueue&lt;Runnable&gt; workQueue) &#123;</span><br><span class="line">        super(corePoolSize, maximumPoolSize, keepAliveTime, unit, workQueue);</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    @Override</span><br><span class="line">    protected void beforeExecute(Thread t, Runnable r) &#123;</span><br><span class="line">        super.beforeExecute(t, r);</span><br><span class="line">        startTime.set(System.nanoTime());</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    @Override</span><br><span class="line">    protected void afterExecute(Runnable r, Throwable t) &#123;</span><br><span class="line">        try &#123;</span><br><span class="line">            long endTime &#x3D; System.nanoTime();</span><br><span class="line">            long taskTime &#x3D; endTime - startTime.get();</span><br><span class="line">            numTasks.incrementAndGet();</span><br><span class="line">            totalTime.addAndGet(taskTime);</span><br><span class="line">        &#125; finally &#123;</span><br><span class="line">            super.afterExecute(r, t);</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    @Override</span><br><span class="line">    protected void terminated() &#123;</span><br><span class="line">        try &#123;</span><br><span class="line">            System.out.println(String.format(&quot;Terminated: arg time &#x3D; %d&quot;,</span><br><span class="line">                    totalTime.get() &#x2F; numTasks.get()));</span><br><span class="line">        &#125; finally &#123;</span><br><span class="line">            super.terminated();</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+
+<p>上面的代码统计任务平均执行时间，在每个线程中beforeExecute和afertExecute都会执行一次，而terminated等线程池关闭的时候执行</p>
+
+    </div>
+
+    
+    
+    
+
+      <footer class="post-footer">
+          <div class="post-tags">
+              <a href="/tags/Java/" rel="tag"># Java</a>
+          </div>
+
+        
+
+
+        
+    <div class="post-nav">
+      <div class="post-nav-item">
+    <a href="/articles/2019/08/26/1566806934099.html/" rel="prev" title="论integer是地址传递还是值传递 ">
+      <i class="fa fa-chevron-left"></i> 论integer是地址传递还是值传递 
+    </a></div>
+      <div class="post-nav-item">
+    <a href="/articles/2019/09/04/1567559131992.html/" rel="next" title="JDK中常用的设计模式">
+      JDK中常用的设计模式 <i class="fa fa-chevron-right"></i>
+    </a></div>
+    </div>
+      </footer>
+    
+  </article>
+  
+  
+  
+
+  </div>
+
+
+          </div>
+          
+
+<script>
+  window.addEventListener('tabs:register', () => {
+    let activeClass = CONFIG.comments.activeClass;
+    if (CONFIG.comments.storage) {
+      activeClass = localStorage.getItem('comments_active') || activeClass;
+    }
+    if (activeClass) {
+      let activeTab = document.querySelector(`a[href="#comment-${activeClass}"]`);
+      if (activeTab) {
+        activeTab.click();
+      }
+    }
+  });
+  if (CONFIG.comments.storage) {
+    window.addEventListener('tabs:click', event => {
+      if (!event.target.matches('.tabs-comment .tab-content .tab-pane')) return;
+      let commentClass = event.target.classList[1];
+      localStorage.setItem('comments_active', commentClass);
+    });
+  }
+</script>
+
+        </div>
+          
+  
+  <div class="toggle sidebar-toggle">
+    <span class="toggle-line toggle-line-first"></span>
+    <span class="toggle-line toggle-line-middle"></span>
+    <span class="toggle-line toggle-line-last"></span>
+  </div>
+
+  <aside class="sidebar">
+    <div class="sidebar-inner">
+
+      <ul class="sidebar-nav motion-element">
+        <li class="sidebar-nav-toc">
+          Inhaltsverzeichnis
+        </li>
+        <li class="sidebar-nav-overview">
+          Übersicht
+        </li>
+      </ul>
+
+      <!--noindex-->
+      <div class="post-toc-wrap sidebar-panel">
+          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#创建newFixedThreadPool的方法："><span class="nav-number">1.</span> <span class="nav-text">创建newFixedThreadPool的方法：</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#ThreadPoolExecutor的构造函数："><span class="nav-number">2.</span> <span class="nav-text">ThreadPoolExecutor的构造函数：</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#corePoolSize："><span class="nav-number">2.1.</span> <span class="nav-text">corePoolSize：</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#maxinumPoolSize："><span class="nav-number">2.2.</span> <span class="nav-text">maxinumPoolSize：</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#keepAliveTime："><span class="nav-number">2.3.</span> <span class="nav-text">keepAliveTime：</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#unit："><span class="nav-number">2.4.</span> <span class="nav-text">unit：</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#workQueue："><span class="nav-number">2.5.</span> <span class="nav-text">workQueue：</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#threadFactory："><span class="nav-number">2.6.</span> <span class="nav-text">threadFactory：</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#handler："><span class="nav-number">2.7.</span> <span class="nav-text">handler：</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#submit方法"><span class="nav-number">3.</span> <span class="nav-text">submit方法</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#execute方法："><span class="nav-number">4.</span> <span class="nav-text">execute方法：</span></a></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#Java中的线程池"><span class="nav-number"></span> <span class="nav-text">Java中的线程池</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#线程池的创建"><span class="nav-number">1.</span> <span class="nav-text">线程池的创建</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#在什么样的线程中执行任务？"><span class="nav-number">2.</span> <span class="nav-text">在什么样的线程中执行任务？</span></a><ol class="nav-child"><li class="nav-item nav-level-5"><a class="nav-link" href="#在没有返回值的线程中运行"><span class="nav-number">2.0.0.1.</span> <span class="nav-text">在没有返回值的线程中运行</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#在有返回值的线程中运行"><span class="nav-number">2.0.0.2.</span> <span class="nav-text">在有返回值的线程中运行</span></a></li></ol></li></ol></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#任务按照什么顺序来执行-FIFO-优先级"><span class="nav-number">3.</span> <span class="nav-text">任务按照什么顺序来执行(FIFO,优先级)</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#最多有多少个任务能并发执行"><span class="nav-number">4.</span> <span class="nav-text">最多有多少个任务能并发执行</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#最多有多少的任务等待执行"><span class="nav-number">5.</span> <span class="nav-text">最多有多少的任务等待执行</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#如果系统过载则需要拒绝一个任务，如何通知任务被拒绝？"><span class="nav-number">6.</span> <span class="nav-text">如果系统过载则需要拒绝一个任务，如何通知任务被拒绝？</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#在执行一个任务之前或之后需要进行哪些操作"><span class="nav-number">7.</span> <span class="nav-text">在执行一个任务之前或之后需要进行哪些操作</span></a></li></ol></div>
+      </div>
+      <!--/noindex-->
+
+      <div class="site-overview-wrap sidebar-panel">
+        <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+  <p class="site-author-name" itemprop="name">liumapp</p>
+  <div class="site-description" itemprop="description"></div>
+</div>
+<div class="site-state-wrap motion-element">
+  <nav class="site-state">
+      <div class="site-state-item site-state-posts">
+          <a href="/archives/">
+        
+          <span class="site-state-item-count">165</span>
+          <span class="site-state-item-name">Artikel</span>
+        </a>
+      </div>
+      <div class="site-state-item site-state-tags">
+        <span class="site-state-item-count">88</span>
+        <span class="site-state-item-name">schlagwörter</span>
+      </div>
+  </nav>
+</div>
+
+
+
+      </div>
+
+    </div>
+  </aside>
+  <div id="sidebar-dimmer"></div>
+
+
+      </div>
+    </main>
+
+    <footer class="footer">
+      <div class="footer-inner">
+        
+
+<div class="copyright">
+  
+  &copy; 
+  <span itemprop="copyrightYear">2020</span>
+  <span class="with-love">
+    <i class="fa fa-user"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">liumapp.com@gmail.com</span>
+</div>
+  <div class="powered-by">Erstellt mit  <a href="https://hexo.io/" class="theme-link" rel="noopener" target="_blank">Hexo</a> v4.2.0
+  </div>
+  <span class="post-meta-divider">|</span>
+  <div class="theme-info">Design – <a href="https://theme-next.org/" class="theme-link" rel="noopener" target="_blank">NexT.Gemini</a> v7.7.0
+  </div>
+
+        
+
+
+
+
+
+
+
+
+      </div>
+    </footer>
+  </div>
+
+  
+  <script src="/lib/anime.min.js"></script>
+  <script src="/lib/velocity/velocity.min.js"></script>
+  <script src="/lib/velocity/velocity.ui.min.js"></script>
+
+<script src="/js/utils.js"></script>
+
+<script src="/js/motion.js"></script>
+
+
+<script src="/js/schemes/pisces.js"></script>
+
+
+<script src="/js/next-boot.js"></script>
+
+
+
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+
+  
+
+</body>
+</html>

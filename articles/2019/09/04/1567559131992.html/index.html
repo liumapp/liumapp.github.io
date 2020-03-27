@@ -1,0 +1,551 @@
+<!DOCTYPE html>
+<html lang="zh-Hans">
+<head>
+  <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=2">
+<meta name="theme-color" content="#222">
+<meta name="generator" content="Hexo 4.2.0">
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png">
+  <link rel="mask-icon" href="/images/logo.svg" color="#222">
+
+<link rel="stylesheet" href="/css/main.css">
+
+
+<link rel="stylesheet" href="/lib/font-awesome/css/font-awesome.min.css">
+
+
+<script id="hexo-configurations">
+  var NexT = window.NexT || {};
+  var CONFIG = {
+    hostname: new URL('http://www.liumapp.com').hostname,
+    root: '/',
+    scheme: 'Gemini',
+    version: '7.7.0',
+    exturl: false,
+    sidebar: {"position":"left","display":"post","padding":18,"offset":12,"onmobile":false},
+    copycode: {"enable":false,"show_result":false,"style":null},
+    back2top: {"enable":true,"sidebar":false,"scrollpercent":false},
+    bookmark: {"enable":false,"color":"#222","save":"auto"},
+    fancybox: false,
+    mediumzoom: false,
+    lazyload: false,
+    pangu: false,
+    comments: {"style":"tabs","active":null,"storage":true,"lazyload":false,"nav":null},
+    algolia: {
+      appID: '',
+      apiKey: '',
+      indexName: '',
+      hits: {"per_page":10},
+      labels: {"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}
+    },
+    localsearch: {"enable":false,"trigger":"auto","top_n_per_article":1,"unescape":false,"preload":false},
+    path: '',
+    motion: {"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}}
+  };
+</script>
+
+  <meta name="description" content="转自：https:&#x2F;&#x2F;yq.aliyun.com&#x2F;articles&#x2F;38175 在软件工程中，设计模式（design pattern）是对软件设计中普遍存在（反复出现）的各种问题，所提出的解决方案。以下是整理的几个在JDK库中常用的几个设计模式。  Birdge 桥接模式   这个模式将抽象和抽象操作的实现进行了解耦，这样使得抽象和实现可以独立地变化。GOF在提出桥梁模式的时候指出，桥梁模式的用意">
+<meta property="og:type" content="article">
+<meta property="og:title" content="JDK中常用的设计模式">
+<meta property="og:url" content="http://www.liumapp.com/articles/2019/09/04/1567559131992.html/index.html">
+<meta property="og:site_name" content="liumapp">
+<meta property="og:description" content="转自：https:&#x2F;&#x2F;yq.aliyun.com&#x2F;articles&#x2F;38175 在软件工程中，设计模式（design pattern）是对软件设计中普遍存在（反复出现）的各种问题，所提出的解决方案。以下是整理的几个在JDK库中常用的几个设计模式。  Birdge 桥接模式   这个模式将抽象和抽象操作的实现进行了解耦，这样使得抽象和实现可以独立地变化。GOF在提出桥梁模式的时候指出，桥梁模式的用意">
+<meta property="article:published_time" content="2019-09-04T01:05:32.000Z">
+<meta property="article:modified_time" content="2019-09-04T01:05:32.000Z">
+<meta property="article:author" content="liumapp">
+<meta property="article:tag" content="Java">
+<meta name="twitter:card" content="summary">
+
+<link rel="canonical" href="http://www.liumapp.com/articles/2019/09/04/1567559131992.html/">
+
+
+<script id="page-configurations">
+  // https://hexo.io/docs/variables.html
+  CONFIG.page = {
+    sidebar: "",
+    isHome: false,
+    isPost: true
+  };
+</script>
+
+  <title>JDK中常用的设计模式 | liumapp</title>
+  
+
+
+
+
+
+
+  <noscript>
+  <style>
+  .use-motion .brand,
+  .use-motion .menu-item,
+  .sidebar-inner,
+  .use-motion .post-block,
+  .use-motion .pagination,
+  .use-motion .comments,
+  .use-motion .post-header,
+  .use-motion .post-body,
+  .use-motion .collection-header { opacity: initial; }
+
+  .use-motion .site-title,
+  .use-motion .site-subtitle {
+    opacity: initial;
+    top: initial;
+  }
+
+  .use-motion .logo-line-before i { left: initial; }
+  .use-motion .logo-line-after i { right: initial; }
+  </style>
+</noscript>
+
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage">
+  <div class="container use-motion">
+    <div class="headband"></div>
+
+    <header class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-container">
+  <div class="site-meta">
+
+    <div>
+      <a href="/" class="brand" rel="start">
+        <span class="logo-line-before"><i></i></span>
+        <span class="site-title">liumapp</span>
+        <span class="logo-line-after"><i></i></span>
+      </a>
+    </div>
+  </div>
+
+  <div class="site-nav-toggle">
+    <div class="toggle" aria-label="Navigationsleiste an/ausschalten">
+      <span class="toggle-line toggle-line-first"></span>
+      <span class="toggle-line toggle-line-middle"></span>
+      <span class="toggle-line toggle-line-last"></span>
+    </div>
+  </div>
+</div>
+
+
+<nav class="site-nav">
+  
+  <ul id="menu" class="menu">
+        <li class="menu-item menu-item-home">
+
+    <a href="/" rel="section"><i class="fa fa-fw fa-home"></i>Startseite</a>
+
+  </li>
+        <li class="menu-item menu-item-archives">
+
+    <a href="/archives/" rel="section"><i class="fa fa-fw fa-archive"></i>Archiv</a>
+
+  </li>
+  </ul>
+
+</nav>
+</div>
+    </header>
+
+    
+  <div class="back-to-top">
+    <i class="fa fa-arrow-up"></i>
+    <span>0%</span>
+  </div>
+
+  <a href="https://github.com/liumapp" class="github-corner" title="Follow me on GitHub" aria-label="Follow me on GitHub" rel="noopener" target="_blank"><svg width="80" height="80" viewBox="0 0 250 250" aria-hidden="true"><path d="M0,0 L115,115 L130,115 L142,142 L250,250 L250,0 Z"></path><path d="M128.3,109.0 C113.8,99.7 119.0,89.6 119.0,89.6 C122.0,82.7 120.5,78.6 120.5,78.6 C119.2,72.0 123.4,76.3 123.4,76.3 C127.3,80.9 125.5,87.3 125.5,87.3 C122.9,97.6 130.6,101.9 134.4,103.2" fill="currentColor" style="transform-origin: 130px 106px;" class="octo-arm"></path><path d="M115.0,115.0 C114.9,115.1 118.7,116.5 119.8,115.4 L133.7,101.6 C136.9,99.2 139.9,98.4 142.2,98.6 C133.8,88.0 127.5,74.4 143.8,58.0 C148.5,53.4 154.0,51.2 159.7,51.0 C160.3,49.4 163.2,43.6 171.4,40.1 C171.4,40.1 176.1,42.5 178.8,56.2 C183.1,58.6 187.2,61.8 190.9,65.4 C194.5,69.0 197.7,73.2 200.1,77.6 C213.8,80.2 216.3,84.9 216.3,84.9 C212.7,93.1 206.9,96.0 205.4,96.6 C205.1,102.4 203.0,107.8 198.3,112.5 C181.9,128.9 168.3,122.5 157.7,114.1 C157.9,116.9 156.7,120.9 152.7,124.9 L141.0,136.5 C139.8,137.7 141.6,141.9 141.8,141.8 Z" fill="currentColor" class="octo-body"></path></svg></a>
+
+
+    <main class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          
+
+          <div class="content">
+            
+
+  <div class="posts-expand">
+      
+  
+  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block " lang="zh-Hans">
+    <link itemprop="mainEntityOfPage" href="http://www.liumapp.com/articles/2019/09/04/1567559131992.html/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/avatar.gif">
+      <meta itemprop="name" content="liumapp">
+      <meta itemprop="description" content="">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="liumapp">
+    </span>
+      <header class="post-header">
+        <h1 class="post-title" itemprop="name headline">
+          JDK中常用的设计模式
+        </h1>
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              <span class="post-meta-item-text">Veröffentlicht am</span>
+
+              <time title="Erstellt: 2019-09-04 09:05:32" itemprop="dateCreated datePublished" datetime="2019-09-04T09:05:32+08:00">2019-09-04</time>
+            </span>
+
+          
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+        <p>转自：<a href="https://yq.aliyun.com/articles/38175" target="_blank" rel="noopener">https://yq.aliyun.com/articles/38175</a></p>
+<p>在软件工程中，设计模式（design pattern）是对软件设计中普遍存在（反复出现）的各种问题，所提出的解决方案。以下是整理的几个在JDK库中常用的几个设计模式。</p>
+<ul>
+<li><p>Birdge 桥接模式</p>
+<p>  这个模式将抽象和抽象操作的实现进行了解耦，这样使得抽象和实现可以独立地变化。<br>GOF在提出桥梁模式的时候指出，桥梁模式的用意是”将抽象化(Abstraction)与实现化(Implementation)脱耦，使得二者可以独立地变化”。这句话有三个关键词，也就是抽象化、实现化和脱耦。<br>在Java应用中，对于桥接模式有一个非常典型的例子，就是应用程序使用JDBC驱动程序进行开发的方式。所谓驱动程序，指的是按照预先约定好的接口来操作计算机系统或者是外围设备的程序。</p>
+</li>
+<li><p>Adapter 适配器模式</p>
+<p>  用来把一个接口转化成另一个接口。使得原本由于接口不兼容而不能一起工作的那些类可以在一起工作。</p>
+<pre><code>java.util.Arrays#asList()
+java.io.InputStreamReader(InputStream)
+java.io.OutputStreamWriter(OutputStream)</code></pre></li>
+</ul>
+<a id="more"></a>
+
+<ul>
+<li><p>Composite 组合模式</p>
+<p>  又叫做部分-整体模式，使得客户端看来单个对象和对象的组合是同等的。换句话说，某个类型的方法同时也接受自身类型作为参数。</p>
+<pre><code>avax.swing.JComponent#add(Component)
+java.util.Map#putAll(Map)
+java.util.List#addAll(Collection)
+java.util.Set#addAll(Collection)</code></pre></li>
+<li><p>装饰者模式</p>
+<p>  动态的给一个对象附加额外的功能，这也是子类的一种替代方式。可以看到，在创建一个类型的时候，同时也传入同一类型的对象。这在JDK里随处可见，你会发现它无处不在，所以下面这个列表只是一小部分。</p>
+<pre><code>java.io.BufferedInputStream(InputStream)
+java.io.DataInputStream(InputStream)
+java.io.BufferedOutputStream(OutputStream)
+java.util.zip.ZipOutputStream(OutputStream)
+java.util.Collections#checkedList|Map|Set|SortedSet|SortedMap</code></pre></li>
+<li><p>Facade 门面模式，即外观模式</p>
+<p>  给一组组件，接口，抽象，或者子系统提供一个简单的接口。</p>
+<pre><code>java.lang.Class
+javax.faces.webapp.FacesServlet</code></pre></li>
+<li><p>Flyweight 享元模式</p>
+<p>  使用缓存来加速大量小对象的访问时间。</p>
+<pre><code>java.lang.Integer#valueOf(int)
+java.lang.Boolean#valueOf(boolean)
+java.lang.Byte#valueOf(byte)
+java.lang.Character#valueOf(char)</code></pre></li>
+<li><p>Proxy 代理模式</p>
+<p>  代理模式是用一个简单的对象来代替一个复杂的或者创建耗时的对象。</p>
+<pre><code>java.lang.reflect.Proxy
+RMI</code></pre></li>
+<li><p>Abstract Factory 抽象工厂模式</p>
+<p>  抽象工厂模式提供了一个协议来生成一系列的相关或者独立的对象，而不用指定具体对象的类型。它使得应用程序能够和使用的框架的具体实现进行解耦。这在JDK或者许多框架比如Spring中都随处可见。它们也很容易识别，一个创建新对象的方法，返回的却是接口或者抽象类的，就是抽象工厂模式了。</p>
+<pre><code>java.util.Calendar#getInstance()
+java.util.Arrays#asList()
+java.util.ResourceBundle#getBundle()
+java.sql.DriverManager#getConnection()
+java.sql.Connection#createStatement()
+java.sql.Statement#executeQuery()
+java.text.NumberFormat#getInstance()
+javax.xml.transform.TransformerFactory#newInstance()</code></pre></li>
+<li><p>抽象工厂模式</p>
+<p>  抽象工厂模式提供了一个协议来生成一系列的相关或者独立的对象，而不用指定具体对象的类型。它使得应用程序能够和使用的框架的具体实现进行解耦。这在JDK或者许多框架比如Spring中都随处可见。它们也很容易识别，一个创建新对象的方法，返回的却是接口或者抽象类的，就是抽象工厂模式了。</p>
+<pre><code>java.util.Calendar#getInstance()
+java.util.Arrays#asList()
+java.util.ResourceBundle#getBundle()
+java.sql.DriverManager#getConnection()
+java.sql.Connection#createStatement()
+java.sql.Statement#executeQuery()
+java.text.NumberFormat#getInstance()
+javax.xml.transform.TransformerFactory#newInstance()</code></pre></li>
+<li><p>Builder 建造者模式</p>
+<p>  定义了一个新的类来构建另一个类的实例，以简化复杂对象的创建。建造模式通常也使用方法链接来实现。</p>
+<pre><code>java.lang.StringBuilder#append()
+java.lang.StringBuffer#append()
+java.sql.PreparedStatement
+javax.swing.GroupLayout.Group#addComponent()</code></pre></li>
+<li><p>工厂方法</p>
+<p>  就是一个返回具体对象的方法。</p>
+<pre><code>java.lang.Proxy#newProxyInstance()
+java.lang.Object#toString()
+java.lang.Class#newInstance()
+java.lang.reflect.Array#newInstance()
+java.lang.reflect.Constructor#newInstance()
+java.lang.Boolean#valueOf(String)
+java.lang.Class#forName()</code></pre></li>
+<li><p>原型模式</p>
+<p>  使得类的实例能够生成自身的拷贝。如果创建一个对象的实例非常复杂且耗时时，就可以使用这种模式，而不重新创建一个新的实例，你可以拷贝一个对象并直接修改它。</p>
+<pre><code>java.lang.Object#clone()
+java.lang.Cloneable</code></pre></li>
+<li><p>单例模式</p>
+<p>  用来确保类只有一个实例。Joshua Bloch在Effetive Java中建议到，还有一种方法就是使用枚举。</p>
+<pre><code>java.lang.Runtime#getRuntime()
+java.awt.Toolkit#getDefaultToolkit()
+java.awt.GraphicsEnvironment#getLocalGraphicsEnvironment()
+java.awt.Desktop#getDesktop()</code></pre></li>
+</ul>
+<ul>
+<li><p>责任链模式</p>
+<p>  通过把请求从一个对象传递到链条中下一个对象的方式，直到请求被处理完毕，以实现对象间的解耦。</p>
+<pre><code>java.util.logging.Logger#log()
+javax.servlet.Filter#doFilter()</code></pre></li>
+</ul>
+<ul>
+<li><p>命令模式</p>
+<p>  将操作封装到对象内，以便存储，传递和返回。</p>
+<pre><code>java.lang.Runnable
+javax.swing.Action</code></pre></li>
+<li><p>解释器模式</p>
+<p>  这个模式通常定义了一个语言的语法，然后解析相应语法的语句。</p>
+<pre><code>java.util.Pattern
+java.text.Normalizer
+java.text.Format</code></pre></li>
+<li><p>迭代器模式</p>
+<p>  提供一个一致的方法来顺序访问集合中的对象，这个方法与底层的集合的具体实现无关。</p>
+<pre><code>java.util.Iterator
+java.util.Enumeration</code></pre></li>
+<li><p>中介者模式</p>
+<p>  通过使用一个中间对象来进行消息分发以及减少类之间的直接依赖。</p>
+<pre><code>java.util.Timer
+java.util.concurrent.Executor#execute()
+java.util.concurrent.ExecutorService#submit()
+java.lang.reflect.Method#invoke()</code></pre></li>
+<li><p>备忘录模式</p>
+<p>  生成对象状态的一个快照，以便对象可以恢复原始状态而不用暴露自身的内容。Date对象通过自身内部的一个long值来实现备忘录模式。</p>
+<pre><code>java.util.Date
+java.io.Serializable</code></pre></li>
+<li><p>空对象模式</p>
+<p>  这个模式通过一个无意义的对象来代替没有对象这个状态。它使得你不用额外对空对象进行处理。</p>
+<pre><code>java.util.Collections#emptyList()
+java.util.Collections#emptyMap()
+java.util.Collections#emptySet()</code></pre></li>
+<li><p>观察者模式</p>
+<p>  它使得一个对象可以灵活的将消息发送给感兴趣的对象。</p>
+<pre><code>java.util.EventListener
+javax.servlet.http.HttpSessionBindingListener
+javax.servlet.http.HttpSessionAttributeListener
+javax.faces.event.PhaseListener</code></pre></li>
+<li><p>状态模式</p>
+<p>  通过改变对象内部的状态，使得你可以在运行时动态改变一个对象的行为。</p>
+<pre><code>java.util.Iterator
+javax.faces.lifecycle.LifeCycle#execute()</code></pre></li>
+<li><p>策略模式</p>
+<p>  使用这个模式来将一组算法封装成一系列对象。通过传递这些对象可以灵活的改变程序的功能。</p>
+<pre><code>java.util.Comparator#compare()
+javax.servlet.http.HttpServlet
+javax.servlet.Filter#doFilter()</code></pre></li>
+<li><p>模板方法模式</p>
+<p>  让子类可以重写方法的一部分，而不是整个重写，你可以控制子类需要重写那些操作。</p>
+<pre><code>java.util.Collections#sort()
+java.io.InputStream#skip()
+java.io.InputStream#read()
+java.util.AbstractList#indexOf()</code></pre></li>
+<li><p>访问者模式</p>
+<p>  提供一个方便的可维护的方式来操作一组对象。它使得你在不改变操作的对象前提下，可以修改或者扩展对象的行为。</p>
+<pre><code>javax.lang.model.element.Element and javax.lang.model.element.ElementVisitor
+javax.lang.model.type.TypeMirror and javax.lang.model.type.TypeVisitor</code></pre></li>
+</ul>
+
+    </div>
+
+    
+    
+    
+
+      <footer class="post-footer">
+          <div class="post-tags">
+              <a href="/tags/Java/" rel="tag"># Java</a>
+          </div>
+
+        
+
+
+        
+    <div class="post-nav">
+      <div class="post-nav-item">
+    <a href="/articles/2019/08/26/1566821421592.html/" rel="prev" title="多线程之线程池-各个参数的含义">
+      <i class="fa fa-chevron-left"></i> 多线程之线程池-各个参数的含义
+    </a></div>
+      <div class="post-nav-item">
+    <a href="/articles/2019/09/10/1568078113519.html/" rel="next" title="redis cli命令">
+      redis cli命令 <i class="fa fa-chevron-right"></i>
+    </a></div>
+    </div>
+      </footer>
+    
+  </article>
+  
+  
+  
+
+  </div>
+
+
+          </div>
+          
+
+<script>
+  window.addEventListener('tabs:register', () => {
+    let activeClass = CONFIG.comments.activeClass;
+    if (CONFIG.comments.storage) {
+      activeClass = localStorage.getItem('comments_active') || activeClass;
+    }
+    if (activeClass) {
+      let activeTab = document.querySelector(`a[href="#comment-${activeClass}"]`);
+      if (activeTab) {
+        activeTab.click();
+      }
+    }
+  });
+  if (CONFIG.comments.storage) {
+    window.addEventListener('tabs:click', event => {
+      if (!event.target.matches('.tabs-comment .tab-content .tab-pane')) return;
+      let commentClass = event.target.classList[1];
+      localStorage.setItem('comments_active', commentClass);
+    });
+  }
+</script>
+
+        </div>
+          
+  
+  <div class="toggle sidebar-toggle">
+    <span class="toggle-line toggle-line-first"></span>
+    <span class="toggle-line toggle-line-middle"></span>
+    <span class="toggle-line toggle-line-last"></span>
+  </div>
+
+  <aside class="sidebar">
+    <div class="sidebar-inner">
+
+      <ul class="sidebar-nav motion-element">
+        <li class="sidebar-nav-toc">
+          Inhaltsverzeichnis
+        </li>
+        <li class="sidebar-nav-overview">
+          Übersicht
+        </li>
+      </ul>
+
+      <!--noindex-->
+      <div class="post-toc-wrap sidebar-panel">
+      </div>
+      <!--/noindex-->
+
+      <div class="site-overview-wrap sidebar-panel">
+        <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+  <p class="site-author-name" itemprop="name">liumapp</p>
+  <div class="site-description" itemprop="description"></div>
+</div>
+<div class="site-state-wrap motion-element">
+  <nav class="site-state">
+      <div class="site-state-item site-state-posts">
+          <a href="/archives/">
+        
+          <span class="site-state-item-count">165</span>
+          <span class="site-state-item-name">Artikel</span>
+        </a>
+      </div>
+      <div class="site-state-item site-state-tags">
+        <span class="site-state-item-count">88</span>
+        <span class="site-state-item-name">schlagwörter</span>
+      </div>
+  </nav>
+</div>
+
+
+
+      </div>
+
+    </div>
+  </aside>
+  <div id="sidebar-dimmer"></div>
+
+
+      </div>
+    </main>
+
+    <footer class="footer">
+      <div class="footer-inner">
+        
+
+<div class="copyright">
+  
+  &copy; 
+  <span itemprop="copyrightYear">2020</span>
+  <span class="with-love">
+    <i class="fa fa-user"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">liumapp.com@gmail.com</span>
+</div>
+  <div class="powered-by">Erstellt mit  <a href="https://hexo.io/" class="theme-link" rel="noopener" target="_blank">Hexo</a> v4.2.0
+  </div>
+  <span class="post-meta-divider">|</span>
+  <div class="theme-info">Design – <a href="https://theme-next.org/" class="theme-link" rel="noopener" target="_blank">NexT.Gemini</a> v7.7.0
+  </div>
+
+        
+
+
+
+
+
+
+
+
+      </div>
+    </footer>
+  </div>
+
+  
+  <script src="/lib/anime.min.js"></script>
+  <script src="/lib/velocity/velocity.min.js"></script>
+  <script src="/lib/velocity/velocity.ui.min.js"></script>
+
+<script src="/js/utils.js"></script>
+
+<script src="/js/motion.js"></script>
+
+
+<script src="/js/schemes/pisces.js"></script>
+
+
+<script src="/js/next-boot.js"></script>
+
+
+
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+
+  
+
+</body>
+</html>

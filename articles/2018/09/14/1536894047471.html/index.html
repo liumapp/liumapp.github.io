@@ -1,0 +1,551 @@
+<!DOCTYPE html>
+<html lang="zh-Hans">
+<head>
+  <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=2">
+<meta name="theme-color" content="#222">
+<meta name="generator" content="Hexo 4.2.0">
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png">
+  <link rel="mask-icon" href="/images/logo.svg" color="#222">
+
+<link rel="stylesheet" href="/css/main.css">
+
+
+<link rel="stylesheet" href="/lib/font-awesome/css/font-awesome.min.css">
+
+
+<script id="hexo-configurations">
+  var NexT = window.NexT || {};
+  var CONFIG = {
+    hostname: new URL('http://www.liumapp.com').hostname,
+    root: '/',
+    scheme: 'Gemini',
+    version: '7.7.0',
+    exturl: false,
+    sidebar: {"position":"left","display":"post","padding":18,"offset":12,"onmobile":false},
+    copycode: {"enable":false,"show_result":false,"style":null},
+    back2top: {"enable":true,"sidebar":false,"scrollpercent":false},
+    bookmark: {"enable":false,"color":"#222","save":"auto"},
+    fancybox: false,
+    mediumzoom: false,
+    lazyload: false,
+    pangu: false,
+    comments: {"style":"tabs","active":null,"storage":true,"lazyload":false,"nav":null},
+    algolia: {
+      appID: '',
+      apiKey: '',
+      indexName: '',
+      hits: {"per_page":10},
+      labels: {"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}
+    },
+    localsearch: {"enable":false,"trigger":"auto","top_n_per_article":1,"unescape":false,"preload":false},
+    path: '',
+    motion: {"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}}
+  };
+</script>
+
+  <meta name="description" content="Spring Boot Admin 2.x是一个用于监测管理微服务应用的程序，通过Eureka注册中心发现服务，然后获取服务的运行状态、日志信息、并提供一套UI界面供系统运维人员检查，同时结合Spring Security进行登录权限认证  首先上完整的Github项目代码： liumapp&#x2F;spring-boot-admin-in-docker 然后是完整的Wiki文档：使用文档 所需依赖 s">
+<meta property="og:type" content="article">
+<meta property="og:title" content="Docker环境下使用SpringBootAdmin2.x教程">
+<meta property="og:url" content="http://www.liumapp.com/articles/2018/09/14/1536894047471.html/index.html">
+<meta property="og:site_name" content="liumapp">
+<meta property="og:description" content="Spring Boot Admin 2.x是一个用于监测管理微服务应用的程序，通过Eureka注册中心发现服务，然后获取服务的运行状态、日志信息、并提供一套UI界面供系统运维人员检查，同时结合Spring Security进行登录权限认证  首先上完整的Github项目代码： liumapp&#x2F;spring-boot-admin-in-docker 然后是完整的Wiki文档：使用文档 所需依赖 s">
+<meta property="article:published_time" content="2018-09-13T19:08:35.000Z">
+<meta property="article:modified_time" content="2018-09-13T19:08:35.000Z">
+<meta property="article:author" content="liumapp">
+<meta property="article:tag" content="Java">
+<meta property="article:tag" content="Docker">
+<meta name="twitter:card" content="summary">
+
+<link rel="canonical" href="http://www.liumapp.com/articles/2018/09/14/1536894047471.html/">
+
+
+<script id="page-configurations">
+  // https://hexo.io/docs/variables.html
+  CONFIG.page = {
+    sidebar: "",
+    isHome: false,
+    isPost: true
+  };
+</script>
+
+  <title>Docker环境下使用SpringBootAdmin2.x教程 | liumapp</title>
+  
+
+
+
+
+
+
+  <noscript>
+  <style>
+  .use-motion .brand,
+  .use-motion .menu-item,
+  .sidebar-inner,
+  .use-motion .post-block,
+  .use-motion .pagination,
+  .use-motion .comments,
+  .use-motion .post-header,
+  .use-motion .post-body,
+  .use-motion .collection-header { opacity: initial; }
+
+  .use-motion .site-title,
+  .use-motion .site-subtitle {
+    opacity: initial;
+    top: initial;
+  }
+
+  .use-motion .logo-line-before i { left: initial; }
+  .use-motion .logo-line-after i { right: initial; }
+  </style>
+</noscript>
+
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage">
+  <div class="container use-motion">
+    <div class="headband"></div>
+
+    <header class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-container">
+  <div class="site-meta">
+
+    <div>
+      <a href="/" class="brand" rel="start">
+        <span class="logo-line-before"><i></i></span>
+        <span class="site-title">liumapp</span>
+        <span class="logo-line-after"><i></i></span>
+      </a>
+    </div>
+  </div>
+
+  <div class="site-nav-toggle">
+    <div class="toggle" aria-label="Navigationsleiste an/ausschalten">
+      <span class="toggle-line toggle-line-first"></span>
+      <span class="toggle-line toggle-line-middle"></span>
+      <span class="toggle-line toggle-line-last"></span>
+    </div>
+  </div>
+</div>
+
+
+<nav class="site-nav">
+  
+  <ul id="menu" class="menu">
+        <li class="menu-item menu-item-home">
+
+    <a href="/" rel="section"><i class="fa fa-fw fa-home"></i>Startseite</a>
+
+  </li>
+        <li class="menu-item menu-item-archives">
+
+    <a href="/archives/" rel="section"><i class="fa fa-fw fa-archive"></i>Archiv</a>
+
+  </li>
+  </ul>
+
+</nav>
+</div>
+    </header>
+
+    
+  <div class="back-to-top">
+    <i class="fa fa-arrow-up"></i>
+    <span>0%</span>
+  </div>
+
+  <a href="https://github.com/liumapp" class="github-corner" title="Follow me on GitHub" aria-label="Follow me on GitHub" rel="noopener" target="_blank"><svg width="80" height="80" viewBox="0 0 250 250" aria-hidden="true"><path d="M0,0 L115,115 L130,115 L142,142 L250,250 L250,0 Z"></path><path d="M128.3,109.0 C113.8,99.7 119.0,89.6 119.0,89.6 C122.0,82.7 120.5,78.6 120.5,78.6 C119.2,72.0 123.4,76.3 123.4,76.3 C127.3,80.9 125.5,87.3 125.5,87.3 C122.9,97.6 130.6,101.9 134.4,103.2" fill="currentColor" style="transform-origin: 130px 106px;" class="octo-arm"></path><path d="M115.0,115.0 C114.9,115.1 118.7,116.5 119.8,115.4 L133.7,101.6 C136.9,99.2 139.9,98.4 142.2,98.6 C133.8,88.0 127.5,74.4 143.8,58.0 C148.5,53.4 154.0,51.2 159.7,51.0 C160.3,49.4 163.2,43.6 171.4,40.1 C171.4,40.1 176.1,42.5 178.8,56.2 C183.1,58.6 187.2,61.8 190.9,65.4 C194.5,69.0 197.7,73.2 200.1,77.6 C213.8,80.2 216.3,84.9 216.3,84.9 C212.7,93.1 206.9,96.0 205.4,96.6 C205.1,102.4 203.0,107.8 198.3,112.5 C181.9,128.9 168.3,122.5 157.7,114.1 C157.9,116.9 156.7,120.9 152.7,124.9 L141.0,136.5 C139.8,137.7 141.6,141.9 141.8,141.8 Z" fill="currentColor" class="octo-body"></path></svg></a>
+
+
+    <main class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          
+
+          <div class="content">
+            
+
+  <div class="posts-expand">
+      
+  
+  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block " lang="zh-Hans">
+    <link itemprop="mainEntityOfPage" href="http://www.liumapp.com/articles/2018/09/14/1536894047471.html/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/avatar.gif">
+      <meta itemprop="name" content="liumapp">
+      <meta itemprop="description" content="">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="liumapp">
+    </span>
+      <header class="post-header">
+        <h1 class="post-title" itemprop="name headline">
+          Docker环境下使用SpringBootAdmin2.x教程
+        </h1>
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              <span class="post-meta-item-text">Veröffentlicht am</span>
+
+              <time title="Erstellt: 2018-09-14 03:08:35" itemprop="dateCreated datePublished" datetime="2018-09-14T03:08:35+08:00">2018-09-14</time>
+            </span>
+
+          
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+        <blockquote>
+<p>Spring Boot Admin 2.x是一个用于监测管理微服务应用的程序，通过Eureka注册中心发现服务，然后获取服务的运行状态、日志信息、并提供一套UI界面供系统运维人员检查，同时结合Spring Security进行登录权限认证</p>
+</blockquote>
+<p>首先上完整的Github项目代码： <a href="https://github.com/liumapp/spring-boot-admin-in-docker" target="_blank" rel="noopener">liumapp/spring-boot-admin-in-docker</a></p>
+<p>然后是完整的Wiki文档：<a href="https://github.com/liumapp/spring-boot-admin-in-docker/wiki" target="_blank" rel="noopener">使用文档</a></p>
+<h2 id="所需依赖"><a href="#所需依赖" class="headerlink" title="所需依赖"></a>所需依赖</h2><ul>
+<li><p>spring boot 2.0.2</p>
+</li>
+<li><p>spring cloud Finchley.RELEASE</p>
+</li>
+<li><p>codecentric的spring-boot-admin 2.0.2</p>
+</li>
+<li><p>docker及docker-compose</p>
+</li>
+<li><p>maven</p>
+</li>
+</ul>
+<h2 id="快速启动"><a href="#快速启动" class="headerlink" title="快速启动"></a>快速启动</h2><p>更新admin-server和admin-client的application.yml配置文件</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">spring:</span><br><span class="line">     profiles:</span><br><span class="line">         active: docker</span><br></pre></td></tr></table></figure>
+
+<p>使用以下命令安装docker镜像</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">.&#x2F;build-image.sh</span><br></pre></td></tr></table></figure>
+
+<p>使用以下命令启动docker容器</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">docker-compose up -d</span><br></pre></td></tr></table></figure>
+
+<p>等待几十秒后，用浏览器访问 <a href="http://localhost:8766/" target="_blank" rel="noopener">http://localhost:8766</a></p>
+<p>登录用户名是 : admin</p>
+<p>登录密码是 : adminadmin</p>
+<p>你可以在admin-server的application.yml中更改账号密码</p>
+<p>使用以下命令停止容器：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">docker-compose down</span><br></pre></td></tr></table></figure>
+
+<p>使用以下命令删除docker镜像：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">.&#x2F;rm-image.sh</span><br></pre></td></tr></table></figure>
+
+<h2 id="日志管理"><a href="#日志管理" class="headerlink" title="日志管理"></a>日志管理</h2><p>首先请clone项目到本地</p>
+<p>如果您只希望了解跟日志管理相关的内容，那么请使用git命令切换到v1.2.0的tag</p>
+<pre><code>git checkout v1.2.0</code></pre><p>在这个版本下，我们基于v1.0.0的版本，对admin-client进行了一些配置上的改动：</p>
+<pre><code>logging:
+  file: /usr/local/tomcat/project/spring-boot-admin-in-docker/log/admin-client.log
+  pattern:
+    file: &quot;%clr(%d{yyyy-MM-dd HH:mm:ss.SSS}){faint} %clr(%5p) %clr(${PID}){magenta} %clr(---){faint} %clr([%15.15t]){faint} %clr(%-40.40logger{39}){cyan} %clr(:){faint} %m%n%wEx&quot;
+management:
+  endpoints:
+    web:
+      exposure:
+        include: &quot;*&quot;    </code></pre><p>上面的改动中，我们通过management开放了所有的actuator节点信息，因为在springboot2.x系列下，默认只开放了三个，如果您希望在admin-server中查询到详细信息，您需要全部开启他们</p>
+<p>然后logging.file指向日志文件的存放地址，请确保该目录具有可写权限</p>
+<p>之后再依次运行admin-eureka、admin-client跟admin-server</p>
+<p>访问浏览器的 <a href="http://localhost:8766/" target="_blank" rel="noopener">http://localhost:8766/</a> ，在点击admin-client进入详情页，我们可以发现所有的配置信息包括日志信息将会罗列出来</p>
+<h2 id="配置Spring-Security"><a href="#配置Spring-Security" class="headerlink" title="配置Spring Security"></a>配置Spring Security</h2><p>如果您只希望了解跟Spring Security相关的内容首先请将项目切换到v1.3.0版本</p>
+<pre><code>git checkout v1.3.0</code></pre><p>在之前的版本中，我们并没有引入spring security</p>
+<p>这意味着admin-server管理控制台随便是谁都可以登录，这在本地开放环境下是没有什么影响的</p>
+<p>但是如果发布到线上呢？</p>
+<p>所以接下来要实现的功能，就是给admin-server添加一个登录登出的界面跟按钮</p>
+<p>首先我们要对admin-server引入spring security</p>
+<pre><code>&lt;dependency&gt;
+  &lt;groupId&gt;org.springframework.boot&lt;/groupId&gt;
+  &lt;artifactId&gt;spring-boot-starter-security&lt;/artifactId&gt;
+&lt;/dependency&gt;</code></pre><p>随后进行配置：</p>
+<pre><code>spring:
+  security:
+    user:
+      name: &quot;admin&quot;
+      password: &quot;adminadmin&quot;
+
+eureka:
+    metadata-map:
+      user.name: &quot;admin&quot;
+      user.password: &quot;adminadmin&quot;</code></pre><p>user.name与user.password便是登录的账号与密码</p>
+<p>接下来修改启动类的代码：</p>
+<pre><code>@Configuration
+@EnableAutoConfiguration
+@EnableDiscoveryClient
+@EnableAdminServer
+public class AdminServerMain {
+
+    public static void main(String[] args) {
+        SpringApplication.run(AdminServerMain.class, args);
+    }
+
+    @Configuration
+    public static class SecuritySecureConfig extends WebSecurityConfigurerAdapter {
+
+        private final String adminContextPath;
+
+        public SecuritySecureConfig(AdminServerProperties adminServerProperties) {
+            this.adminContextPath = adminServerProperties.getContextPath();
+        }
+
+        @Override
+        protected void configure(HttpSecurity http) throws Exception {
+            // @formatter:off
+            SavedRequestAwareAuthenticationSuccessHandler successHandler = new SavedRequestAwareAuthenticationSuccessHandler();
+            successHandler.setTargetUrlParameter(&quot;redirectTo&quot;);
+            successHandler.setDefaultTargetUrl(adminContextPath + &quot;/&quot;);
+
+            http.authorizeRequests()
+                    .antMatchers(adminContextPath + &quot;/assets/**&quot;).permitAll()
+                    .antMatchers(adminContextPath + &quot;/login&quot;).permitAll()
+                    .anyRequest().authenticated()
+                    .and()
+                    .formLogin().loginPage(adminContextPath + &quot;/login&quot;).successHandler(successHandler).and()
+                    .logout().logoutUrl(adminContextPath + &quot;/logout&quot;).and()
+                    .httpBasic().and()
+                    .csrf()
+                    .csrfTokenRepository(CookieCsrfTokenRepository.withHttpOnlyFalse())
+                    .ignoringAntMatchers(
+                            adminContextPath + &quot;/instances&quot;,
+                            adminContextPath + &quot;/actuator/**&quot;,
+                            adminContextPath + &quot;/logout&quot;
+                    );
+            // @formatter:on
+        }
+
+    }
+
+}         </code></pre><p>启动类代码主要是参考spring boot admin官方手册上的</p>
+<p>但是他们的官方手册有一个bug：</p>
+<p>当你完全按照官方手册上来的做，你会发现点击”log out”按钮的时候，会报403异常</p>
+<p>我附上的代码把这个bug解决掉了</p>
+<p>接下来配置admin-client端，只需要在其注册到eureka的时候，附上admin-server配置的账号密码即可：</p>
+<pre><code>eureka:
+  instance:
+    metadata-map:
+      user.name: &quot;admin&quot;
+      user.password: &quot;adminadmin&quot;</code></pre><h2 id="Docker环境下运行"><a href="#Docker环境下运行" class="headerlink" title="Docker环境下运行"></a>Docker环境下运行</h2><p>接下来我们利用docker-compose将admin-client、admin-server以及admin-eureka部署到docker环境下面运行</p>
+<p>如果您只希望了解跟Docker环境下运行的内容，请利用git命令，将项目代码切换到v2.1.0版本</p>
+<pre><code>git checkout v2.1.0</code></pre><p>版本切换后，项目目录下面会多出三个文件：build-image.sh、rm-image.sh和docker-compose.yml</p>
+<ul>
+<li><p>build-image.sh</p>
+<p>  脚本文件，用于安装三个微服务(admin-client、admin-server和admin-eureka)的docker镜像</p>
+</li>
+<li><p>rm-image.sh    </p>
+<p>  脚本文件，用于删除三个微服务的docker镜像</p>
+<p>  ps：要删除镜像，必须在镜像生成的容器处于stop状态下才可以执行</p>
+</li>
+<li><p>docker-compose.yml</p>
+<p>  在执行完build-image.sh之后，通过docker-compose编排工具，启动容器的配置文件</p>
+<p>  具体启动命令为：</p>
+<pre><code>docker-compose up -d</code></pre><p>  停止命令为：</p>
+<pre><code>docker-compose down</code></pre></li>
+</ul>
+<p>利用docker-compose up -d命令启动成功后，我们可以访问浏览器的admin-server界面</p>
+<p>您也可以通过Docker的容器工具：kitmatic来查看容器的运行状态</p>
+
+    </div>
+
+    
+    
+    
+
+      <footer class="post-footer">
+          <div class="post-tags">
+              <a href="/tags/Java/" rel="tag"># Java</a>
+              <a href="/tags/Docker/" rel="tag"># Docker</a>
+          </div>
+
+        
+
+
+        
+    <div class="post-nav">
+      <div class="post-nav-item">
+    <a href="/articles/2018/09/08/1536376279620.html/" rel="prev" title="Docker容器内Mysql的数据导入/导出">
+      <i class="fa fa-chevron-left"></i> Docker容器内Mysql的数据导入/导出
+    </a></div>
+      <div class="post-nav-item">
+    <a href="/articles/2018/09/18/1537239301796.html/" rel="next" title="SpringBoot2.x下使用Redis报ClassNotFoundException: redis.clients.jedis.JedisPoolConfig">
+      SpringBoot2.x下使用Redis报ClassNotFoundException: redis.clients.jedis.JedisPoolConfig <i class="fa fa-chevron-right"></i>
+    </a></div>
+    </div>
+      </footer>
+    
+  </article>
+  
+  
+  
+
+  </div>
+
+
+          </div>
+          
+
+<script>
+  window.addEventListener('tabs:register', () => {
+    let activeClass = CONFIG.comments.activeClass;
+    if (CONFIG.comments.storage) {
+      activeClass = localStorage.getItem('comments_active') || activeClass;
+    }
+    if (activeClass) {
+      let activeTab = document.querySelector(`a[href="#comment-${activeClass}"]`);
+      if (activeTab) {
+        activeTab.click();
+      }
+    }
+  });
+  if (CONFIG.comments.storage) {
+    window.addEventListener('tabs:click', event => {
+      if (!event.target.matches('.tabs-comment .tab-content .tab-pane')) return;
+      let commentClass = event.target.classList[1];
+      localStorage.setItem('comments_active', commentClass);
+    });
+  }
+</script>
+
+        </div>
+          
+  
+  <div class="toggle sidebar-toggle">
+    <span class="toggle-line toggle-line-first"></span>
+    <span class="toggle-line toggle-line-middle"></span>
+    <span class="toggle-line toggle-line-last"></span>
+  </div>
+
+  <aside class="sidebar">
+    <div class="sidebar-inner">
+
+      <ul class="sidebar-nav motion-element">
+        <li class="sidebar-nav-toc">
+          Inhaltsverzeichnis
+        </li>
+        <li class="sidebar-nav-overview">
+          Übersicht
+        </li>
+      </ul>
+
+      <!--noindex-->
+      <div class="post-toc-wrap sidebar-panel">
+          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#所需依赖"><span class="nav-number">1.</span> <span class="nav-text">所需依赖</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#快速启动"><span class="nav-number">2.</span> <span class="nav-text">快速启动</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#日志管理"><span class="nav-number">3.</span> <span class="nav-text">日志管理</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#配置Spring-Security"><span class="nav-number">4.</span> <span class="nav-text">配置Spring Security</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#Docker环境下运行"><span class="nav-number">5.</span> <span class="nav-text">Docker环境下运行</span></a></li></ol></div>
+      </div>
+      <!--/noindex-->
+
+      <div class="site-overview-wrap sidebar-panel">
+        <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+  <p class="site-author-name" itemprop="name">liumapp</p>
+  <div class="site-description" itemprop="description"></div>
+</div>
+<div class="site-state-wrap motion-element">
+  <nav class="site-state">
+      <div class="site-state-item site-state-posts">
+          <a href="/archives/">
+        
+          <span class="site-state-item-count">165</span>
+          <span class="site-state-item-name">Artikel</span>
+        </a>
+      </div>
+      <div class="site-state-item site-state-tags">
+        <span class="site-state-item-count">88</span>
+        <span class="site-state-item-name">schlagwörter</span>
+      </div>
+  </nav>
+</div>
+
+
+
+      </div>
+
+    </div>
+  </aside>
+  <div id="sidebar-dimmer"></div>
+
+
+      </div>
+    </main>
+
+    <footer class="footer">
+      <div class="footer-inner">
+        
+
+<div class="copyright">
+  
+  &copy; 
+  <span itemprop="copyrightYear">2020</span>
+  <span class="with-love">
+    <i class="fa fa-user"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">liumapp.com@gmail.com</span>
+</div>
+  <div class="powered-by">Erstellt mit  <a href="https://hexo.io/" class="theme-link" rel="noopener" target="_blank">Hexo</a> v4.2.0
+  </div>
+  <span class="post-meta-divider">|</span>
+  <div class="theme-info">Design – <a href="https://theme-next.org/" class="theme-link" rel="noopener" target="_blank">NexT.Gemini</a> v7.7.0
+  </div>
+
+        
+
+
+
+
+
+
+
+
+      </div>
+    </footer>
+  </div>
+
+  
+  <script src="/lib/anime.min.js"></script>
+  <script src="/lib/velocity/velocity.min.js"></script>
+  <script src="/lib/velocity/velocity.ui.min.js"></script>
+
+<script src="/js/utils.js"></script>
+
+<script src="/js/motion.js"></script>
+
+
+<script src="/js/schemes/pisces.js"></script>
+
+
+<script src="/js/next-boot.js"></script>
+
+
+
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+
+  
+
+</body>
+</html>

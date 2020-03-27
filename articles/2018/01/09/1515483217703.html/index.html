@@ -1,0 +1,490 @@
+<!DOCTYPE html>
+<html lang="zh-Hans">
+<head>
+  <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=2">
+<meta name="theme-color" content="#222">
+<meta name="generator" content="Hexo 4.2.0">
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png">
+  <link rel="mask-icon" href="/images/logo.svg" color="#222">
+
+<link rel="stylesheet" href="/css/main.css">
+
+
+<link rel="stylesheet" href="/lib/font-awesome/css/font-awesome.min.css">
+
+
+<script id="hexo-configurations">
+  var NexT = window.NexT || {};
+  var CONFIG = {
+    hostname: new URL('http://www.liumapp.com').hostname,
+    root: '/',
+    scheme: 'Gemini',
+    version: '7.7.0',
+    exturl: false,
+    sidebar: {"position":"left","display":"post","padding":18,"offset":12,"onmobile":false},
+    copycode: {"enable":false,"show_result":false,"style":null},
+    back2top: {"enable":true,"sidebar":false,"scrollpercent":false},
+    bookmark: {"enable":false,"color":"#222","save":"auto"},
+    fancybox: false,
+    mediumzoom: false,
+    lazyload: false,
+    pangu: false,
+    comments: {"style":"tabs","active":null,"storage":true,"lazyload":false,"nav":null},
+    algolia: {
+      appID: '',
+      apiKey: '',
+      indexName: '',
+      hits: {"per_page":10},
+      labels: {"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}
+    },
+    localsearch: {"enable":false,"trigger":"auto","top_n_per_article":1,"unescape":false,"preload":false},
+    path: '',
+    motion: {"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}}
+  };
+</script>
+
+  <meta name="description" content="Quartz是一个相当优秀的任务调度项目，在SpringBoot中对其进行集成也是一件不算难也不算容易的事情。然而，该有的坑总是会来的。  前言废话不多说，先上Demo。 Github ：quartz-schedule-demo 这个项目是我将Quartz官方案例在SpringBoot上的一个Demo实现，同时配上了必要的注释和适当的调整。 对于新接触的同学来说，应该是一个不错的上手项目。 案例">
+<meta property="og:type" content="article">
+<meta property="og:title" content="SpringBoot整合Quartz">
+<meta property="og:url" content="http://www.liumapp.com/articles/2018/01/09/1515483217703.html/index.html">
+<meta property="og:site_name" content="liumapp">
+<meta property="og:description" content="Quartz是一个相当优秀的任务调度项目，在SpringBoot中对其进行集成也是一件不算难也不算容易的事情。然而，该有的坑总是会来的。  前言废话不多说，先上Demo。 Github ：quartz-schedule-demo 这个项目是我将Quartz官方案例在SpringBoot上的一个Demo实现，同时配上了必要的注释和适当的调整。 对于新接触的同学来说，应该是一个不错的上手项目。 案例">
+<meta property="article:published_time" content="2018-01-10T09:30:05.000Z">
+<meta property="article:modified_time" content="2018-01-11T06:57:35.000Z">
+<meta property="article:author" content="liumapp">
+<meta property="article:tag" content="Java">
+<meta property="article:tag" content="Quartz">
+<meta name="twitter:card" content="summary">
+
+<link rel="canonical" href="http://www.liumapp.com/articles/2018/01/09/1515483217703.html/">
+
+
+<script id="page-configurations">
+  // https://hexo.io/docs/variables.html
+  CONFIG.page = {
+    sidebar: "",
+    isHome: false,
+    isPost: true
+  };
+</script>
+
+  <title>SpringBoot整合Quartz | liumapp</title>
+  
+
+
+
+
+
+
+  <noscript>
+  <style>
+  .use-motion .brand,
+  .use-motion .menu-item,
+  .sidebar-inner,
+  .use-motion .post-block,
+  .use-motion .pagination,
+  .use-motion .comments,
+  .use-motion .post-header,
+  .use-motion .post-body,
+  .use-motion .collection-header { opacity: initial; }
+
+  .use-motion .site-title,
+  .use-motion .site-subtitle {
+    opacity: initial;
+    top: initial;
+  }
+
+  .use-motion .logo-line-before i { left: initial; }
+  .use-motion .logo-line-after i { right: initial; }
+  </style>
+</noscript>
+
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage">
+  <div class="container use-motion">
+    <div class="headband"></div>
+
+    <header class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-container">
+  <div class="site-meta">
+
+    <div>
+      <a href="/" class="brand" rel="start">
+        <span class="logo-line-before"><i></i></span>
+        <span class="site-title">liumapp</span>
+        <span class="logo-line-after"><i></i></span>
+      </a>
+    </div>
+  </div>
+
+  <div class="site-nav-toggle">
+    <div class="toggle" aria-label="Navigationsleiste an/ausschalten">
+      <span class="toggle-line toggle-line-first"></span>
+      <span class="toggle-line toggle-line-middle"></span>
+      <span class="toggle-line toggle-line-last"></span>
+    </div>
+  </div>
+</div>
+
+
+<nav class="site-nav">
+  
+  <ul id="menu" class="menu">
+        <li class="menu-item menu-item-home">
+
+    <a href="/" rel="section"><i class="fa fa-fw fa-home"></i>Startseite</a>
+
+  </li>
+        <li class="menu-item menu-item-archives">
+
+    <a href="/archives/" rel="section"><i class="fa fa-fw fa-archive"></i>Archiv</a>
+
+  </li>
+  </ul>
+
+</nav>
+</div>
+    </header>
+
+    
+  <div class="back-to-top">
+    <i class="fa fa-arrow-up"></i>
+    <span>0%</span>
+  </div>
+
+  <a href="https://github.com/liumapp" class="github-corner" title="Follow me on GitHub" aria-label="Follow me on GitHub" rel="noopener" target="_blank"><svg width="80" height="80" viewBox="0 0 250 250" aria-hidden="true"><path d="M0,0 L115,115 L130,115 L142,142 L250,250 L250,0 Z"></path><path d="M128.3,109.0 C113.8,99.7 119.0,89.6 119.0,89.6 C122.0,82.7 120.5,78.6 120.5,78.6 C119.2,72.0 123.4,76.3 123.4,76.3 C127.3,80.9 125.5,87.3 125.5,87.3 C122.9,97.6 130.6,101.9 134.4,103.2" fill="currentColor" style="transform-origin: 130px 106px;" class="octo-arm"></path><path d="M115.0,115.0 C114.9,115.1 118.7,116.5 119.8,115.4 L133.7,101.6 C136.9,99.2 139.9,98.4 142.2,98.6 C133.8,88.0 127.5,74.4 143.8,58.0 C148.5,53.4 154.0,51.2 159.7,51.0 C160.3,49.4 163.2,43.6 171.4,40.1 C171.4,40.1 176.1,42.5 178.8,56.2 C183.1,58.6 187.2,61.8 190.9,65.4 C194.5,69.0 197.7,73.2 200.1,77.6 C213.8,80.2 216.3,84.9 216.3,84.9 C212.7,93.1 206.9,96.0 205.4,96.6 C205.1,102.4 203.0,107.8 198.3,112.5 C181.9,128.9 168.3,122.5 157.7,114.1 C157.9,116.9 156.7,120.9 152.7,124.9 L141.0,136.5 C139.8,137.7 141.6,141.9 141.8,141.8 Z" fill="currentColor" class="octo-body"></path></svg></a>
+
+
+    <main class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          
+
+          <div class="content">
+            
+
+  <div class="posts-expand">
+      
+  
+  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block " lang="zh-Hans">
+    <link itemprop="mainEntityOfPage" href="http://www.liumapp.com/articles/2018/01/09/1515483217703.html/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/avatar.gif">
+      <meta itemprop="name" content="liumapp">
+      <meta itemprop="description" content="">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="liumapp">
+    </span>
+      <header class="post-header">
+        <h1 class="post-title" itemprop="name headline">
+          SpringBoot整合Quartz
+        </h1>
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              <span class="post-meta-item-text">Veröffentlicht am</span>
+
+              <time title="Erstellt: 2018-01-10 17:30:05" itemprop="dateCreated datePublished" datetime="2018-01-10T17:30:05+08:00">2018-01-10</time>
+            </span>
+              <span class="post-meta-item">
+                <span class="post-meta-item-icon">
+                  <i class="fa fa-calendar-check-o"></i>
+                </span>
+                <span class="post-meta-item-text">Bearbeitet am</span>
+                <time title="Geändert am: 2018-01-11 14:57:35" itemprop="dateModified" datetime="2018-01-11T14:57:35+08:00">2018-01-11</time>
+              </span>
+
+          
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+        <blockquote>
+<p>Quartz是一个相当优秀的任务调度项目，在SpringBoot中对其进行集成也是一件不算难也不算容易的事情。然而，该有的坑总是会来的。</p>
+</blockquote>
+<h2 id="前言"><a href="#前言" class="headerlink" title="前言"></a>前言</h2><p>废话不多说，先上Demo。</p>
+<p>Github ：<a href="https://github.com/liumapp/quartz-schedule-demo" target="_blank" rel="noopener">quartz-schedule-demo</a></p>
+<p>这个项目是我将Quartz官方案例在SpringBoot上的一个Demo实现，同时配上了必要的注释和适当的调整。</p>
+<p>对于新接触的同学来说，应该是一个不错的上手项目。</p>
+<h2 id="案例"><a href="#案例" class="headerlink" title="案例"></a>案例</h2><p><a href="https://github.com/liumapp/quartz-schedule-demo" target="_blank" rel="noopener">quartz-schedule-demo</a>项目中目前一共包含8个Demo，后期添加新的Demo时，我会更新这篇博文。</p>
+<p>分别是:</p>
+<h3 id="Demo1"><a href="#Demo1" class="headerlink" title="Demo1"></a>Demo1</h3><p>简单的循环任务，每隔10秒一次输出</p>
+<ul>
+<li><p>启动Test下SimpleTest的demo1Test（请将其ignore注释）</p>
+</li>
+<li><p>SimpleJob将每隔10秒钟运行一次。</p>
+</li>
+</ul>
+<h3 id="Demo2"><a href="#Demo2" class="headerlink" title="Demo2"></a>Demo2</h3><p>传递参数到Jobs中，直接从context中读取参数。</p>
+<ul>
+<li><p>启动Test下DataParseTest的parameterTest（请将其ignore注释）</p>
+</li>
+<li><p>DataParseJob将每隔10秒运行一次。</p>
+</li>
+</ul>
+<h3 id="Demo3"><a href="#Demo3" class="headerlink" title="Demo3"></a>Demo3</h3><p>同样传递参数到Jobs中，但将参数写入Jobs的属性。</p>
+<ul>
+<li><p>启动Test下DataParseTest的parameterAutoWriteTest（请将其ignore注释）</p>
+</li>
+<li><p>HighLevelParameterJob将每隔10秒运行一次。</p>
+</li>
+</ul>
+<h3 id="Demo4"><a href="#Demo4" class="headerlink" title="Demo4"></a>Demo4</h3><p>延时五秒后执行任务</p>
+<ul>
+<li><p>启动Test下SimpleTest的demo4Test（请将其ignore注释）</p>
+</li>
+<li><p>五秒后控制台可以看到输出。</p>
+</li>
+</ul>
+<h3 id="Demo5"><a href="#Demo5" class="headerlink" title="Demo5"></a>Demo5</h3><p>延时五秒后启动一个任务，该任务每隔10秒执行一次，直到执行了10次为止。</p>
+<ul>
+<li><p>启动Test下SimpleTest的demo5Test（请将其ignore注释）</p>
+</li>
+<li><p>五秒后控制台可以看到输出。(一共会看到11行输出)</p>
+</li>
+</ul>
+<h3 id="Demo6"><a href="#Demo6" class="headerlink" title="Demo6"></a>Demo6</h3><p>立即启动一个任务，然后每隔5分钟执行一次，直到当天下午4点为止。</p>
+<ul>
+<li><p>启动Test下SimpleTest的demo6Test（请将其ignore注释）</p>
+</li>
+<li><p>检查结果</p>
+</li>
+</ul>
+<h3 id="Demo7"><a href="#Demo7" class="headerlink" title="Demo7"></a>Demo7</h3><p>每个偶数小时整（14:00，16：00）执行一次任务。</p>
+<ul>
+<li><p>启动Test下SimpleTest的demo7Test（请将其ignore注释）</p>
+</li>
+<li><p>检查结果</p>
+</li>
+</ul>
+<h3 id="Demo8"><a href="#Demo8" class="headerlink" title="Demo8"></a>Demo8</h3><p>通过配置，将Spring的Bean对象自动加载到Quartz的JobFactory中。</p>
+<p>Demo8检测了Quartz的job在执行的过程中，能否正常使用Spring的Bean对象</p>
+<ul>
+<li><p>启动Test下HelloTest的Demo8Test（请将其ignore注释）</p>
+</li>
+<li><p>检查运行结果</p>
+</li>
+</ul>
+<h2 id="排坑"><a href="#排坑" class="headerlink" title="排坑"></a>排坑</h2><p>在读官方文档的过程中，基本上从Demo1一直跑到Demo7都没什么问题，唯一的大问题出现在Quartz的SimpleThreadPool上，这个线程池在执行Jobs的过程中，如果缺少对JobFactory配置Spring的Context，那么执行的Job将无法正常解析Spring的Bean对象。</p>
+<p>以下是详细的解决办法：</p>
+<ul>
+<li><p>引入spring-context-support，在pom.xml中加下面的依赖</p>
+<pre><code>&lt;dependency&gt;
+  &lt;groupId&gt;org.springframework&lt;/groupId&gt;
+  &lt;artifactId&gt;spring-context-support&lt;/artifactId&gt;
+  &lt;version&gt;4.3.13.RELEASE&lt;/version&gt;
+&lt;/dependency&gt;</code></pre></li>
+<li><p>配置applicationContext.getAutowireCapableBeanFactory()，加载到JobFactory中即可。（详细代码请见项目中的config）</p>
+</li>
+</ul>
+
+    </div>
+
+    
+    
+    
+
+      <footer class="post-footer">
+          <div class="post-tags">
+              <a href="/tags/Java/" rel="tag"># Java</a>
+              <a href="/tags/Quartz/" rel="tag"># Quartz</a>
+          </div>
+
+        
+
+
+        
+    <div class="post-nav">
+      <div class="post-nav-item">
+    <a href="/articles/2018/01/03/1514943853653.html/" rel="prev" title="关于node-sass及node-gyp安装失败坑的解决办法">
+      <i class="fa fa-chevron-left"></i> 关于node-sass及node-gyp安装失败坑的解决办法
+    </a></div>
+      <div class="post-nav-item">
+    <a href="/articles/2018/01/17/1516152851218.html/" rel="next" title="npm及nodeJs更新">
+      npm及nodeJs更新 <i class="fa fa-chevron-right"></i>
+    </a></div>
+    </div>
+      </footer>
+    
+  </article>
+  
+  
+  
+
+  </div>
+
+
+          </div>
+          
+
+<script>
+  window.addEventListener('tabs:register', () => {
+    let activeClass = CONFIG.comments.activeClass;
+    if (CONFIG.comments.storage) {
+      activeClass = localStorage.getItem('comments_active') || activeClass;
+    }
+    if (activeClass) {
+      let activeTab = document.querySelector(`a[href="#comment-${activeClass}"]`);
+      if (activeTab) {
+        activeTab.click();
+      }
+    }
+  });
+  if (CONFIG.comments.storage) {
+    window.addEventListener('tabs:click', event => {
+      if (!event.target.matches('.tabs-comment .tab-content .tab-pane')) return;
+      let commentClass = event.target.classList[1];
+      localStorage.setItem('comments_active', commentClass);
+    });
+  }
+</script>
+
+        </div>
+          
+  
+  <div class="toggle sidebar-toggle">
+    <span class="toggle-line toggle-line-first"></span>
+    <span class="toggle-line toggle-line-middle"></span>
+    <span class="toggle-line toggle-line-last"></span>
+  </div>
+
+  <aside class="sidebar">
+    <div class="sidebar-inner">
+
+      <ul class="sidebar-nav motion-element">
+        <li class="sidebar-nav-toc">
+          Inhaltsverzeichnis
+        </li>
+        <li class="sidebar-nav-overview">
+          Übersicht
+        </li>
+      </ul>
+
+      <!--noindex-->
+      <div class="post-toc-wrap sidebar-panel">
+          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#前言"><span class="nav-number">1.</span> <span class="nav-text">前言</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#案例"><span class="nav-number">2.</span> <span class="nav-text">案例</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#Demo1"><span class="nav-number">2.1.</span> <span class="nav-text">Demo1</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#Demo2"><span class="nav-number">2.2.</span> <span class="nav-text">Demo2</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#Demo3"><span class="nav-number">2.3.</span> <span class="nav-text">Demo3</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#Demo4"><span class="nav-number">2.4.</span> <span class="nav-text">Demo4</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#Demo5"><span class="nav-number">2.5.</span> <span class="nav-text">Demo5</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#Demo6"><span class="nav-number">2.6.</span> <span class="nav-text">Demo6</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#Demo7"><span class="nav-number">2.7.</span> <span class="nav-text">Demo7</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#Demo8"><span class="nav-number">2.8.</span> <span class="nav-text">Demo8</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#排坑"><span class="nav-number">3.</span> <span class="nav-text">排坑</span></a></li></ol></div>
+      </div>
+      <!--/noindex-->
+
+      <div class="site-overview-wrap sidebar-panel">
+        <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+  <p class="site-author-name" itemprop="name">liumapp</p>
+  <div class="site-description" itemprop="description"></div>
+</div>
+<div class="site-state-wrap motion-element">
+  <nav class="site-state">
+      <div class="site-state-item site-state-posts">
+          <a href="/archives/">
+        
+          <span class="site-state-item-count">165</span>
+          <span class="site-state-item-name">Artikel</span>
+        </a>
+      </div>
+      <div class="site-state-item site-state-tags">
+        <span class="site-state-item-count">88</span>
+        <span class="site-state-item-name">schlagwörter</span>
+      </div>
+  </nav>
+</div>
+
+
+
+      </div>
+
+    </div>
+  </aside>
+  <div id="sidebar-dimmer"></div>
+
+
+      </div>
+    </main>
+
+    <footer class="footer">
+      <div class="footer-inner">
+        
+
+<div class="copyright">
+  
+  &copy; 
+  <span itemprop="copyrightYear">2020</span>
+  <span class="with-love">
+    <i class="fa fa-user"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">liumapp.com@gmail.com</span>
+</div>
+  <div class="powered-by">Erstellt mit  <a href="https://hexo.io/" class="theme-link" rel="noopener" target="_blank">Hexo</a> v4.2.0
+  </div>
+  <span class="post-meta-divider">|</span>
+  <div class="theme-info">Design – <a href="https://theme-next.org/" class="theme-link" rel="noopener" target="_blank">NexT.Gemini</a> v7.7.0
+  </div>
+
+        
+
+
+
+
+
+
+
+
+      </div>
+    </footer>
+  </div>
+
+  
+  <script src="/lib/anime.min.js"></script>
+  <script src="/lib/velocity/velocity.min.js"></script>
+  <script src="/lib/velocity/velocity.ui.min.js"></script>
+
+<script src="/js/utils.js"></script>
+
+<script src="/js/motion.js"></script>
+
+
+<script src="/js/schemes/pisces.js"></script>
+
+
+<script src="/js/next-boot.js"></script>
+
+
+
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+
+  
+
+</body>
+</html>

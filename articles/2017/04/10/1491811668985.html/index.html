@@ -1,0 +1,542 @@
+<!DOCTYPE html>
+<html lang="zh-Hans">
+<head>
+  <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=2">
+<meta name="theme-color" content="#222">
+<meta name="generator" content="Hexo 4.2.0">
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png">
+  <link rel="mask-icon" href="/images/logo.svg" color="#222">
+
+<link rel="stylesheet" href="/css/main.css">
+
+
+<link rel="stylesheet" href="/lib/font-awesome/css/font-awesome.min.css">
+
+
+<script id="hexo-configurations">
+  var NexT = window.NexT || {};
+  var CONFIG = {
+    hostname: new URL('http://www.liumapp.com').hostname,
+    root: '/',
+    scheme: 'Gemini',
+    version: '7.7.0',
+    exturl: false,
+    sidebar: {"position":"left","display":"post","padding":18,"offset":12,"onmobile":false},
+    copycode: {"enable":false,"show_result":false,"style":null},
+    back2top: {"enable":true,"sidebar":false,"scrollpercent":false},
+    bookmark: {"enable":false,"color":"#222","save":"auto"},
+    fancybox: false,
+    mediumzoom: false,
+    lazyload: false,
+    pangu: false,
+    comments: {"style":"tabs","active":null,"storage":true,"lazyload":false,"nav":null},
+    algolia: {
+      appID: '',
+      apiKey: '',
+      indexName: '',
+      hits: {"per_page":10},
+      labels: {"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}
+    },
+    localsearch: {"enable":false,"trigger":"auto","top_n_per_article":1,"unescape":false,"preload":false},
+    path: '',
+    motion: {"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}}
+  };
+</script>
+
+  <meta name="description" content="最近项目上涉及到一个将html转化为pdf的需求，这里选择了wkhtmltopdf来实现，可是在具体实施过程中，发现这里面还涉及到一个“linux服务器上默认没有中文字体，导致wkhtmltopdf渲染的pdf文件不能显示中文的问题”，所以写一篇博客，帮助还有同样需求的小伙伴们快速解决问题。  安装wkhtmltopdf为方便，以下代码都是作为root用户在Centos命令行下操作： cd ~">
+<meta property="og:type" content="article">
+<meta property="og:title" content="CentOS安装wkhtmltopdf并解决中文字体的问题">
+<meta property="og:url" content="http://www.liumapp.com/articles/2017/04/10/1491811668985.html/index.html">
+<meta property="og:site_name" content="liumapp">
+<meta property="og:description" content="最近项目上涉及到一个将html转化为pdf的需求，这里选择了wkhtmltopdf来实现，可是在具体实施过程中，发现这里面还涉及到一个“linux服务器上默认没有中文字体，导致wkhtmltopdf渲染的pdf文件不能显示中文的问题”，所以写一篇博客，帮助还有同样需求的小伙伴们快速解决问题。  安装wkhtmltopdf为方便，以下代码都是作为root用户在Centos命令行下操作： cd ~">
+<meta property="article:published_time" content="2017-04-10T09:17:26.000Z">
+<meta property="article:modified_time" content="2017-04-10T09:17:26.000Z">
+<meta property="article:author" content="liumapp">
+<meta property="article:tag" content="Linux">
+<meta property="article:tag" content="CentOS">
+<meta property="article:tag" content="wkhtmltopdf">
+<meta property="article:tag" content="中文字体">
+<meta name="twitter:card" content="summary">
+
+<link rel="canonical" href="http://www.liumapp.com/articles/2017/04/10/1491811668985.html/">
+
+
+<script id="page-configurations">
+  // https://hexo.io/docs/variables.html
+  CONFIG.page = {
+    sidebar: "",
+    isHome: false,
+    isPost: true
+  };
+</script>
+
+  <title>CentOS安装wkhtmltopdf并解决中文字体的问题 | liumapp</title>
+  
+
+
+
+
+
+
+  <noscript>
+  <style>
+  .use-motion .brand,
+  .use-motion .menu-item,
+  .sidebar-inner,
+  .use-motion .post-block,
+  .use-motion .pagination,
+  .use-motion .comments,
+  .use-motion .post-header,
+  .use-motion .post-body,
+  .use-motion .collection-header { opacity: initial; }
+
+  .use-motion .site-title,
+  .use-motion .site-subtitle {
+    opacity: initial;
+    top: initial;
+  }
+
+  .use-motion .logo-line-before i { left: initial; }
+  .use-motion .logo-line-after i { right: initial; }
+  </style>
+</noscript>
+
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage">
+  <div class="container use-motion">
+    <div class="headband"></div>
+
+    <header class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-container">
+  <div class="site-meta">
+
+    <div>
+      <a href="/" class="brand" rel="start">
+        <span class="logo-line-before"><i></i></span>
+        <span class="site-title">liumapp</span>
+        <span class="logo-line-after"><i></i></span>
+      </a>
+    </div>
+  </div>
+
+  <div class="site-nav-toggle">
+    <div class="toggle" aria-label="Navigationsleiste an/ausschalten">
+      <span class="toggle-line toggle-line-first"></span>
+      <span class="toggle-line toggle-line-middle"></span>
+      <span class="toggle-line toggle-line-last"></span>
+    </div>
+  </div>
+</div>
+
+
+<nav class="site-nav">
+  
+  <ul id="menu" class="menu">
+        <li class="menu-item menu-item-home">
+
+    <a href="/" rel="section"><i class="fa fa-fw fa-home"></i>Startseite</a>
+
+  </li>
+        <li class="menu-item menu-item-archives">
+
+    <a href="/archives/" rel="section"><i class="fa fa-fw fa-archive"></i>Archiv</a>
+
+  </li>
+  </ul>
+
+</nav>
+</div>
+    </header>
+
+    
+  <div class="back-to-top">
+    <i class="fa fa-arrow-up"></i>
+    <span>0%</span>
+  </div>
+
+  <a href="https://github.com/liumapp" class="github-corner" title="Follow me on GitHub" aria-label="Follow me on GitHub" rel="noopener" target="_blank"><svg width="80" height="80" viewBox="0 0 250 250" aria-hidden="true"><path d="M0,0 L115,115 L130,115 L142,142 L250,250 L250,0 Z"></path><path d="M128.3,109.0 C113.8,99.7 119.0,89.6 119.0,89.6 C122.0,82.7 120.5,78.6 120.5,78.6 C119.2,72.0 123.4,76.3 123.4,76.3 C127.3,80.9 125.5,87.3 125.5,87.3 C122.9,97.6 130.6,101.9 134.4,103.2" fill="currentColor" style="transform-origin: 130px 106px;" class="octo-arm"></path><path d="M115.0,115.0 C114.9,115.1 118.7,116.5 119.8,115.4 L133.7,101.6 C136.9,99.2 139.9,98.4 142.2,98.6 C133.8,88.0 127.5,74.4 143.8,58.0 C148.5,53.4 154.0,51.2 159.7,51.0 C160.3,49.4 163.2,43.6 171.4,40.1 C171.4,40.1 176.1,42.5 178.8,56.2 C183.1,58.6 187.2,61.8 190.9,65.4 C194.5,69.0 197.7,73.2 200.1,77.6 C213.8,80.2 216.3,84.9 216.3,84.9 C212.7,93.1 206.9,96.0 205.4,96.6 C205.1,102.4 203.0,107.8 198.3,112.5 C181.9,128.9 168.3,122.5 157.7,114.1 C157.9,116.9 156.7,120.9 152.7,124.9 L141.0,136.5 C139.8,137.7 141.6,141.9 141.8,141.8 Z" fill="currentColor" class="octo-body"></path></svg></a>
+
+
+    <main class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          
+
+          <div class="content">
+            
+
+  <div class="posts-expand">
+      
+  
+  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block " lang="zh-Hans">
+    <link itemprop="mainEntityOfPage" href="http://www.liumapp.com/articles/2017/04/10/1491811668985.html/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/avatar.gif">
+      <meta itemprop="name" content="liumapp">
+      <meta itemprop="description" content="">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="liumapp">
+    </span>
+      <header class="post-header">
+        <h1 class="post-title" itemprop="name headline">
+          CentOS安装wkhtmltopdf并解决中文字体的问题
+        </h1>
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              <span class="post-meta-item-text">Veröffentlicht am</span>
+
+              <time title="Erstellt: 2017-04-10 17:17:26" itemprop="dateCreated datePublished" datetime="2017-04-10T17:17:26+08:00">2017-04-10</time>
+            </span>
+
+          
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+        <blockquote>
+<p>最近项目上涉及到一个将html转化为pdf的需求，这里选择了wkhtmltopdf来实现，可是在具体实施过程中，发现这里面还涉及到一个“linux服务器上默认没有中文字体，导致wkhtmltopdf渲染的pdf文件不能显示中文的问题”，所以写一篇博客，帮助还有同样需求的小伙伴们快速解决问题。</p>
+</blockquote>
+<h3 id="安装wkhtmltopdf"><a href="#安装wkhtmltopdf" class="headerlink" title="安装wkhtmltopdf"></a>安装wkhtmltopdf</h3><p>为方便，以下代码都是作为root用户在Centos命令行下操作：</p>
+<pre><code>cd ~
+
+wget http://download.gna.org/wkhtmltopdf/0.12/0.12.3/wkhtmltox-0.12.3_linux-generic-amd64.tar.xz
+
+xz -d wkhtmltox-0.12.3_linux-generic-amd64.tar.xz
+
+tar -xvf wkhtmltox-0.12.3_linux-generic-amd64.tar
+
+cd wkhtmltox
+
+cd bin
+
+//测试
+
+./wkhtmltopdf &quot;http://www.taobao.com&quot; 1.pdf </code></pre><p>如果打开的1.pdf成功渲染出来，那说明wkhtmltopdf安装成功，不过在这里，一般能够看到1.pdf里面的中文字体并没有被成功渲染出来，那么接下来说明字体问题的解决。</p>
+<h3 id="服务器安装中文字体"><a href="#服务器安装中文字体" class="headerlink" title="服务器安装中文字体"></a>服务器安装中文字体</h3><h4 id="正式开工之前要准备的工具"><a href="#正式开工之前要准备的工具" class="headerlink" title="正式开工之前要准备的工具"></a>正式开工之前要准备的工具</h4><p><strong>1.fontconfig</strong></p>
+<pre><code>yum install fontconfig</code></pre><p>成功后会有这样的消息出来：</p>
+<pre><code> Dependencies Resolved
+
+==============================================================================================================================================================
+
+ Package Arch  Version  Repository Size
+
+==============================================================================================================================================================
+
+Updating:
+
+ fontconfig  x86_64  2.10.95-10.el7 base  229 k
+
+Transaction Summary
+
+==============================================================================================================================================================
+
+Upgrade 1 Package
+
+Total download size: 229 k
+
+Is this ok [y/d/N]: y                                                                                               
+
+Downloading packages:
+
+Delta RPMs disabled because /usr/bin/applydeltarpm not installed.
+
+fontconfig-2.10.95-10.el7.x86_64.rpm  | 229 kB 00:00:02     
+
+Running transaction check
+
+Running transaction test
+
+Transaction test succeeded
+
+Running transaction
+
+ Updating  : fontconfig-2.10.95-10.el7.x86_64  1/2 
+
+ Cleanup : fontconfig-2.10.95-7.el7.x86_64 2/2 
+
+ Verifying : fontconfig-2.10.95-10.el7.x86_64  1/2 
+
+ Verifying : fontconfig-2.10.95-7.el7.x86_64 2/2 
+
+Updated:
+
+ fontconfig.x86_64 0:2.10.95-10.el7                                                                                                                          
+
+Complete!</code></pre><p><strong>2.ttmkfdir</strong></p>
+<pre><code>yum install ttmkfdir</code></pre><p>安装成功后会有这样的提示：</p>
+<pre><code>==============================================================================================================================================================
+
+ Package  Arch Version Repository  Size
+
+==============================================================================================================================================================
+
+Installing:
+
+ ttmkfdir x86_64 3.0.9-42.el7  base  48 k
+
+Transaction Summary
+
+==============================================================================================================================================================
+
+Install 1 Package
+
+Total download size: 48 k
+
+Installed size: 103 k
+
+Is this ok [y/d/N]: y
+
+Downloading packages:
+
+ttmkfdir-3.0.9-42.el7.x86_64.rpm  | 48 kB 00:00:00     
+
+Running transaction check
+
+Running transaction test
+
+Transaction test succeeded
+
+Running transaction
+
+ Installing : ttmkfdir-3.0.9-42.el7.x86_64  1/1 
+
+ Verifying : ttmkfdir-3.0.9-42.el7.x86_64  1/1 
+
+Installed:
+
+ ttmkfdir.x86_64 0:3.0.9-42.el7                                                                                                                              
+
+Complete!</code></pre><h4 id="正式动工"><a href="#正式动工" class="headerlink" title="正式动工"></a>正式动工</h4><p>依次执行下列步骤：</p>
+<p>把中文字体文件上传到/usr/share/fonts/chinese目录中</p>
+<pre><code>Microsoft YaHei.ttf SimSun.ttf</code></pre><p>执行命令</p>
+<pre><code>ttmkfdir -e /usr/share/X11/fonts/encodings/encodings.dir</code></pre><p>修改配置文件/etc/fonts/fonts.conf:</p>
+<p>把 /usr/share/fonts/chinese目录添加进去:</p>
+<pre><code>&lt;!— Font directory list —&gt;
+
+      &lt;dir&gt;/usr/share/fonts&lt;/dir&gt;
+      &lt;dir&gt;/usr/share/X11/fonts/Type1&lt;/dir&gt; &lt;dir&gt;/usr/share/X11/fonts/TTF&lt;/dir&gt; &lt;dir&gt;/usr/local/share/fonts&lt;/dir&gt;
+      &lt;dir prefix=&quot;xdg&quot;&gt;fonts&lt;/dir&gt;
+      &lt;!— the following element will be removed in the future —&gt;
+      &lt;dir&gt;~/.fonts&lt;/dir&gt;
+      &lt;dir&gt;/usr/share/fonts/chinese&lt;/dir&gt;</code></pre><p>清空缓存</p>
+<pre><code>fc-cache</code></pre><p>测试是否成功 </p>
+<pre><code>fc-list</code></pre><p>如果看到了中文就说明成果了，我的服务器上测试结果如下：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br><span class="line">69</span><br><span class="line">70</span><br><span class="line">71</span><br><span class="line">72</span><br><span class="line">73</span><br><span class="line">74</span><br><span class="line">75</span><br><span class="line">76</span><br><span class="line">77</span><br><span class="line">78</span><br><span class="line">79</span><br><span class="line">80</span><br><span class="line">81</span><br><span class="line">82</span><br><span class="line">83</span><br><span class="line">84</span><br><span class="line">85</span><br><span class="line">86</span><br><span class="line">87</span><br><span class="line">88</span><br><span class="line">89</span><br><span class="line">90</span><br></pre></td><td class="code"><pre><span class="line"></span><br><span class="line">&#x2F;usr&#x2F;share&#x2F;fonts&#x2F;default&#x2F;Type1&#x2F;c059016l.pfb: Century Schoolbook L:style&#x3D;Bold</span><br><span class="line"></span><br><span class="line">&#x2F;usr&#x2F;share&#x2F;fonts&#x2F;chinese&#x2F;SimSun.ttf: STFangsong:style&#x3D;Regular,標準體,Ordinær,Normal,Normaali,Regolare,レギュラー,일반체,Regulier,Обычный,常规体</span><br><span class="line"></span><br><span class="line">&#x2F;usr&#x2F;share&#x2F;fonts&#x2F;default&#x2F;Type1&#x2F;c059033l.pfb: Century Schoolbook L:style&#x3D;Italic</span><br><span class="line"></span><br><span class="line">&#x2F;usr&#x2F;share&#x2F;fonts&#x2F;default&#x2F;Type1&#x2F;p052024l.pfb: URW Palladio L:style&#x3D;Bold Italic</span><br><span class="line"></span><br><span class="line">&#x2F;usr&#x2F;share&#x2F;fonts&#x2F;default&#x2F;Type1&#x2F;d050000l.pfb: Dingbats:style&#x3D;Regular</span><br><span class="line"></span><br><span class="line">&#x2F;usr&#x2F;share&#x2F;fonts&#x2F;default&#x2F;Type1&#x2F;s050000l.pfb: Standard Symbols L:style&#x3D;Regular</span><br><span class="line"></span><br><span class="line">&#x2F;usr&#x2F;share&#x2F;fonts&#x2F;liberation&#x2F;LiberationMono-Bold.ttf: Liberation Mono:style&#x3D;Bold</span><br><span class="line"></span><br><span class="line">&#x2F;usr&#x2F;share&#x2F;fonts&#x2F;default&#x2F;Type1&#x2F;n021003l.pfb: Nimbus Roman No9 L:style&#x3D;Regular</span><br><span class="line"></span><br><span class="line">&#x2F;usr&#x2F;share&#x2F;fonts&#x2F;default&#x2F;Type1&#x2F;a010013l.pfb: URW Gothic L:style&#x3D;Book</span><br><span class="line"></span><br><span class="line">&#x2F;usr&#x2F;share&#x2F;fonts&#x2F;default&#x2F;Type1&#x2F;n019003l.pfb: Nimbus Sans L:style&#x3D;Regular</span><br><span class="line"></span><br><span class="line">&#x2F;usr&#x2F;share&#x2F;fonts&#x2F;default&#x2F;Type1&#x2F;a010033l.pfb: URW Gothic L:style&#x3D;Book Oblique</span><br><span class="line"></span><br><span class="line">&#x2F;usr&#x2F;share&#x2F;fonts&#x2F;default&#x2F;Type1&#x2F;a010015l.pfb: URW Gothic L:style&#x3D;Demi</span><br><span class="line"></span><br><span class="line">&#x2F;usr&#x2F;share&#x2F;fonts&#x2F;default&#x2F;Type1&#x2F;n022003l.pfb: Nimbus Mono L:style&#x3D;Regular</span><br><span class="line"></span><br><span class="line">&#x2F;usr&#x2F;share&#x2F;fonts&#x2F;default&#x2F;Type1&#x2F;n022024l.pfb: Nimbus Mono L:style&#x3D;Bold Oblique</span><br><span class="line"></span><br><span class="line">&#x2F;usr&#x2F;share&#x2F;fonts&#x2F;default&#x2F;ghostscript&#x2F;putbi.pfa: Utopia:style&#x3D;Bold Italic</span><br><span class="line"></span><br><span class="line">&#x2F;usr&#x2F;share&#x2F;fonts&#x2F;default&#x2F;Type1&#x2F;b018012l.pfb: URW Bookman L:style&#x3D;Light</span><br><span class="line"></span><br><span class="line">&#x2F;usr&#x2F;share&#x2F;fonts&#x2F;liberation&#x2F;LiberationMono-Italic.ttf: Liberation Mono:style&#x3D;Italic</span><br><span class="line"></span><br><span class="line">&#x2F;usr&#x2F;share&#x2F;fonts&#x2F;default&#x2F;ghostscript&#x2F;putri.pfa: Utopia:style&#x3D;Italic</span><br><span class="line"></span><br><span class="line">&#x2F;usr&#x2F;share&#x2F;fonts&#x2F;default&#x2F;Type1&#x2F;n021024l.pfb: Nimbus Roman No9 L:style&#x3D;Medium Italic</span><br><span class="line"></span><br><span class="line">&#x2F;usr&#x2F;share&#x2F;fonts&#x2F;default&#x2F;Type1&#x2F;a010035l.pfb: URW Gothic L:style&#x3D;Demi Oblique</span><br><span class="line"></span><br><span class="line">&#x2F;usr&#x2F;share&#x2F;fonts&#x2F;default&#x2F;Type1&#x2F;p052023l.pfb: URW Palladio L:style&#x3D;Italic</span><br><span class="line"></span><br><span class="line">&#x2F;usr&#x2F;share&#x2F;fonts&#x2F;default&#x2F;Type1&#x2F;c059013l.pfb: Century Schoolbook L:style&#x3D;Roman</span><br><span class="line"></span><br><span class="line">&#x2F;usr&#x2F;share&#x2F;fonts&#x2F;default&#x2F;Type1&#x2F;n021004l.pfb: Nimbus Roman No9 L:style&#x3D;Medium</span><br><span class="line"></span><br><span class="line">&#x2F;usr&#x2F;share&#x2F;fonts&#x2F;default&#x2F;Type1&#x2F;b018035l.pfb: URW Bookman L:style&#x3D;Demi Bold Italic</span><br><span class="line"></span><br><span class="line">&#x2F;usr&#x2F;share&#x2F;fonts&#x2F;default&#x2F;Type1&#x2F;n022023l.pfb: Nimbus Mono L:style&#x3D;Regular Oblique</span><br><span class="line"></span><br><span class="line">&#x2F;usr&#x2F;share&#x2F;fonts&#x2F;default&#x2F;Type1&#x2F;p052004l.pfb: URW Palladio L:style&#x3D;Bold</span><br><span class="line"></span><br><span class="line">&#x2F;usr&#x2F;share&#x2F;fonts&#x2F;default&#x2F;Type1&#x2F;n022004l.pfb: Nimbus Mono L:style&#x3D;Bold</span><br><span class="line"></span><br><span class="line">&#x2F;usr&#x2F;share&#x2F;fonts&#x2F;default&#x2F;Type1&#x2F;b018032l.pfb: URW Bookman L:style&#x3D;Light Italic</span><br><span class="line"></span><br><span class="line">&#x2F;usr&#x2F;share&#x2F;fonts&#x2F;default&#x2F;Type1&#x2F;n019023l.pfb: Nimbus Sans L:style&#x3D;Regular Italic</span><br><span class="line"></span><br><span class="line">&#x2F;usr&#x2F;share&#x2F;fonts&#x2F;default&#x2F;Type1&#x2F;b018015l.pfb: URW Bookman L:style&#x3D;Demi Bold</span><br><span class="line"></span><br><span class="line">&#x2F;usr&#x2F;share&#x2F;fonts&#x2F;default&#x2F;ghostscript&#x2F;putb.pfa: Utopia:style&#x3D;Bold</span><br><span class="line"></span><br><span class="line">&#x2F;usr&#x2F;share&#x2F;fonts&#x2F;liberation&#x2F;LiberationMono-Regular.ttf: Liberation Mono:style&#x3D;Regular</span><br><span class="line"></span><br><span class="line">&#x2F;usr&#x2F;share&#x2F;fonts&#x2F;default&#x2F;Type1&#x2F;n021023l.pfb: Nimbus Roman No9 L:style&#x3D;Regular Italic</span><br><span class="line"></span><br><span class="line">&#x2F;usr&#x2F;share&#x2F;fonts&#x2F;default&#x2F;Type1&#x2F;n019024l.pfb: Nimbus Sans L:style&#x3D;Bold Italic</span><br><span class="line"></span><br><span class="line">&#x2F;usr&#x2F;share&#x2F;fonts&#x2F;default&#x2F;Type1&#x2F;z003034l.pfb: URW Chancery L:style&#x3D;Medium Italic</span><br><span class="line"></span><br><span class="line">&#x2F;usr&#x2F;share&#x2F;fonts&#x2F;chinese&#x2F;Microsoft YaHei.ttf: STHeiti:style&#x3D;Regular,標準體,Ordinær,Normal,Normaali,Regolare,レギュラー,일반체,Regulier,Обычный,常规体</span><br><span class="line"></span><br><span class="line">&#x2F;usr&#x2F;share&#x2F;fonts&#x2F;default&#x2F;Type1&#x2F;n019004l.pfb: Nimbus Sans L:style&#x3D;Bold</span><br><span class="line"></span><br><span class="line">&#x2F;usr&#x2F;share&#x2F;fonts&#x2F;default&#x2F;ghostscript&#x2F;putr.pfa: Utopia:style&#x3D;Regular</span><br><span class="line"></span><br><span class="line">&#x2F;usr&#x2F;share&#x2F;fonts&#x2F;liberation&#x2F;LiberationMono-BoldItalic.ttf: Liberation Mono:style&#x3D;Bold Italic</span><br><span class="line"></span><br><span class="line">&#x2F;usr&#x2F;share&#x2F;fonts&#x2F;default&#x2F;Type1&#x2F;n019044l.pfb: Nimbus Sans L:style&#x3D;Bold Condensed</span><br><span class="line"></span><br><span class="line">&#x2F;usr&#x2F;share&#x2F;fonts&#x2F;default&#x2F;Type1&#x2F;p052003l.pfb: URW Palladio L:style&#x3D;Roman</span><br><span class="line"></span><br><span class="line">&#x2F;usr&#x2F;share&#x2F;fonts&#x2F;default&#x2F;Type1&#x2F;c059036l.pfb: Century Schoolbook L:style&#x3D;Bold Italic</span><br><span class="line"></span><br><span class="line">&#x2F;usr&#x2F;share&#x2F;fonts&#x2F;default&#x2F;Type1&#x2F;n019063l.pfb: Nimbus Sans L:style&#x3D;Regular Condensed Italic</span><br><span class="line"></span><br><span class="line">&#x2F;usr&#x2F;share&#x2F;fonts&#x2F;default&#x2F;Type1&#x2F;n019064l.pfb: Nimbus Sans L:style&#x3D;Bold Condensed Italic</span><br><span class="line"></span><br><span class="line">&#x2F;usr&#x2F;share&#x2F;fonts&#x2F;default&#x2F;Type1&#x2F;n019043l.pfb: Nimbus Sans L:style&#x3D;Regular Condensed</span><br></pre></td></tr></table></figure>
+
+<blockquote>
+<p>到此，可以愉快的使用wkhtmltopdf去玩html转pdf，不过呢，如果要使用php集成wkhtmltopdf的话，请看我的下篇博文。</p>
+</blockquote>
+
+    </div>
+
+    
+    
+    
+
+      <footer class="post-footer">
+          <div class="post-tags">
+              <a href="/tags/Linux/" rel="tag"># Linux</a>
+              <a href="/tags/CentOS/" rel="tag"># CentOS</a>
+              <a href="/tags/wkhtmltopdf/" rel="tag"># wkhtmltopdf</a>
+              <a href="/tags/%E4%B8%AD%E6%96%87%E5%AD%97%E4%BD%93/" rel="tag"># 中文字体</a>
+          </div>
+
+        
+
+
+        
+    <div class="post-nav">
+      <div class="post-nav-item">
+    <a href="/articles/2017/04/06/1491468570085.html/" rel="prev" title="yii2在nginx环境下的url美化">
+      <i class="fa fa-chevron-left"></i> yii2在nginx环境下的url美化
+    </a></div>
+      <div class="post-nav-item">
+    <a href="/articles/2017/04/19/1492569053223.html/" rel="next" title="通过Github与Packagist建立联动关系来解决Github上composer资源包的依赖问题">
+      通过Github与Packagist建立联动关系来解决Github上composer资源包的依赖问题 <i class="fa fa-chevron-right"></i>
+    </a></div>
+    </div>
+      </footer>
+    
+  </article>
+  
+  
+  
+
+  </div>
+
+
+          </div>
+          
+
+<script>
+  window.addEventListener('tabs:register', () => {
+    let activeClass = CONFIG.comments.activeClass;
+    if (CONFIG.comments.storage) {
+      activeClass = localStorage.getItem('comments_active') || activeClass;
+    }
+    if (activeClass) {
+      let activeTab = document.querySelector(`a[href="#comment-${activeClass}"]`);
+      if (activeTab) {
+        activeTab.click();
+      }
+    }
+  });
+  if (CONFIG.comments.storage) {
+    window.addEventListener('tabs:click', event => {
+      if (!event.target.matches('.tabs-comment .tab-content .tab-pane')) return;
+      let commentClass = event.target.classList[1];
+      localStorage.setItem('comments_active', commentClass);
+    });
+  }
+</script>
+
+        </div>
+          
+  
+  <div class="toggle sidebar-toggle">
+    <span class="toggle-line toggle-line-first"></span>
+    <span class="toggle-line toggle-line-middle"></span>
+    <span class="toggle-line toggle-line-last"></span>
+  </div>
+
+  <aside class="sidebar">
+    <div class="sidebar-inner">
+
+      <ul class="sidebar-nav motion-element">
+        <li class="sidebar-nav-toc">
+          Inhaltsverzeichnis
+        </li>
+        <li class="sidebar-nav-overview">
+          Übersicht
+        </li>
+      </ul>
+
+      <!--noindex-->
+      <div class="post-toc-wrap sidebar-panel">
+          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-3"><a class="nav-link" href="#安装wkhtmltopdf"><span class="nav-number">1.</span> <span class="nav-text">安装wkhtmltopdf</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#服务器安装中文字体"><span class="nav-number">2.</span> <span class="nav-text">服务器安装中文字体</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#正式开工之前要准备的工具"><span class="nav-number">2.1.</span> <span class="nav-text">正式开工之前要准备的工具</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#正式动工"><span class="nav-number">2.2.</span> <span class="nav-text">正式动工</span></a></li></ol></li></ol></div>
+      </div>
+      <!--/noindex-->
+
+      <div class="site-overview-wrap sidebar-panel">
+        <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+  <p class="site-author-name" itemprop="name">liumapp</p>
+  <div class="site-description" itemprop="description"></div>
+</div>
+<div class="site-state-wrap motion-element">
+  <nav class="site-state">
+      <div class="site-state-item site-state-posts">
+          <a href="/archives/">
+        
+          <span class="site-state-item-count">165</span>
+          <span class="site-state-item-name">Artikel</span>
+        </a>
+      </div>
+      <div class="site-state-item site-state-tags">
+        <span class="site-state-item-count">88</span>
+        <span class="site-state-item-name">schlagwörter</span>
+      </div>
+  </nav>
+</div>
+
+
+
+      </div>
+
+    </div>
+  </aside>
+  <div id="sidebar-dimmer"></div>
+
+
+      </div>
+    </main>
+
+    <footer class="footer">
+      <div class="footer-inner">
+        
+
+<div class="copyright">
+  
+  &copy; 
+  <span itemprop="copyrightYear">2020</span>
+  <span class="with-love">
+    <i class="fa fa-user"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">liumapp.com@gmail.com</span>
+</div>
+  <div class="powered-by">Erstellt mit  <a href="https://hexo.io/" class="theme-link" rel="noopener" target="_blank">Hexo</a> v4.2.0
+  </div>
+  <span class="post-meta-divider">|</span>
+  <div class="theme-info">Design – <a href="https://theme-next.org/" class="theme-link" rel="noopener" target="_blank">NexT.Gemini</a> v7.7.0
+  </div>
+
+        
+
+
+
+
+
+
+
+
+      </div>
+    </footer>
+  </div>
+
+  
+  <script src="/lib/anime.min.js"></script>
+  <script src="/lib/velocity/velocity.min.js"></script>
+  <script src="/lib/velocity/velocity.ui.min.js"></script>
+
+<script src="/js/utils.js"></script>
+
+<script src="/js/motion.js"></script>
+
+
+<script src="/js/schemes/pisces.js"></script>
+
+
+<script src="/js/next-boot.js"></script>
+
+
+
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+
+  
+
+</body>
+</html>

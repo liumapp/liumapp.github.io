@@ -1,0 +1,1080 @@
+<!DOCTYPE html>
+<html lang="zh-Hans">
+<head>
+  <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=2">
+<meta name="theme-color" content="#222">
+<meta name="generator" content="Hexo 4.2.0">
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png">
+  <link rel="mask-icon" href="/images/logo.svg" color="#222">
+
+<link rel="stylesheet" href="/css/main.css">
+
+
+<link rel="stylesheet" href="/lib/font-awesome/css/font-awesome.min.css">
+
+
+<script id="hexo-configurations">
+  var NexT = window.NexT || {};
+  var CONFIG = {
+    hostname: new URL('http://www.liumapp.com').hostname,
+    root: '/',
+    scheme: 'Gemini',
+    version: '7.7.0',
+    exturl: false,
+    sidebar: {"position":"left","display":"post","padding":18,"offset":12,"onmobile":false},
+    copycode: {"enable":false,"show_result":false,"style":null},
+    back2top: {"enable":true,"sidebar":false,"scrollpercent":false},
+    bookmark: {"enable":false,"color":"#222","save":"auto"},
+    fancybox: false,
+    mediumzoom: false,
+    lazyload: false,
+    pangu: false,
+    comments: {"style":"tabs","active":null,"storage":true,"lazyload":false,"nav":null},
+    algolia: {
+      appID: '',
+      apiKey: '',
+      indexName: '',
+      hits: {"per_page":10},
+      labels: {"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}
+    },
+    localsearch: {"enable":false,"trigger":"auto","top_n_per_article":1,"unescape":false,"preload":false},
+    path: '',
+    motion: {"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}}
+  };
+</script>
+
+  <meta property="og:type" content="website">
+<meta property="og:title" content="liumapp">
+<meta property="og:url" content="http://www.liumapp.com/index.html">
+<meta property="og:site_name" content="liumapp">
+<meta property="article:author" content="liumapp">
+<meta name="twitter:card" content="summary">
+
+<link rel="canonical" href="http://www.liumapp.com/">
+
+
+<script id="page-configurations">
+  // https://hexo.io/docs/variables.html
+  CONFIG.page = {
+    sidebar: "",
+    isHome: true,
+    isPost: false
+  };
+</script>
+
+  <title>liumapp</title>
+  
+
+
+
+
+
+
+  <noscript>
+  <style>
+  .use-motion .brand,
+  .use-motion .menu-item,
+  .sidebar-inner,
+  .use-motion .post-block,
+  .use-motion .pagination,
+  .use-motion .comments,
+  .use-motion .post-header,
+  .use-motion .post-body,
+  .use-motion .collection-header { opacity: initial; }
+
+  .use-motion .site-title,
+  .use-motion .site-subtitle {
+    opacity: initial;
+    top: initial;
+  }
+
+  .use-motion .logo-line-before i { left: initial; }
+  .use-motion .logo-line-after i { right: initial; }
+  </style>
+</noscript>
+
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage">
+  <div class="container use-motion">
+    <div class="headband"></div>
+
+    <header class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-container">
+  <div class="site-meta">
+
+    <div>
+      <a href="/" class="brand" rel="start">
+        <span class="logo-line-before"><i></i></span>
+        <span class="site-title">liumapp</span>
+        <span class="logo-line-after"><i></i></span>
+      </a>
+    </div>
+  </div>
+
+  <div class="site-nav-toggle">
+    <div class="toggle" aria-label="Navigationsleiste an/ausschalten">
+      <span class="toggle-line toggle-line-first"></span>
+      <span class="toggle-line toggle-line-middle"></span>
+      <span class="toggle-line toggle-line-last"></span>
+    </div>
+  </div>
+</div>
+
+
+<nav class="site-nav">
+  
+  <ul id="menu" class="menu">
+        <li class="menu-item menu-item-home">
+
+    <a href="/" rel="section"><i class="fa fa-fw fa-home"></i>Startseite</a>
+
+  </li>
+        <li class="menu-item menu-item-archives">
+
+    <a href="/archives/" rel="section"><i class="fa fa-fw fa-archive"></i>Archiv</a>
+
+  </li>
+  </ul>
+
+</nav>
+</div>
+    </header>
+
+    
+  <div class="back-to-top">
+    <i class="fa fa-arrow-up"></i>
+    <span>0%</span>
+  </div>
+
+  <a href="https://github.com/liumapp" class="github-corner" title="Follow me on GitHub" aria-label="Follow me on GitHub" rel="noopener" target="_blank"><svg width="80" height="80" viewBox="0 0 250 250" aria-hidden="true"><path d="M0,0 L115,115 L130,115 L142,142 L250,250 L250,0 Z"></path><path d="M128.3,109.0 C113.8,99.7 119.0,89.6 119.0,89.6 C122.0,82.7 120.5,78.6 120.5,78.6 C119.2,72.0 123.4,76.3 123.4,76.3 C127.3,80.9 125.5,87.3 125.5,87.3 C122.9,97.6 130.6,101.9 134.4,103.2" fill="currentColor" style="transform-origin: 130px 106px;" class="octo-arm"></path><path d="M115.0,115.0 C114.9,115.1 118.7,116.5 119.8,115.4 L133.7,101.6 C136.9,99.2 139.9,98.4 142.2,98.6 C133.8,88.0 127.5,74.4 143.8,58.0 C148.5,53.4 154.0,51.2 159.7,51.0 C160.3,49.4 163.2,43.6 171.4,40.1 C171.4,40.1 176.1,42.5 178.8,56.2 C183.1,58.6 187.2,61.8 190.9,65.4 C194.5,69.0 197.7,73.2 200.1,77.6 C213.8,80.2 216.3,84.9 216.3,84.9 C212.7,93.1 206.9,96.0 205.4,96.6 C205.1,102.4 203.0,107.8 198.3,112.5 C181.9,128.9 168.3,122.5 157.7,114.1 C157.9,116.9 156.7,120.9 152.7,124.9 L141.0,136.5 C139.8,137.7 141.6,141.9 141.8,141.8 Z" fill="currentColor" class="octo-body"></path></svg></a>
+
+
+    <main class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          
+
+          <div class="content">
+            
+
+  <div class="posts-expand">
+        
+  
+  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block home" lang="zh-Hans">
+    <link itemprop="mainEntityOfPage" href="http://www.liumapp.com/articles/2019/12/18/1576655078684.html/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/avatar.gif">
+      <meta itemprop="name" content="liumapp">
+      <meta itemprop="description" content="">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="liumapp">
+    </span>
+      <header class="post-header">
+        <h1 class="post-title" itemprop="name headline">
+          
+            <a href="/articles/2019/12/18/1576655078684.html/" class="post-title-link" itemprop="url">海康Arternis返回码说明</a>
+        </h1>
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              <span class="post-meta-item-text">Veröffentlicht am</span>
+              
+
+              <time title="Erstellt: 2019-12-18 15:44:38 / Geändert am: 15:46:07" itemprop="dateCreated datePublished" datetime="2019-12-18T15:44:38+08:00">2019-12-18</time>
+            </span>
+
+          
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+          <h1 id="openAPI统一错误码"><a href="#openAPI统一错误码" class="headerlink" title="openAPI统一错误码"></a>openAPI统一错误码</h1><h2 id="API网关返回错误"><a href="#API网关返回错误" class="headerlink" title="API网关返回错误"></a>API网关返回错误</h2><table ><tr><td>错误描述</td><td>消除建议</td><td>errorcode</td><td>msg</td></tr><tr><td>APPKey为空</td><td>请求中填写正确的APP Key</td><td>0x02401000</td><td>Token or AppKey is null</td></tr><tr><td>APPKey对应的合作方不存在</td><td>请求中填写正确的APP Key</td><td>0x02401001</td><td>Consumer inexistence!</td></tr><tr><td>签名为空</td><td>请求中填写正确的签名信息</td><td>0x02401002</td><td>Signature is null.</td></tr><tr><td>签名不正确</td><td>请求中填写正确的签名信息</td><td>0x02401003</td><td>Invalid Signature.</td></tr><tr><td>API令牌的身份验证失败</td><td>检查token是否填写正确</td><td>0x02401004</td><td>Token authentication failed</td></tr><tr><td>API令牌为空</td><td>检查token是否填写正确</td><td>0x02401005</td><td>Token is null.</td></tr><tr><td>API令牌异常</td><td>检查token是否填写正确</td><td>0x02401006</td><td>Token Exception.</td></tr><tr><td>API令牌过期</td><td>重新获取token</td><td>0x02401007</td><td>Token Expiration </td></tr><tr><td>API接口未授权</td><td>向API接口管理员申请接口访问权限</td><td>0x02401008</td><td>Unauthorized Consumer!</td></tr><tr><td>权限验证异常</td><td>检查API网关服务是否异常</td><td>0x02401009</td><td>Authentication Exception!</td></tr><tr><td>参数转换异常，具体错误见异常信息</td><td>检查API接口参数</td><td>0x0240100a</td><td>Parameters Convert Exception!</td></tr><tr><td>API接口调用次数受限</td><td>向API接口管理员申请增加接口访问次数</td><td>0x0240100b</td><td>Limited number of calls.</td></tr><tr><td>接口调用统计异常</td><td>重启网关服务</td><td>0x0240100c</td><td>CallStatistic Exception!</td></tr><tr><td>服务调用异常</td><td>检查服务提供方是否正常</td><td>0x02400004</td><td>Call Service Exception!</td></tr></table>
+
+<h2 id="参数错误"><a href="#参数错误" class="headerlink" title="参数错误"></a>参数错误</h2>
+          <!--noindex-->
+            <div class="post-button">
+              <a class="btn" href="/articles/2019/12/18/1576655078684.html/#more" rel="contents">
+                Weiterlesen &raquo;
+              </a>
+            </div>
+          <!--/noindex-->
+        
+      
+    </div>
+
+    
+    
+    
+      <footer class="post-footer">
+        <div class="post-eof"></div>
+      </footer>
+  </article>
+  
+  
+  
+
+        
+  
+  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block home" lang="zh-Hans">
+    <link itemprop="mainEntityOfPage" href="http://www.liumapp.com/articles/2019/10/21/1571622009261.html/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/avatar.gif">
+      <meta itemprop="name" content="liumapp">
+      <meta itemprop="description" content="">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="liumapp">
+    </span>
+      <header class="post-header">
+        <h1 class="post-title" itemprop="name headline">
+          
+            <a href="/articles/2019/10/21/1571622009261.html/" class="post-title-link" itemprop="url">ValidatorException异常处理-PKIX path building failed</a>
+        </h1>
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              <span class="post-meta-item-text">Veröffentlicht am</span>
+
+              <time title="Erstellt: 2019-10-21 09:40:09" itemprop="dateCreated datePublished" datetime="2019-10-21T09:40:09+08:00">2019-10-21</time>
+            </span>
+              <span class="post-meta-item">
+                <span class="post-meta-item-icon">
+                  <i class="fa fa-calendar-check-o"></i>
+                </span>
+                <span class="post-meta-item-text">Bearbeitet am</span>
+                <time title="Geändert am: 2019-10-30 15:46:02" itemprop="dateModified" datetime="2019-10-30T15:46:02+08:00">2019-10-30</time>
+              </span>
+
+          
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+          <blockquote>
+<p>Maven下载依赖抛出一个ssl数字证书的异常:PKIX path building failed: SunCertPathBuilderException: unable to find valid certification path to requested target，记录一下这个问题的前因后果即解决办法</p>
+</blockquote>
+<h2 id="问题原因"><a href="#问题原因" class="headerlink" title="问题原因"></a>问题原因</h2><p>在我这篇博客中：<a href="https://www.liumapp.com/articles/2018/03/02/1519962410735.html">Maven依赖下载失败的原因及解决方案</a> ，我将maven的仓库地址设置为 ‘<a href="http://maven.aliyun.com/nexus/content/groups/public&#39;" target="_blank" rel="noopener">http://maven.aliyun.com/nexus/content/groups/public&#39;</a> ，别看写着是http开头，实际访问，却是一个由GlobalSign Organization Validation CA颁发证书的https站点，而这个ca机构颁发的证书，在jre/lib/security的可信证书容器cacerts中是没有存放过的，所以报出ssl数字证书不可信的异常。</p>
+<p>不信，可以使用这条命令：</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">keytool -list -keystore $JAVA_HOME/jre/lib/security/cacerts</span><br></pre></td></tr></table></figure>
+
+<p>默认密码为： ‘changeit’</p>
+<p>查阅一遍可信ca名单 ，你看看有没有GlobalSign</p>
+<h2 id="解决办法"><a href="#解决办法" class="headerlink" title="解决办法"></a>解决办法</h2><p>解决办法也很简单，直接将被质疑的证书导入cacerts即可，这一点很多其他博客也说明过，但他们只关注了keytool的命令是如何来导入证书的，并没有跟读者说明该导入的证书如何去获取</p>
+<h3 id="获取被质疑的证书"><a href="#获取被质疑的证书" class="headerlink" title="获取被质疑的证书"></a>获取被质疑的证书</h3>
+          <!--noindex-->
+            <div class="post-button">
+              <a class="btn" href="/articles/2019/10/21/1571622009261.html/#more" rel="contents">
+                Weiterlesen &raquo;
+              </a>
+            </div>
+          <!--/noindex-->
+        
+      
+    </div>
+
+    
+    
+    
+      <footer class="post-footer">
+        <div class="post-eof"></div>
+      </footer>
+  </article>
+  
+  
+  
+
+        
+  
+  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block home" lang="zh-Hans">
+    <link itemprop="mainEntityOfPage" href="http://www.liumapp.com/articles/2019/09/11/1568193356679.html/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/avatar.gif">
+      <meta itemprop="name" content="liumapp">
+      <meta itemprop="description" content="">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="liumapp">
+    </span>
+      <header class="post-header">
+        <h1 class="post-title" itemprop="name headline">
+          
+            <a href="/articles/2019/09/11/1568193356679.html/" class="post-title-link" itemprop="url">Redis在Docker中的数据持久化</a>
+        </h1>
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              <span class="post-meta-item-text">Veröffentlicht am</span>
+
+              <time title="Erstellt: 2019-09-11 17:15:56" itemprop="dateCreated datePublished" datetime="2019-09-11T17:15:56+08:00">2019-09-11</time>
+            </span>
+
+          
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+          <p>项目Github地址：<a href="https://github.com/liumapp/booklet/tree/master/booklet-redis" target="_blank" rel="noopener">github/booklet</a></p>
+<p> Redis 提供了两种不同的持久化方法来将数据存储到硬盘里面。一种方法叫快照（snapshotting，RDB），它可以将存在于某一时刻的所有数据都写入硬盘里面。</p>
+<p>另一种方法叫只追加文件（append-only file，AOF），它会在执行写命令时，将被执行的写命令复制到硬盘里面。</p>
+<p>这篇文章梳理了Redis两种持久化方法的知识点，并通过Docker + Docker-Compose进行环境的模拟，来进行数据的备份与恢复等操作。</p>
+<p>至于测试数据，我通过一个python脚本批量录入三百万条key-value键值对（会消耗719.42M内存，来源于redis-cli info信息），没有python环境的同学，可以使用我在项目里准备的另一个shell脚本</p>
+<p>python脚本代码:</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># -*- coding: UTF-8 -*-</span></span><br><span class="line"><span class="comment"># file write.py</span></span><br><span class="line"><span class="comment"># author liumapp </span></span><br><span class="line"><span class="comment"># github https://github.com/liumapp</span></span><br><span class="line"><span class="comment"># email liumapp.com@gmail.com</span></span><br><span class="line"><span class="comment"># homepage http://www.liumapp.com </span></span><br><span class="line"><span class="comment"># date 2019/9/9</span></span><br><span class="line"><span class="comment">#</span></span><br><span class="line"><span class="keyword">import</span> redis</span><br><span class="line"></span><br><span class="line">r = redis.Redis(host=<span class="string">"127.0.0.1"</span>, port=<span class="number">6379</span>, db=<span class="number">0</span>, password=<span class="string">"admin123"</span>)</span><br><span class="line">print(<span class="string">"开始插入三百万条数据，每10万条数据提交一次批处理"</span>)</span><br><span class="line"><span class="keyword">with</span> r.pipeline(transaction=<span class="literal">True</span>) <span class="keyword">as</span> p:</span><br><span class="line">    value = <span class="number">0</span></span><br><span class="line">    <span class="keyword">while</span> value &lt; <span class="number">3000000</span>:</span><br><span class="line">        print(<span class="string">"开始插入"</span> + str(value) + <span class="string">"条数据"</span>)</span><br><span class="line">        p.sadd(<span class="string">"key"</span> + str(value), <span class="string">"value"</span> + str(value))</span><br><span class="line">        value += <span class="number">1</span></span><br><span class="line">        <span class="keyword">if</span> (value % <span class="number">100000</span>) == <span class="number">0</span>:</span><br><span class="line">            p.execute()</span><br></pre></td></tr></table></figure>
+
+<h2 id="RDB"><a href="#RDB" class="headerlink" title="RDB"></a>RDB</h2><p>RDB持久化是通过创建快照来获得数据副本，即简单粗暴的直接保存键值对数据内容</p>
+<p>要启用RDB（并关闭AOF），我们需要修改Redis的配置文件(./redis_config/redis.conf):</p>
+          <!--noindex-->
+            <div class="post-button">
+              <a class="btn" href="/articles/2019/09/11/1568193356679.html/#more" rel="contents">
+                Weiterlesen &raquo;
+              </a>
+            </div>
+          <!--/noindex-->
+        
+      
+    </div>
+
+    
+    
+    
+      <footer class="post-footer">
+        <div class="post-eof"></div>
+      </footer>
+  </article>
+  
+  
+  
+
+        
+  
+  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block home" lang="zh-Hans">
+    <link itemprop="mainEntityOfPage" href="http://www.liumapp.com/articles/2019/09/10/1568080664459.html/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/avatar.gif">
+      <meta itemprop="name" content="liumapp">
+      <meta itemprop="description" content="">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="liumapp">
+    </span>
+      <header class="post-header">
+        <h1 class="post-title" itemprop="name headline">
+          
+            <a href="/articles/2019/09/10/1568080664459.html/" class="post-title-link" itemprop="url">阿里程序员推荐的15 款常用开发者工具</a>
+        </h1>
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              <span class="post-meta-item-text">Veröffentlicht am</span>
+
+              <time title="Erstellt: 2019-09-10 09:57:44" itemprop="dateCreated datePublished" datetime="2019-09-10T09:57:44+08:00">2019-09-10</time>
+            </span>
+
+          
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+          <p>转自: <a href="http://suo.im/4oTqHu" target="_blank" rel="noopener">http://suo.im/4oTqHu</a></p>
+<p>从人工到自动化，从重复到创新，技术演进的历程中，伴随着开发者工具类产品的发展。</p>
+<p>阿里巴巴将自身在各类业务场景下的技术积淀，通过开源、云上实现或工具等形式对外开放，本文将精选了一些阿里巴巴的开发者工具，希望能帮助开发者们提高开发效率、更优雅的写代码。</p>
+<p>由于开发者涉及的技术领域众多，笔者仅从自己熟悉的领域，以后端开发者的视角盘点平时可能用得到的工具。每个工具按照以下几点进行介绍：</p>
+<p>1、工具名称和简介</p>
+<p>2、使用场景 </p>
+<p>3、使用教程 </p>
+<p>4、获取方式</p>
+<h2 id="一、Java-线上诊断工具-Arthas"><a href="#一、Java-线上诊断工具-Arthas" class="headerlink" title="一、Java 线上诊断工具 Arthas"></a>一、Java 线上诊断工具 Arthas</h2><p><strong>Arthas</strong> 阿里巴巴2018年9月开源的一款Java线上诊断工具。</p>
+          <!--noindex-->
+            <div class="post-button">
+              <a class="btn" href="/articles/2019/09/10/1568080664459.html/#more" rel="contents">
+                Weiterlesen &raquo;
+              </a>
+            </div>
+          <!--/noindex-->
+        
+      
+    </div>
+
+    
+    
+    
+      <footer class="post-footer">
+        <div class="post-eof"></div>
+      </footer>
+  </article>
+  
+  
+  
+
+        
+  
+  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block home" lang="zh-Hans">
+    <link itemprop="mainEntityOfPage" href="http://www.liumapp.com/articles/2019/09/10/1568078113519.html/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/avatar.gif">
+      <meta itemprop="name" content="liumapp">
+      <meta itemprop="description" content="">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="liumapp">
+    </span>
+      <header class="post-header">
+        <h1 class="post-title" itemprop="name headline">
+          
+            <a href="/articles/2019/09/10/1568078113519.html/" class="post-title-link" itemprop="url">redis cli命令</a>
+        </h1>
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              <span class="post-meta-item-text">Veröffentlicht am</span>
+              
+
+              <time title="Erstellt: 2019-09-10 09:15:13 / Geändert am: 09:29:39" itemprop="dateCreated datePublished" datetime="2019-09-10T09:15:13+08:00">2019-09-10</time>
+            </span>
+
+          
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+          <p>转自: <a href="https://www.cnblogs.com/kongzhongqijing/p/6867960.html" target="_blank" rel="noopener">https://www.cnblogs.com/kongzhongqijing/p/6867960.html</a></p>
+<h1 id="redis-cli命令"><a href="#redis-cli命令" class="headerlink" title="redis cli命令"></a><a href="https://www.cnblogs.com/kongzhongqijing/p/6867960.html" target="_blank" rel="noopener">redis cli命令</a></h1><p>redis安装后，在src和/usr/local/bin下有几个以redis开头的可执行文件，称为redis shell，这些可执行文件可做很多事情。</p>
+<table border="0" style="margin: 0px; padding: 0px; border-collapse: collapse; border-spacing: 0px; max-width: 850px; border: 1px solid rgb(192, 192, 192); word-break: break-word; height: 140px; width: 471px;"><tbody style="margin: 0px; padding: 0px;"><tr style="margin: 0px; padding: 0px;"><td style="margin: 0px; padding: 8px 14px; border: 1px solid rgb(192, 192, 192); border-collapse: collapse;">可执行文件</td><td style="margin: 0px; padding: 8px 14px; border: 1px solid rgb(192, 192, 192); border-collapse: collapse;">作用</td></tr><tr style="margin: 0px; padding: 0px;"><td style="margin: 0px; padding: 8px 14px; border: 1px solid rgb(192, 192, 192); border-collapse: collapse;">redis-server&nbsp;</td><td style="margin: 0px; padding: 8px 14px; border: 1px solid rgb(192, 192, 192); border-collapse: collapse;">启动redis</td></tr><tr style="margin: 0px; padding: 0px;"><td style="margin: 0px; padding: 8px 14px; border: 1px solid rgb(192, 192, 192); border-collapse: collapse;">redis-cli</td><td style="margin: 0px; padding: 8px 14px; border: 1px solid rgb(192, 192, 192); border-collapse: collapse;">redis命令行工具</td></tr><tr style="margin: 0px; padding: 0px;"><td style="margin: 0px; padding: 8px 14px; border: 1px solid rgb(192, 192, 192); border-collapse: collapse;">redis-benchmark</td><td style="margin: 0px; padding: 8px 14px; border: 1px solid rgb(192, 192, 192); border-collapse: collapse;">基准测试工具</td></tr><tr style="margin: 0px; padding: 0px;"><td style="margin: 0px; padding: 8px 14px; border: 1px solid rgb(192, 192, 192); border-collapse: collapse;">redis-check-aof</td><td style="margin: 0px; padding: 8px 14px; border: 1px solid rgb(192, 192, 192); border-collapse: collapse;">AOF持久化文件检测工具和修复工具</td></tr><tr style="margin: 0px; padding: 0px;"><td style="margin: 0px; padding: 8px 14px; border: 1px solid rgb(192, 192, 192); border-collapse: collapse;">redis-check-dump</td><td style="margin: 0px; padding: 8px 14px; border: 1px solid rgb(192, 192, 192); border-collapse: collapse;">RDB持久化文件检测工具和修复工具</td></tr><tr style="margin: 0px; padding: 0px;"><td style="margin: 0px; padding: 8px 14px; border: 1px solid rgb(192, 192, 192); border-collapse: collapse;">redis-sentinel</td><td style="margin: 0px; padding: 8px 14px; border: 1px solid rgb(192, 192, 192); border-collapse: collapse;">启动redis-sentinel</td></tr></tbody></table>
+
+<p>本文重点介绍的redis-cli命令。</p>
+<p>可以使用两种方式连接redis服务器。</p>
+<p><strong>第一种：交互式方式</strong>   </p>
+<p>redis-cli -h {host} -p {port}方式连接，然后所有的操作都是在交互的方式实现，不需要再执行redis-cli了。</p>
+<p>$redis-cli -h 127.0.0.1-p 6379</p>
+<p>127.0.0.1：6379&gt;set hello world</p>
+          <!--noindex-->
+            <div class="post-button">
+              <a class="btn" href="/articles/2019/09/10/1568078113519.html/#more" rel="contents">
+                Weiterlesen &raquo;
+              </a>
+            </div>
+          <!--/noindex-->
+        
+      
+    </div>
+
+    
+    
+    
+      <footer class="post-footer">
+        <div class="post-eof"></div>
+      </footer>
+  </article>
+  
+  
+  
+
+        
+  
+  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block home" lang="zh-Hans">
+    <link itemprop="mainEntityOfPage" href="http://www.liumapp.com/articles/2019/09/04/1567559131992.html/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/avatar.gif">
+      <meta itemprop="name" content="liumapp">
+      <meta itemprop="description" content="">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="liumapp">
+    </span>
+      <header class="post-header">
+        <h1 class="post-title" itemprop="name headline">
+          
+            <a href="/articles/2019/09/04/1567559131992.html/" class="post-title-link" itemprop="url">JDK中常用的设计模式</a>
+        </h1>
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              <span class="post-meta-item-text">Veröffentlicht am</span>
+
+              <time title="Erstellt: 2019-09-04 09:05:32" itemprop="dateCreated datePublished" datetime="2019-09-04T09:05:32+08:00">2019-09-04</time>
+            </span>
+
+          
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+          <p>转自：<a href="https://yq.aliyun.com/articles/38175" target="_blank" rel="noopener">https://yq.aliyun.com/articles/38175</a></p>
+<p>在软件工程中，设计模式（design pattern）是对软件设计中普遍存在（反复出现）的各种问题，所提出的解决方案。以下是整理的几个在JDK库中常用的几个设计模式。</p>
+<ul>
+<li><p>Birdge 桥接模式</p>
+<p>  这个模式将抽象和抽象操作的实现进行了解耦，这样使得抽象和实现可以独立地变化。<br>GOF在提出桥梁模式的时候指出，桥梁模式的用意是”将抽象化(Abstraction)与实现化(Implementation)脱耦，使得二者可以独立地变化”。这句话有三个关键词，也就是抽象化、实现化和脱耦。<br>在Java应用中，对于桥接模式有一个非常典型的例子，就是应用程序使用JDBC驱动程序进行开发的方式。所谓驱动程序，指的是按照预先约定好的接口来操作计算机系统或者是外围设备的程序。</p>
+</li>
+<li><p>Adapter 适配器模式</p>
+<p>  用来把一个接口转化成另一个接口。使得原本由于接口不兼容而不能一起工作的那些类可以在一起工作。</p>
+<pre><code>java.util.Arrays#asList()
+java.io.InputStreamReader(InputStream)
+java.io.OutputStreamWriter(OutputStream)</code></pre></li>
+</ul>
+          <!--noindex-->
+            <div class="post-button">
+              <a class="btn" href="/articles/2019/09/04/1567559131992.html/#more" rel="contents">
+                Weiterlesen &raquo;
+              </a>
+            </div>
+          <!--/noindex-->
+        
+      
+    </div>
+
+    
+    
+    
+      <footer class="post-footer">
+        <div class="post-eof"></div>
+      </footer>
+  </article>
+  
+  
+  
+
+        
+  
+  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block home" lang="zh-Hans">
+    <link itemprop="mainEntityOfPage" href="http://www.liumapp.com/articles/2019/08/26/1566821421592.html/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/avatar.gif">
+      <meta itemprop="name" content="liumapp">
+      <meta itemprop="description" content="">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="liumapp">
+    </span>
+      <header class="post-header">
+        <h1 class="post-title" itemprop="name headline">
+          
+            <a href="/articles/2019/08/26/1566821421592.html/" class="post-title-link" itemprop="url">多线程之线程池-各个参数的含义</a>
+        </h1>
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              <span class="post-meta-item-text">Veröffentlicht am</span>
+              
+
+              <time title="Erstellt: 2019-08-26 20:10:21 / Geändert am: 20:11:16" itemprop="dateCreated datePublished" datetime="2019-08-26T20:10:21+08:00">2019-08-26</time>
+            </span>
+
+          
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+          <p>转自：<a href="https://www.cnblogs.com/aspirant/p/8628843.html" target="_blank" rel="noopener">https://www.cnblogs.com/aspirant/p/8628843.html</a></p>
+<p>一道经典考题，如果corePolllSize=10,MaxPollSize=20,如果来了25个线程 怎么办，</p>
+<p> 先达到 corePoolSize，然后 优先放入队列，然后在到MaxPollSize，然后拒绝；</p>
+<p>答案：</p>
+<p>当一个任务通过execute(Runnable)方法欲添加到线程池时：<br>1、 如果此时线程池中的数量小于corePoolSize，即使线程池中的线程都处于空闲状态，也要创建新的线程来处理被添加的任务。<br>2、 如果此时线程池中的数量等于 corePoolSize，但是缓冲队列 workQueue未满，那么任务被放入缓冲队列。<br>3、如果此时线程池中的数量大于corePoolSize，缓冲队列workQueue满，再有新的线程，开始增加线程池的线程数量处理新的线程，直到maximumPoolSize；<br>4、 如果此时线程池中的数量大于corePoolSize，缓冲队列workQueue满，并且线程池中的数量等于maximumPoolSize，那么通过 handler所指定的策略来处理此任务。也就是：处理任务的优先级为：核心线程corePoolSize、任务队列workQueue、最大线程 maximumPoolSize，如果三者都满了，使用handler处理被拒绝的任务。<br>5、 当线程池中的线程数量大于 corePoolSize时，如果某线程空闲时间超过keepAliveTime，线程将被终止。这样，线程池可以动态的调整池中的线程数。  </p>
+<ul>
+<li><strong>当线程数小于corePoolSize时,提交一个任务创建一个线程(即使这时有空闲线程)来执行该任务。</strong>  </li>
+<li><strong>当线程数大于等于corePoolSize，首选将任务添加等待队列workQueue中（这里的workQueue是上面的BlockingQueue），等有空闲线程时，让空闲线程从队列中取任务。</strong>  </li>
+<li><strong>当等待队列满时，如果线程数量小于maximumPoolSize则创建新的线程，否则使用拒绝线程处理器来处理提交的任务。</strong></li>
+</ul>
+<p>慢慢的启动到10，然后把剩下的15个放到阻塞队列里面，并开始在线程池里面创建线程，直到最大MaximumPoolSize;</p>
+<p>当然是先放在阻塞队列(如果数量为0，就一直等待,LinkedBlockingDeque是一个由链表结构组成的双向阻塞队列,两边都可以进出的，那种，</p>
+<p>参考：<a href="http://www.cnblogs.com/aspirant/p/8628779.html" target="_blank" rel="noopener">聊聊并发（七）——Java中的阻塞队列</a></p>
+<p>尤其是那个车间里工人的例子，好好看看，理解线程很有用：</p>
+          <!--noindex-->
+            <div class="post-button">
+              <a class="btn" href="/articles/2019/08/26/1566821421592.html/#more" rel="contents">
+                Weiterlesen &raquo;
+              </a>
+            </div>
+          <!--/noindex-->
+        
+      
+    </div>
+
+    
+    
+    
+      <footer class="post-footer">
+        <div class="post-eof"></div>
+      </footer>
+  </article>
+  
+  
+  
+
+        
+  
+  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block home" lang="zh-Hans">
+    <link itemprop="mainEntityOfPage" href="http://www.liumapp.com/articles/2019/08/26/1566806934099.html/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/avatar.gif">
+      <meta itemprop="name" content="liumapp">
+      <meta itemprop="description" content="">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="liumapp">
+    </span>
+      <header class="post-header">
+        <h1 class="post-title" itemprop="name headline">
+          
+            <a href="/articles/2019/08/26/1566806934099.html/" class="post-title-link" itemprop="url">论integer是地址传递还是值传递 </a>
+        </h1>
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              <span class="post-meta-item-text">Veröffentlicht am</span>
+
+              <time title="Erstellt: 2019-08-26 16:08:54" itemprop="dateCreated datePublished" datetime="2019-08-26T16:08:54+08:00">2019-08-26</time>
+            </span>
+
+          
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+          <p>转自: <a href="https://blog.csdn.net/WitsMakeMen/article/details/46874717" target="_blank" rel="noopener">https://blog.csdn.net/WitsMakeMen/article/details/46874717</a></p>
+<p>Integer 作为传参的时候是地址传递，可以参考如下例子，在程序刚启动的时候把 Integer 的index 对象锁住 ，并且调用了 wait方法，释放了锁的资源，等待notify，最后过了5秒钟，等待testObject 调用notify 方法就继续执行了。大家都知道锁的对象和释放的对象必须是同一个，否则会抛出  java.lang.IllegalMonitorStateException 。由此可以证明 Integer作为参数传递的时候是地址传递，而非值传递。   </p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">IntegerSyn</span> </span>&#123;</span><br><span class="line">  </span><br><span class="line">  <span class="function"><span class="keyword">public</span> <span class="keyword">static</span> <span class="keyword">void</span> <span class="title">main</span><span class="params">(String[] args)</span> <span class="keyword">throws</span> InterruptedException </span>&#123;</span><br><span class="line">    Integer index = <span class="number">0</span>;</span><br><span class="line">    TestObject a = <span class="keyword">new</span> TestObject(index);</span><br><span class="line">    <span class="keyword">synchronized</span> (index) &#123;</span><br><span class="line">      <span class="keyword">new</span> Thread(a).start();</span><br><span class="line">      index.wait();</span><br><span class="line">    &#125;</span><br><span class="line">    System.out.println(<span class="string">"end"</span>);</span><br><span class="line">  &#125;</span><br><span class="line">&#125;</span><br><span class="line"> </span><br><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">TestObject</span> <span class="keyword">implements</span> <span class="title">Runnable</span> </span>&#123;</span><br><span class="line">  <span class="keyword">private</span> Integer index;</span><br><span class="line">  </span><br><span class="line">  <span class="function"><span class="keyword">public</span> <span class="title">TestObject</span><span class="params">(Integer index)</span></span>&#123;</span><br><span class="line">    <span class="keyword">this</span>.index = index;</span><br><span class="line">  &#125;</span><br><span class="line">  </span><br><span class="line">  <span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">run</span><span class="params">()</span> </span>&#123;</span><br><span class="line">    <span class="keyword">try</span> &#123;</span><br><span class="line">      TimeUnit.SECONDS.sleep(<span class="number">5</span>);</span><br><span class="line">    &#125; <span class="keyword">catch</span> (InterruptedException e) &#123;</span><br><span class="line">      e.printStackTrace();</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="keyword">synchronized</span> (index) &#123;</span><br><span class="line">      index.notify();</span><br><span class="line">    &#125;</span><br><span class="line">  &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>那就会有人问了，为什么执行如下代码的时候两次的输出结果是一样的？   </p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">public</span> <span class="keyword">static</span> <span class="keyword">void</span> <span class="title">main</span><span class="params">(String[] args)</span> <span class="keyword">throws</span> InterruptedException </span>&#123;</span><br><span class="line">    Integer index = <span class="number">0</span>;</span><br><span class="line">    System.out.println(index);</span><br><span class="line">    test(index);</span><br><span class="line">    System.out.println(index);</span><br><span class="line">  &#125;</span><br><span class="line">  </span><br><span class="line">  <span class="function"><span class="keyword">public</span> <span class="keyword">static</span> <span class="keyword">void</span>  <span class="title">test</span><span class="params">(Integer index)</span></span>&#123;</span><br><span class="line">    index++;</span><br><span class="line">  &#125;</span><br></pre></td></tr></table></figure>
+
+
+
+<p>理由很简单，可以看到 Integer 类中final的value字段，说明一旦integer类创建之后他的值就不能被修改，在 index++ 的时候Integer是创建一个新的类，所以这个第二次输出的时候结果是一样的！   </p>
+<p><code>private final int value;</code></p>
+
+          <!--noindex-->
+            <div class="post-button">
+              <a class="btn" href="/articles/2019/08/26/1566806934099.html/#more" rel="contents">
+                Weiterlesen &raquo;
+              </a>
+            </div>
+          <!--/noindex-->
+        
+      
+    </div>
+
+    
+    
+    
+      <footer class="post-footer">
+        <div class="post-eof"></div>
+      </footer>
+  </article>
+  
+  
+  
+
+        
+  
+  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block home" lang="zh-Hans">
+    <link itemprop="mainEntityOfPage" href="http://www.liumapp.com/articles/2019/08/21/1566357223658.html/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/avatar.gif">
+      <meta itemprop="name" content="liumapp">
+      <meta itemprop="description" content="">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="liumapp">
+    </span>
+      <header class="post-header">
+        <h1 class="post-title" itemprop="name headline">
+          
+            <a href="/articles/2019/08/21/1566357223658.html/" class="post-title-link" itemprop="url">Gitlab-error: RPC failed; result=22, HTTP code = 500解决</a>
+        </h1>
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              <span class="post-meta-item-text">Veröffentlicht am</span>
+
+              <time title="Erstellt: 2019-08-21 11:13:43" itemprop="dateCreated datePublished" datetime="2019-08-21T11:13:43+08:00">2019-08-21</time>
+            </span>
+
+          
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+          <blockquote>
+<p>操作Gitlab进行日常代码推拉的过程中，突然遇到如标题所述异常，这篇博客记录这个问题的解决办法</p>
+</blockquote>
+<h2 id="场景复现"><a href="#场景复现" class="headerlink" title="场景复现"></a>场景复现</h2><p>对Gitlab私有仓库进行代码push操作，产生如下异常信息：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line">Counting objects: 875, done.</span><br><span class="line">Delta compression using up to 8 threads.</span><br><span class="line">Compressing objects: 100% (523&#x2F;523), done.</span><br><span class="line">Writing objects: 100% (875&#x2F;875), 42.94 MiB | 9.72 MiB&#x2F;s, done.</span><br><span class="line">Total 875 (delta 206), reused 2 (delta 0)</span><br><span class="line">error: RPC failed; result&#x3D;22, HTTP code &#x3D; 500</span><br><span class="line">fatal: The remote end hung up unexpectedly</span><br><span class="line">fatal: The remote end hung up unexpectedly</span><br></pre></td></tr></table></figure>
+
+<p>Gitlab官方对此issue的反馈信息：<a href="https://gitlab.com/gitlab-org/gitlab-ce/issues/12629" target="_blank" rel="noopener">https://gitlab.com/gitlab-org/gitlab-ce/issues/12629</a></p>
+<p>查看官方issue后，可以发现官方对此问题的解决方式基本是以下两种方案：</p>
+<ul>
+<li><p>更换CentOS操作系统为Ubuntu</p>
+</li>
+<li><p>更换Nginx引擎为Tomcat</p>
+</li>
+</ul>
+<p>两种方案操作成本都很昂贵，不可接受</p>
+<h3 id="问题出现原因"><a href="#问题出现原因" class="headerlink" title="问题出现原因"></a>问题出现原因</h3><p>因为gitlab本身自己封装了nginx、redis等工具，包括这些工具的配置也一并解决，所以在推代码的过程中，如果一次性提交的commit体积过大，超出max package的限定值，那么可能会产生上述异常</p>
+          <!--noindex-->
+            <div class="post-button">
+              <a class="btn" href="/articles/2019/08/21/1566357223658.html/#more" rel="contents">
+                Weiterlesen &raquo;
+              </a>
+            </div>
+          <!--/noindex-->
+        
+      
+    </div>
+
+    
+    
+    
+      <footer class="post-footer">
+        <div class="post-eof"></div>
+      </footer>
+  </article>
+  
+  
+  
+
+        
+  
+  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block home" lang="zh-Hans">
+    <link itemprop="mainEntityOfPage" href="http://www.liumapp.com/articles/2019/08/06/1565075584839.html/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/avatar.gif">
+      <meta itemprop="name" content="liumapp">
+      <meta itemprop="description" content="">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="liumapp">
+    </span>
+      <header class="post-header">
+        <h1 class="post-title" itemprop="name headline">
+          
+            <a href="/articles/2019/08/06/1565075584839.html/" class="post-title-link" itemprop="url">Spring-RedisTemplate写入数据乱码问题的复现与解决</a>
+        </h1>
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              <span class="post-meta-item-text">Veröffentlicht am</span>
+
+              <time title="Erstellt: 2019-08-06 15:13:04" itemprop="dateCreated datePublished" datetime="2019-08-06T15:13:04+08:00">2019-08-06</time>
+            </span>
+
+          
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+          <blockquote>
+<p>org.springframework.data.redis是Spring框架对Redis的默认集成，我们在实际项目中，也经常使用它的RedisTemplate去操作Redis，一般来说没什么问题，但是细心一点的同学会发现，经过这种方法写入redis的数据会出现乱码问题</p>
+</blockquote>
+<h2 id="问题复现"><a href="#问题复现" class="headerlink" title="问题复现"></a>问题复现</h2><h3 id="项目依赖"><a href="#项目依赖" class="headerlink" title="项目依赖"></a>项目依赖</h3><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><span class="line">&lt;dependency&gt;</span><br><span class="line">  &lt;groupId&gt;org.springframework.boot&lt;&#x2F;groupId&gt;</span><br><span class="line">  &lt;artifactId&gt;spring-boot-starter-web&lt;&#x2F;artifactId&gt;</span><br><span class="line">&lt;&#x2F;dependency&gt;</span><br><span class="line">&lt;dependency&gt;</span><br><span class="line">  &lt;groupId&gt;org.springframework.boot&lt;&#x2F;groupId&gt;</span><br><span class="line">  &lt;artifactId&gt;spring-boot-starter-test&lt;&#x2F;artifactId&gt;</span><br><span class="line">  &lt;scope&gt;test&lt;&#x2F;scope&gt;</span><br><span class="line">&lt;&#x2F;dependency&gt;</span><br><span class="line">&lt;dependency&gt;</span><br><span class="line">  &lt;groupId&gt;org.springframework.boot&lt;&#x2F;groupId&gt;</span><br><span class="line">  &lt;artifactId&gt;spring-boot-starter-data-redis&lt;&#x2F;artifactId&gt;</span><br><span class="line">&lt;&#x2F;dependency&gt;</span><br></pre></td></tr></table></figure>
+          <!--noindex-->
+            <div class="post-button">
+              <a class="btn" href="/articles/2019/08/06/1565075584839.html/#more" rel="contents">
+                Weiterlesen &raquo;
+              </a>
+            </div>
+          <!--/noindex-->
+        
+      
+    </div>
+
+    
+    
+    
+      <footer class="post-footer">
+        <div class="post-eof"></div>
+      </footer>
+  </article>
+  
+  
+  
+
+  </div>
+
+  
+  <nav class="pagination">
+    <span class="page-number current">1</span><a class="page-number" href="/page/2/">2</a><span class="space">&hellip;</span><a class="page-number" href="/page/17/">17</a><a class="extend next" rel="next" href="/page/2/"><i class="fa fa-angle-right" aria-label="Nächste Seite"></i></a>
+  </nav>
+
+
+
+          </div>
+          
+
+<script>
+  window.addEventListener('tabs:register', () => {
+    let activeClass = CONFIG.comments.activeClass;
+    if (CONFIG.comments.storage) {
+      activeClass = localStorage.getItem('comments_active') || activeClass;
+    }
+    if (activeClass) {
+      let activeTab = document.querySelector(`a[href="#comment-${activeClass}"]`);
+      if (activeTab) {
+        activeTab.click();
+      }
+    }
+  });
+  if (CONFIG.comments.storage) {
+    window.addEventListener('tabs:click', event => {
+      if (!event.target.matches('.tabs-comment .tab-content .tab-pane')) return;
+      let commentClass = event.target.classList[1];
+      localStorage.setItem('comments_active', commentClass);
+    });
+  }
+</script>
+
+        </div>
+          
+  
+  <div class="toggle sidebar-toggle">
+    <span class="toggle-line toggle-line-first"></span>
+    <span class="toggle-line toggle-line-middle"></span>
+    <span class="toggle-line toggle-line-last"></span>
+  </div>
+
+  <aside class="sidebar">
+    <div class="sidebar-inner">
+
+      <ul class="sidebar-nav motion-element">
+        <li class="sidebar-nav-toc">
+          Inhaltsverzeichnis
+        </li>
+        <li class="sidebar-nav-overview">
+          Übersicht
+        </li>
+      </ul>
+
+      <!--noindex-->
+      <div class="post-toc-wrap sidebar-panel">
+      </div>
+      <!--/noindex-->
+
+      <div class="site-overview-wrap sidebar-panel">
+        <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+  <p class="site-author-name" itemprop="name">liumapp</p>
+  <div class="site-description" itemprop="description"></div>
+</div>
+<div class="site-state-wrap motion-element">
+  <nav class="site-state">
+      <div class="site-state-item site-state-posts">
+          <a href="/archives/">
+        
+          <span class="site-state-item-count">165</span>
+          <span class="site-state-item-name">Artikel</span>
+        </a>
+      </div>
+      <div class="site-state-item site-state-tags">
+        <span class="site-state-item-count">88</span>
+        <span class="site-state-item-name">schlagwörter</span>
+      </div>
+  </nav>
+</div>
+
+
+
+      </div>
+
+    </div>
+  </aside>
+  <div id="sidebar-dimmer"></div>
+
+
+      </div>
+    </main>
+
+    <footer class="footer">
+      <div class="footer-inner">
+        
+
+<div class="copyright">
+  
+  &copy; 
+  <span itemprop="copyrightYear">2020</span>
+  <span class="with-love">
+    <i class="fa fa-user"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">liumapp.com@gmail.com</span>
+</div>
+  <div class="powered-by">Erstellt mit  <a href="https://hexo.io/" class="theme-link" rel="noopener" target="_blank">Hexo</a> v4.2.0
+  </div>
+  <span class="post-meta-divider">|</span>
+  <div class="theme-info">Design – <a href="https://theme-next.org/" class="theme-link" rel="noopener" target="_blank">NexT.Gemini</a> v7.7.0
+  </div>
+
+        
+
+
+
+
+
+
+
+
+      </div>
+    </footer>
+  </div>
+
+  
+  <script src="/lib/anime.min.js"></script>
+  <script src="/lib/velocity/velocity.min.js"></script>
+  <script src="/lib/velocity/velocity.ui.min.js"></script>
+
+<script src="/js/utils.js"></script>
+
+<script src="/js/motion.js"></script>
+
+
+<script src="/js/schemes/pisces.js"></script>
+
+
+<script src="/js/next-boot.js"></script>
+
+
+
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+
+  
+
+</body>
+</html>

@@ -1,0 +1,575 @@
+<!DOCTYPE html>
+<html lang="zh-Hans">
+<head>
+  <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=2">
+<meta name="theme-color" content="#222">
+<meta name="generator" content="Hexo 4.2.0">
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png">
+  <link rel="mask-icon" href="/images/logo.svg" color="#222">
+
+<link rel="stylesheet" href="/css/main.css">
+
+
+<link rel="stylesheet" href="/lib/font-awesome/css/font-awesome.min.css">
+
+
+<script id="hexo-configurations">
+  var NexT = window.NexT || {};
+  var CONFIG = {
+    hostname: new URL('http://www.liumapp.com').hostname,
+    root: '/',
+    scheme: 'Gemini',
+    version: '7.7.0',
+    exturl: false,
+    sidebar: {"position":"left","display":"post","padding":18,"offset":12,"onmobile":false},
+    copycode: {"enable":false,"show_result":false,"style":null},
+    back2top: {"enable":true,"sidebar":false,"scrollpercent":false},
+    bookmark: {"enable":false,"color":"#222","save":"auto"},
+    fancybox: false,
+    mediumzoom: false,
+    lazyload: false,
+    pangu: false,
+    comments: {"style":"tabs","active":null,"storage":true,"lazyload":false,"nav":null},
+    algolia: {
+      appID: '',
+      apiKey: '',
+      indexName: '',
+      hits: {"per_page":10},
+      labels: {"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}
+    },
+    localsearch: {"enable":false,"trigger":"auto","top_n_per_article":1,"unescape":false,"preload":false},
+    path: '',
+    motion: {"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}}
+  };
+</script>
+
+  <meta name="description" content="基于libreoffice实现的文档转换项目，无框架依赖，即插即用 项目源代码：github&#x2F;workable-converter  1. 技术栈 2. 功能 3. 使用 3.1 安装配置LibreOffice6.2.3 3.2 获取依赖 3.3 编辑配置文件 3.4 执行转换 3.4.1 按照文件路径转换 3.4.2 按照输入输出流转换 3.4.3 按照文件Base64转换   3.5 图片处理">
+<meta property="og:type" content="article">
+<meta property="og:title" content="可能是国内封装Libreoffice最好的一个项目">
+<meta property="og:url" content="http://www.liumapp.com/articles/2019/05/17/1558083959455.html/index.html">
+<meta property="og:site_name" content="liumapp">
+<meta property="og:description" content="基于libreoffice实现的文档转换项目，无框架依赖，即插即用 项目源代码：github&#x2F;workable-converter  1. 技术栈 2. 功能 3. 使用 3.1 安装配置LibreOffice6.2.3 3.2 获取依赖 3.3 编辑配置文件 3.4 执行转换 3.4.1 按照文件路径转换 3.4.2 按照输入输出流转换 3.4.3 按照文件Base64转换   3.5 图片处理">
+<meta property="article:published_time" content="2019-05-17T09:05:59.000Z">
+<meta property="article:modified_time" content="2019-06-03T12:07:02.000Z">
+<meta property="article:author" content="liumapp">
+<meta property="article:tag" content="Java">
+<meta property="article:tag" content="LibreOffice">
+<meta name="twitter:card" content="summary">
+
+<link rel="canonical" href="http://www.liumapp.com/articles/2019/05/17/1558083959455.html/">
+
+
+<script id="page-configurations">
+  // https://hexo.io/docs/variables.html
+  CONFIG.page = {
+    sidebar: "",
+    isHome: false,
+    isPost: true
+  };
+</script>
+
+  <title>可能是国内封装Libreoffice最好的一个项目 | liumapp</title>
+  
+
+
+
+
+
+
+  <noscript>
+  <style>
+  .use-motion .brand,
+  .use-motion .menu-item,
+  .sidebar-inner,
+  .use-motion .post-block,
+  .use-motion .pagination,
+  .use-motion .comments,
+  .use-motion .post-header,
+  .use-motion .post-body,
+  .use-motion .collection-header { opacity: initial; }
+
+  .use-motion .site-title,
+  .use-motion .site-subtitle {
+    opacity: initial;
+    top: initial;
+  }
+
+  .use-motion .logo-line-before i { left: initial; }
+  .use-motion .logo-line-after i { right: initial; }
+  </style>
+</noscript>
+
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage">
+  <div class="container use-motion">
+    <div class="headband"></div>
+
+    <header class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-container">
+  <div class="site-meta">
+
+    <div>
+      <a href="/" class="brand" rel="start">
+        <span class="logo-line-before"><i></i></span>
+        <span class="site-title">liumapp</span>
+        <span class="logo-line-after"><i></i></span>
+      </a>
+    </div>
+  </div>
+
+  <div class="site-nav-toggle">
+    <div class="toggle" aria-label="Navigationsleiste an/ausschalten">
+      <span class="toggle-line toggle-line-first"></span>
+      <span class="toggle-line toggle-line-middle"></span>
+      <span class="toggle-line toggle-line-last"></span>
+    </div>
+  </div>
+</div>
+
+
+<nav class="site-nav">
+  
+  <ul id="menu" class="menu">
+        <li class="menu-item menu-item-home">
+
+    <a href="/" rel="section"><i class="fa fa-fw fa-home"></i>Startseite</a>
+
+  </li>
+        <li class="menu-item menu-item-archives">
+
+    <a href="/archives/" rel="section"><i class="fa fa-fw fa-archive"></i>Archiv</a>
+
+  </li>
+  </ul>
+
+</nav>
+</div>
+    </header>
+
+    
+  <div class="back-to-top">
+    <i class="fa fa-arrow-up"></i>
+    <span>0%</span>
+  </div>
+
+  <a href="https://github.com/liumapp" class="github-corner" title="Follow me on GitHub" aria-label="Follow me on GitHub" rel="noopener" target="_blank"><svg width="80" height="80" viewBox="0 0 250 250" aria-hidden="true"><path d="M0,0 L115,115 L130,115 L142,142 L250,250 L250,0 Z"></path><path d="M128.3,109.0 C113.8,99.7 119.0,89.6 119.0,89.6 C122.0,82.7 120.5,78.6 120.5,78.6 C119.2,72.0 123.4,76.3 123.4,76.3 C127.3,80.9 125.5,87.3 125.5,87.3 C122.9,97.6 130.6,101.9 134.4,103.2" fill="currentColor" style="transform-origin: 130px 106px;" class="octo-arm"></path><path d="M115.0,115.0 C114.9,115.1 118.7,116.5 119.8,115.4 L133.7,101.6 C136.9,99.2 139.9,98.4 142.2,98.6 C133.8,88.0 127.5,74.4 143.8,58.0 C148.5,53.4 154.0,51.2 159.7,51.0 C160.3,49.4 163.2,43.6 171.4,40.1 C171.4,40.1 176.1,42.5 178.8,56.2 C183.1,58.6 187.2,61.8 190.9,65.4 C194.5,69.0 197.7,73.2 200.1,77.6 C213.8,80.2 216.3,84.9 216.3,84.9 C212.7,93.1 206.9,96.0 205.4,96.6 C205.1,102.4 203.0,107.8 198.3,112.5 C181.9,128.9 168.3,122.5 157.7,114.1 C157.9,116.9 156.7,120.9 152.7,124.9 L141.0,136.5 C139.8,137.7 141.6,141.9 141.8,141.8 Z" fill="currentColor" class="octo-body"></path></svg></a>
+
+
+    <main class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          
+
+          <div class="content">
+            
+
+  <div class="posts-expand">
+      
+  
+  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block " lang="zh-Hans">
+    <link itemprop="mainEntityOfPage" href="http://www.liumapp.com/articles/2019/05/17/1558083959455.html/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/avatar.gif">
+      <meta itemprop="name" content="liumapp">
+      <meta itemprop="description" content="">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="liumapp">
+    </span>
+      <header class="post-header">
+        <h1 class="post-title" itemprop="name headline">
+          可能是国内封装Libreoffice最好的一个项目
+        </h1>
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              <span class="post-meta-item-text">Veröffentlicht am</span>
+
+              <time title="Erstellt: 2019-05-17 17:05:59" itemprop="dateCreated datePublished" datetime="2019-05-17T17:05:59+08:00">2019-05-17</time>
+            </span>
+              <span class="post-meta-item">
+                <span class="post-meta-item-icon">
+                  <i class="fa fa-calendar-check-o"></i>
+                </span>
+                <span class="post-meta-item-text">Bearbeitet am</span>
+                <time title="Geändert am: 2019-06-03 20:07:02" itemprop="dateModified" datetime="2019-06-03T20:07:02+08:00">2019-06-03</time>
+              </span>
+
+          
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+        <p>基于libreoffice实现的文档转换项目，无框架依赖，即插即用</p>
+<p>项目源代码：<a href="https://github.com/liumapp/workable-converter" target="_blank" rel="noopener">github/workable-converter</a></p>
+<ul>
+<li><a href="#1.-技术栈">1. 技术栈</a></li>
+<li><a href="#2.-功能">2. 功能</a></li>
+<li><a href="#3.-使用">3. 使用</a><ul>
+<li><a href="#3.1-安装配置libreoffice6.2.3">3.1 安装配置LibreOffice6.2.3</a></li>
+<li><a href="#3.2-获取依赖">3.2 获取依赖</a></li>
+<li><a href="#3.3-编辑配置文件">3.3 编辑配置文件</a></li>
+<li><a href="#3.4-执行转换">3.4 执行转换</a><ul>
+<li><a href="#3.4.1-按照文件路径转换">3.4.1 按照文件路径转换</a></li>
+<li><a href="#3.4.2-按照输入输出流转换">3.4.2 按照输入输出流转换</a></li>
+<li><a href="#3.4.3-按照文件base64转换">3.4.3 按照文件Base64转换</a></li>
+</ul>
+</li>
+<li><a href="#3.5-图片处理">3.5 图片处理</a>    <ul>
+<li><a href="#3.5.1-按照文件路径处理">3.5.1 按照文件路径处理</a></li>
+<li><a href="#3.5.2-按照文件base64处理">3.5.2 按照文件Base64处理</a></li>
+</ul>
+</li>
+<li><a href="#3.6-添加水印">3.6 添加水印</a><ul>
+<li><a href="#3.6.1-按照文件路径添加水印">3.6.1 按照文件路径添加水印</a></li>
+<li><a href="#3.6.2-按照流添加水印">3.6.2 按照流添加水印</a></li>
+<li><a href="#3.6.3-按照base64添加水印">3.6.3 按照base64添加水印</a>            </li>
+</ul>
+</li>
+</ul>
+</li>
+<li><a href="#4.-待办事项">4. 待办事项</a></li>
+<li><a href="#5.-注意事项">5. 注意事项</a></li>
+<li><a href="#6.-参考链接">6. 参考链接</a></li>
+</ul>
+<h2 id="1-技术栈"><a href="#1-技术栈" class="headerlink" title="1. 技术栈"></a>1. 技术栈</h2><ul>
+<li><p>LibreOffice:v6.2.3</p>
+</li>
+<li><p>jodconverter:4.2.2</p>
+</li>
+<li><p>PDFBox:2.0.12</p>
+</li>
+<li><p>cglib动态代理 + 懒汉工厂模式 + 策略模式 + 装饰器模式</p>
+</li>
+<li><p>qtools-property管理配置文件(application.yml、bootstrap.yml、workable-converter.yml三种命名的配置文件任意包含一种即可)</p>
+</li>
+</ul>
+<h2 id="2-功能"><a href="#2-功能" class="headerlink" title="2. 功能"></a>2. 功能</h2><ul>
+<li><p>支持doc、docx、html、ppt、png、pdf等等类型的文件<strong>互相转换</strong></p>
+</li>
+<li><p>支持按照文件路径、字节输入输出流、Base64等不同姿势转换</p>
+</li>
+<li><p>不依赖第三方框架，即插即用，支持application.yml、bootstrap.yml、workable-converter.yml三种配置（自己项目中具体配置一个即可）</p>
+</li>
+</ul>
+<h2 id="3-使用"><a href="#3-使用" class="headerlink" title="3. 使用"></a>3. 使用</h2><h3 id="3-1-安装配置LibreOffice6-2-3"><a href="#3-1-安装配置LibreOffice6-2-3" class="headerlink" title="3.1 安装配置LibreOffice6.2.3"></a>3.1 安装配置LibreOffice6.2.3</h3><p>CentOS请直接参考这篇文章：<a href="http://www.liumapp.com/articles/2019/04/25/1556178926172.html">CentOS7安装LibreOffice6.2.3</a></p>
+<p>windows跟Mac同样可以在上述文章中拿到下载链接</p>
+<p>安装完成后，请记住您的LibreOffice的Home目录，后面需要用到</p>
+<p>默认目录：</p>
+<ul>
+<li><p>CentOS: /opt/libreoffice6.2/</p>
+</li>
+<li><p>Mac: /Applications/LibreOffice.app/Contents/</p>
+</li>
+<li><p>Windows: C:\Program Files\LibreOffice\</p>
+</li>
+</ul>
+<h3 id="3-2-获取依赖"><a href="#3-2-获取依赖" class="headerlink" title="3.2 获取依赖"></a>3.2 获取依赖</h3><ul>
+<li>Maven</li>
+</ul>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">&lt;dependency&gt;</span><br><span class="line">  &lt;groupId&gt;com.liumapp.workable.converter&lt;&#x2F;groupId&gt;</span><br><span class="line">  &lt;artifactId&gt;workable-converter&lt;&#x2F;artifactId&gt;</span><br><span class="line">  &lt;version&gt;v1.2.0&lt;&#x2F;version&gt;</span><br><span class="line">&lt;&#x2F;dependency&gt;</span><br></pre></td></tr></table></figure>
+<ul>
+<li>Gradle</li>
+</ul>
+<figure class="highlight yaml"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="attr">compile group:</span> <span class="string">'com.liumapp.workable.converter'</span><span class="string">,</span> <span class="attr">name:</span> <span class="string">'workable-converter'</span><span class="string">,</span> <span class="attr">version:</span> <span class="string">'v1.2.0'</span></span><br></pre></td></tr></table></figure>
+
+<h3 id="3-3-编辑配置文件"><a href="#3-3-编辑配置文件" class="headerlink" title="3.3 编辑配置文件"></a>3.3 编辑配置文件</h3><p>在项目的resources目录下，创建一个yml配置文件，需要确保文件名称为application.yml、bootstrap.yml或workable-converter.yml三种命名任意一个即可</p>
+<p>添加以下配置：</p>
+<figure class="highlight yaml"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="attr">com:</span></span><br><span class="line">  <span class="attr">liumapp:</span></span><br><span class="line">    <span class="attr">workable-converter:</span></span><br><span class="line">      <span class="attr">libreofficePath:</span> <span class="string">"/Applications/LibreOffice.app/Contents"</span></span><br></pre></td></tr></table></figure>
+
+<p>libreofficePath的值为LibreOffice:6.2.3的安装目录</p>
+<p>完整的配置项列表如下</p>
+<table>
+<tr><th>参数名</th><th>解释</th><th>默认值</th></tr>
+<tr><td>libreofficePath</td><td>LibreOffice安装目录</td><td>(String) 无默认值，该项必填</td></tr>
+<tr><td>libreofficePort</td><td>LibreOffice监听端口</td><td>(int) 2002</td></tr>
+<tr><td>tmpPath</td><td>临时存储目录</td><td>(String) "./data/"</td></tr>
+</table>
+
+<h3 id="3-4-执行转换"><a href="#3-4-执行转换" class="headerlink" title="3.4 执行转换"></a>3.4 执行转换</h3><h4 id="3-4-1-按照文件路径转换"><a href="#3-4-1-按照文件路径转换" class="headerlink" title="3.4.1 按照文件路径转换"></a>3.4.1 按照文件路径转换</h4><p>以doc转PDF为例</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line">WorkableConverter converter = <span class="keyword">new</span> WorkableConverter();<span class="comment">//实例化的同时，初始化配置项，配置项的校验通过Decorator装饰</span></span><br><span class="line"></span><br><span class="line">ConvertPattern pattern = ConvertPatternManager.getInstance();</span><br><span class="line">pattern.fileToFile(<span class="string">"./data/test.doc"</span>, <span class="string">"./data/pdf/result1.pdf"</span>); <span class="comment">//test.doc为待转换文件路径，result1.pdf为转换结果存储路径</span></span><br><span class="line">pattern.setSrcFilePrefix(DefaultDocumentFormatRegistry.DOC);</span><br><span class="line">pattern.setDestFilePrefix(DefaultDocumentFormatRegistry.PDF);</span><br><span class="line"></span><br><span class="line">converter.setConverterType(CommonConverterManager.getInstance());<span class="comment">//策略模式，后续实现了新的转换策略后，在此处更换，图片转换将考虑使用新的策略来完成</span></span><br><span class="line"><span class="keyword">boolean</span> result = converter.convert(pattern.getParameter();</span><br></pre></td></tr></table></figure>
+
+<p>如果要用html转PDF，将上述代码的</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">pattern.setSrcFilePrefix(DefaultDocumentFormatRegistry.DOC);</span><br><span class="line">pattern.setDestFilePrefix(DefaultDocumentFormatRegistry.PDF);</span><br></pre></td></tr></table></figure>
+
+<p>改为</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">pattern.setSrcFilePrefix(DefaultDocumentFormatRegistry.HTML);</span><br><span class="line">pattern.setDestFilePrefix(DefaultDocumentFormatRegistry.PDF);</span><br></pre></td></tr></table></figure>
+
+<p>其他类型的同理</p>
+<h4 id="3-4-2-按照输入输出流转换"><a href="#3-4-2-按照输入输出流转换" class="headerlink" title="3.4.2 按照输入输出流转换"></a>3.4.2 按照输入输出流转换</h4><p>以doc转pdf为例</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// you can also choice not use proxy</span></span><br><span class="line">WorkableConverter converter = <span class="keyword">new</span> WorkableConverter();</span><br><span class="line">ConvertPattern pattern = ConvertPatternManager.getInstance();</span><br><span class="line">pattern.streamToStream(<span class="keyword">new</span> FileInputStream(<span class="string">"./data/test.doc"</span>), <span class="keyword">new</span> FileOutputStream(<span class="string">"./data/pdf/result1_2.pdf"</span>));</span><br><span class="line"><span class="comment">// attention !!! convert by stream must set prefix.</span></span><br><span class="line">pattern.setSrcFilePrefix(DefaultDocumentFormatRegistry.DOC);</span><br><span class="line">pattern.setDestFilePrefix(DefaultDocumentFormatRegistry.PDF);</span><br><span class="line">converter.setConverterType(CommonConverterManager.getInstance());</span><br><span class="line"><span class="keyword">boolean</span> result = converter.convert(pattern.getParameter();</span><br></pre></td></tr></table></figure>
+
+<p>跟上例基本相同，唯一的变化是通过pattern.streamToStream()来设置输入输出流，转换源文件数据从输入流中读取，转换结果会直接写入输出流中，</p>
+<p>同时要切换转换格式，跟上例一样设置不同的prefix即可</p>
+<h4 id="3-4-3-按照文件Base64转换"><a href="#3-4-3-按照文件Base64转换" class="headerlink" title="3.4.3 按照文件Base64转换"></a>3.4.3 按照文件Base64转换</h4><p>仍以doc转pdf为例</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line">WorkableConverter converter = <span class="keyword">new</span> WorkableConverter();</span><br><span class="line">ConvertPattern pattern = ConvertPatternManager.getInstance();</span><br><span class="line">pattern.base64ToBase64(Base64FileTool.FileToBase64(<span class="keyword">new</span> File(<span class="string">"./data/test.doc"</span>)));</span><br><span class="line"><span class="comment">// attention !!! convert by base64 must set prefix.</span></span><br><span class="line">pattern.setSrcFilePrefix(DefaultDocumentFormatRegistry.DOC);</span><br><span class="line">pattern.setDestFilePrefix(DefaultDocumentFormatRegistry.PDF);</span><br><span class="line">converter.setConverterType(CommonConverterManager.getInstance());</span><br><span class="line"><span class="keyword">boolean</span> result = converter.convert(pattern.getParameter();</span><br><span class="line">String destBase64 = pattern.getBase64Result();</span><br></pre></td></tr></table></figure>
+
+<p>输入base64执行转换，首先通过pattern.base64ToBase64()来设置转换源的base64值</p>
+<p>转换结果result仍然是一个boolean类型，通过pattern.getBase64Result来获取转换结果的base64值</p>
+<p>要切换转换格式，跟上例一样设置不同的prefix即可</p>
+<h3 id="3-5-图片处理"><a href="#3-5-图片处理" class="headerlink" title="3.5 图片处理"></a>3.5 图片处理</h3><p>目前对于图片的处理，只支持将PDF转PNG图片(如果1份pdf文件有20页，那么将会转换为20张png图片)，该功能的实现基于PDFBox:2.0.12</p>
+<h4 id="3-5-1-按照文件路径处理"><a href="#3-5-1-按照文件路径处理" class="headerlink" title="3.5.1 按照文件路径处理"></a>3.5.1 按照文件路径处理</h4><p>pattern.fileToFiles()第一个参数为待转换的pdf文件路径，第二个参数为转换后的图片存储路径</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line">WorkableConverter converter = <span class="keyword">new</span> WorkableConverter();</span><br><span class="line">ConvertPattern pattern = ConvertPatternManager.getInstance();</span><br><span class="line">pattern.fileToFiles(<span class="string">"./data/test5.pdf"</span>, <span class="string">"./data/"</span>);</span><br><span class="line">pattern.setSrcFilePrefix(DefaultDocumentFormatRegistry.PDF);</span><br><span class="line">pattern.setDestFilePrefix(DefaultDocumentFormatRegistry.PNG);</span><br><span class="line">converter.setConverterType(PdfBoxConverterManager.getInstance()); <span class="comment">// pdf box converter manager only support pdf to png</span></span><br><span class="line">assertEquals(<span class="keyword">true</span>, converter.convert(pattern.getParameter()));</span><br><span class="line">assertEquals(<span class="keyword">true</span>, FileTool.isFileExists(<span class="string">"./data/test5_0.png"</span>));</span><br><span class="line">assertEquals(<span class="keyword">true</span>, FileTool.isFileExists(<span class="string">"./data/test5_1.png"</span>));</span><br><span class="line">assertEquals(<span class="keyword">true</span>, FileTool.isFileExists(<span class="string">"./data/test5_2.png"</span>));</span><br><span class="line">assertEquals(<span class="keyword">true</span>, FileTool.isFileExists(<span class="string">"./data/test5_3.png"</span>));</span><br></pre></td></tr></table></figure>
+
+<h4 id="3-5-2-按照文件Base64处理"><a href="#3-5-2-按照文件Base64处理" class="headerlink" title="3.5.2 按照文件Base64处理"></a>3.5.2 按照文件Base64处理</h4><p>pattern.base64ToBase64()的参数为待转换pdf文件的base64值</p>
+<p>转换结束后，通过<code>List&lt;String&gt; resultBase64 = pattern.getBase64Results()</code>获取转换后的图片base64值的集合</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line">WorkableConverter converter = <span class="keyword">new</span> WorkableConverter();</span><br><span class="line">ConvertPattern pattern = ConvertPatternManager.getInstance();</span><br><span class="line">pattern.base64ToBase64(Base64FileTool.FileToBase64(<span class="keyword">new</span> File(<span class="string">"./data/test5.pdf"</span>)));</span><br><span class="line">pattern.setSrcFilePrefix(DefaultDocumentFormatRegistry.PDF);</span><br><span class="line">pattern.setDestFilePrefix(DefaultDocumentFormatRegistry.PNG);</span><br><span class="line">converter.setConverterType(PdfBoxConverterManager.getInstance()); <span class="comment">// pdf box converter manager only support pdf to png</span></span><br><span class="line"><span class="keyword">boolean</span> result = converter.convert(pattern.getParameter());</span><br><span class="line">List&lt;String&gt; resultBase64 = pattern.getBase64Results();</span><br><span class="line">assertEquals(<span class="keyword">true</span>, result);</span><br><span class="line">assertEquals(<span class="number">4</span>, resultBase64.size());</span><br></pre></td></tr></table></figure>
+
+<h3 id="3-6-添加水印"><a href="#3-6-添加水印" class="headerlink" title="3.6 添加水印"></a>3.6 添加水印</h3><p>水印的转换策略为WaterMarkConverter</p>
+<p>添加水印注意事项</p>
+<ul>
+<li><p>请确保输入源文件后缀为PDF，输出源文件后缀也为PDF</p>
+</li>
+<li><p>水印参数需要new一个WaterMarkRequire来设置</p>
+</li>
+<li><p>setWaterMarkPage(int page)代表在哪一页上添加水印，如果为0，则表示所有页面</p>
+</li>
+<li><p>水印本身为一个PDF文件，该文件只需要一页，其第一页的内容将被视为水印添加到源文件中</p>
+<p>  比如说，要添加透明度为0.3的文本作为水印的话，自己使用word等工具绘制透明度为0.3的字体（或者上包含透明度的png图片也可以）并另存为一个watermark.pdf文件</p>
+<p>  然后使用waterMarkRequire.setWaterMarkPDFBase64(Base64FileTool.FileToBase64(new File(“./data/watermark.pdf”)))</p>
+<p>  或者waterMarkRequire.setWaterMarkPDFBytes(FileUtils.readFileToByteArray(new File(“./data/watermark.pdf”)))将该文件的base64或者bytes值输入即可</p>
+</li>
+</ul>
+<p>具体使用可以分为三种方式</p>
+<h3 id="3-6-1-按照文件路径添加水印"><a href="#3-6-1-按照文件路径添加水印" class="headerlink" title="3.6.1 按照文件路径添加水印"></a>3.6.1 按照文件路径添加水印</h3><figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br></pre></td><td class="code"><pre><span class="line">WorkableConverter converter = <span class="keyword">new</span> WorkableConverter();</span><br><span class="line">converter.setConverterType(WaterMarkConverterManager.getInstance());<span class="comment">//选择具体的水印转换策略</span></span><br><span class="line"></span><br><span class="line">ConvertPattern pattern = ConvertPatternManager.getInstance();</span><br><span class="line">WaterMarkRequire waterMarkRequire = <span class="keyword">new</span> WaterMarkRequire();<span class="comment">//创建水印所需要的参数</span></span><br><span class="line"></span><br><span class="line"><span class="comment">//指定在具体的哪一页添加水印，0的话则在所有页面添加水印</span></span><br><span class="line">waterMarkRequire.setWaterMarkPage(<span class="number">0</span>);<span class="comment">//0 means all age</span></span><br><span class="line">waterMarkRequire.setWaterMarkPDFBase64(Base64FileTool.FileToBase64(<span class="keyword">new</span> File(<span class="string">"./data/watermark.pdf"</span>)));</span><br><span class="line"></span><br><span class="line">pattern.setWaterMarkRequire(waterMarkRequire);</span><br><span class="line">pattern.setSrcFilePrefix(DefaultDocumentFormatRegistry.PDF);</span><br><span class="line">pattern.setDestFilePrefix(DefaultDocumentFormatRegistry.PDF);</span><br><span class="line">pattern.fileToFile(<span class="string">"./data/test5.pdf"</span>, <span class="string">"./data/test5_with_mark01.pdf"</span>);<span class="comment">//添加水印后的文件保存在./data/目录下，名为test5_with_mark01.pdf</span></span><br><span class="line"></span><br><span class="line"><span class="keyword">boolean</span> result = converter.convert(pattern.getParameter());</span><br><span class="line">assertEquals(<span class="keyword">true</span>, result);</span><br></pre></td></tr></table></figure>
+
+<h3 id="3-6-2-按照流添加水印"><a href="#3-6-2-按照流添加水印" class="headerlink" title="3.6.2 按照流添加水印"></a>3.6.2 按照流添加水印</h3><figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br></pre></td><td class="code"><pre><span class="line">WorkableConverter converter = <span class="keyword">new</span> WorkableConverter();</span><br><span class="line">converter.setConverterType(WaterMarkConverterManager.getInstance());</span><br><span class="line"></span><br><span class="line">ConvertPattern pattern = ConvertPatternManager.getInstance();</span><br><span class="line">WaterMarkRequire waterMarkRequire = <span class="keyword">new</span> WaterMarkRequire();</span><br><span class="line"></span><br><span class="line">waterMarkRequire.setWaterMarkPage(<span class="number">0</span>);<span class="comment">//0 means all age</span></span><br><span class="line">waterMarkRequire.setWaterMarkPDFBytes(FileUtils.readFileToByteArray(<span class="keyword">new</span> File(<span class="string">"./data/watermark.pdf"</span>)));</span><br><span class="line"></span><br><span class="line">pattern.setWaterMarkRequire(waterMarkRequire);</span><br><span class="line">pattern.setSrcFilePrefix(DefaultDocumentFormatRegistry.PDF);</span><br><span class="line">pattern.setDestFilePrefix(DefaultDocumentFormatRegistry.PDF);</span><br><span class="line">pattern.streamToStream(<span class="keyword">new</span> FileInputStream(<span class="string">"./data/test5.pdf"</span>), <span class="keyword">new</span> FileOutputStream(<span class="string">"./data/test5_with_mark02.pdf"</span>));</span><br><span class="line"></span><br><span class="line"><span class="keyword">boolean</span> result = converter.convert(pattern.getParameter());</span><br><span class="line">assertEquals(<span class="keyword">true</span>, result);</span><br></pre></td></tr></table></figure>
+
+<h3 id="3-6-3-按照base64添加水印"><a href="#3-6-3-按照base64添加水印" class="headerlink" title="3.6.3 按照base64添加水印"></a>3.6.3 按照base64添加水印</h3><figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br></pre></td><td class="code"><pre><span class="line">WorkableConverter converter = <span class="keyword">new</span> WorkableConverter();</span><br><span class="line">converter.setConverterType(WaterMarkConverterManager.getInstance());</span><br><span class="line"></span><br><span class="line">ConvertPattern pattern = ConvertPatternManager.getInstance();</span><br><span class="line">WaterMarkRequire waterMarkRequire = <span class="keyword">new</span> WaterMarkRequire();</span><br><span class="line"></span><br><span class="line">waterMarkRequire.setWaterMarkPage(<span class="number">0</span>);<span class="comment">//0 means all age</span></span><br><span class="line">waterMarkRequire.setWaterMarkPDFBase64(Base64FileTool.FileToBase64(<span class="keyword">new</span> File(<span class="string">"./data/watermark.pdf"</span>)));</span><br><span class="line"></span><br><span class="line">pattern.setWaterMarkRequire(waterMarkRequire);</span><br><span class="line">pattern.setSrcFilePrefix(DefaultDocumentFormatRegistry.PDF);</span><br><span class="line">pattern.setDestFilePrefix(DefaultDocumentFormatRegistry.PDF);</span><br><span class="line">pattern.base64ToBase64(Base64FileTool.FileToBase64(<span class="keyword">new</span> File(<span class="string">"./data/test5.pdf"</span>)));</span><br><span class="line"></span><br><span class="line"><span class="keyword">boolean</span> result = converter.convert(pattern.getParameter());</span><br><span class="line">String base64Result = pattern.getBase64Result();</span><br><span class="line">Base64FileTool.saveBase64File(base64Result, <span class="string">"./data/test5_with_mark03.pdf"</span>);</span><br><span class="line">assertEquals(<span class="keyword">true</span>, result);</span><br></pre></td></tr></table></figure>
+
+<h2 id="4-待办事项"><a href="#4-待办事项" class="headerlink" title="4. 待办事项"></a>4. 待办事项</h2><ul>
+<li><p>已经测试通过的有doc、docx、html 按照不同姿势转PDF，其他类型的并没有编写测试单元，后续考虑增加</p>
+</li>
+<li><p>目前只支持yml配置，后续考虑添加其他类型的配置支持（xml、properties等）</p>
+</li>
+<li><p>目前Markdown格式很流行，考虑实现markdown格式的字符串转PDF(markdown -&gt; html -&gt; pdf)</p>
+</li>
+</ul>
+<h2 id="5-注意事项"><a href="#5-注意事项" class="headerlink" title="5. 注意事项"></a>5. 注意事项</h2><ul>
+<li><p>因为需要LibreOffice的支持，所以不建议在Docker等容器内运行(LibreOffice暂无Docker稳定发行版的镜像)</p>
+</li>
+<li><p>转换乱码、转换耗时过长，请检查服务器是否安装有中文字体</p>
+</li>
+<li><p>项目启动后，在执行第一次转换任务时，因为涉及到与LibreOffice建立连接等操作，所以会耗时较长，第二次任务及以后稳定在0.5秒以内（具体时间因机器配置会有所差异）</p>
+</li>
+</ul>
+<h2 id="6-参考链接"><a href="#6-参考链接" class="headerlink" title="6. 参考链接"></a>6. 参考链接</h2><ul>
+<li><p><a href="https://www.libreoffice.org/download/download/?type=rpm-x86_64&amp;version=6.2.3&amp;lang=zh-CN" target="_blank" rel="noopener">https://www.libreoffice.org/download/download/?type=rpm-x86_64&amp;version=6.2.3&amp;lang=zh-CN</a></p>
+</li>
+<li><p><a href="https://api.libreoffice.org/" target="_blank" rel="noopener">https://api.libreoffice.org/</a></p>
+</li>
+<li><p><a href="https://github.com/sbraconnier/jodconverter/" target="_blank" rel="noopener">https://github.com/sbraconnier/jodconverter/</a></p>
+</li>
+<li><p><a href="https://memorynotfound.com/apache-pdfbox-add-watermark-pdf-document/" target="_blank" rel="noopener">https://memorynotfound.com/apache-pdfbox-add-watermark-pdf-document/</a></p>
+</li>
+</ul>
+
+    </div>
+
+    
+    
+    
+
+      <footer class="post-footer">
+          <div class="post-tags">
+              <a href="/tags/Java/" rel="tag"># Java</a>
+              <a href="/tags/LibreOffice/" rel="tag"># LibreOffice</a>
+          </div>
+
+        
+
+
+        
+    <div class="post-nav">
+      <div class="post-nav-item">
+    <a href="/articles/2019/05/13/1557747040354.html/" rel="prev" title="Maven与Gradle构建Fat-Jar工程">
+      <i class="fa fa-chevron-left"></i> Maven与Gradle构建Fat-Jar工程
+    </a></div>
+      <div class="post-nav-item">
+    <a href="/articles/2019/05/21/1558429665771.html/" rel="next" title="Mysql创建单列索引解决单表LongBlob字段查询过慢问题">
+      Mysql创建单列索引解决单表LongBlob字段查询过慢问题 <i class="fa fa-chevron-right"></i>
+    </a></div>
+    </div>
+      </footer>
+    
+  </article>
+  
+  
+  
+
+  </div>
+
+
+          </div>
+          
+
+<script>
+  window.addEventListener('tabs:register', () => {
+    let activeClass = CONFIG.comments.activeClass;
+    if (CONFIG.comments.storage) {
+      activeClass = localStorage.getItem('comments_active') || activeClass;
+    }
+    if (activeClass) {
+      let activeTab = document.querySelector(`a[href="#comment-${activeClass}"]`);
+      if (activeTab) {
+        activeTab.click();
+      }
+    }
+  });
+  if (CONFIG.comments.storage) {
+    window.addEventListener('tabs:click', event => {
+      if (!event.target.matches('.tabs-comment .tab-content .tab-pane')) return;
+      let commentClass = event.target.classList[1];
+      localStorage.setItem('comments_active', commentClass);
+    });
+  }
+</script>
+
+        </div>
+          
+  
+  <div class="toggle sidebar-toggle">
+    <span class="toggle-line toggle-line-first"></span>
+    <span class="toggle-line toggle-line-middle"></span>
+    <span class="toggle-line toggle-line-last"></span>
+  </div>
+
+  <aside class="sidebar">
+    <div class="sidebar-inner">
+
+      <ul class="sidebar-nav motion-element">
+        <li class="sidebar-nav-toc">
+          Inhaltsverzeichnis
+        </li>
+        <li class="sidebar-nav-overview">
+          Übersicht
+        </li>
+      </ul>
+
+      <!--noindex-->
+      <div class="post-toc-wrap sidebar-panel">
+          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#1-技术栈"><span class="nav-number">1.</span> <span class="nav-text">1. 技术栈</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#2-功能"><span class="nav-number">2.</span> <span class="nav-text">2. 功能</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#3-使用"><span class="nav-number">3.</span> <span class="nav-text">3. 使用</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#3-1-安装配置LibreOffice6-2-3"><span class="nav-number">3.1.</span> <span class="nav-text">3.1 安装配置LibreOffice6.2.3</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#3-2-获取依赖"><span class="nav-number">3.2.</span> <span class="nav-text">3.2 获取依赖</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#3-3-编辑配置文件"><span class="nav-number">3.3.</span> <span class="nav-text">3.3 编辑配置文件</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#3-4-执行转换"><span class="nav-number">3.4.</span> <span class="nav-text">3.4 执行转换</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#3-4-1-按照文件路径转换"><span class="nav-number">3.4.1.</span> <span class="nav-text">3.4.1 按照文件路径转换</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#3-4-2-按照输入输出流转换"><span class="nav-number">3.4.2.</span> <span class="nav-text">3.4.2 按照输入输出流转换</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#3-4-3-按照文件Base64转换"><span class="nav-number">3.4.3.</span> <span class="nav-text">3.4.3 按照文件Base64转换</span></a></li></ol></li><li class="nav-item nav-level-3"><a class="nav-link" href="#3-5-图片处理"><span class="nav-number">3.5.</span> <span class="nav-text">3.5 图片处理</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#3-5-1-按照文件路径处理"><span class="nav-number">3.5.1.</span> <span class="nav-text">3.5.1 按照文件路径处理</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#3-5-2-按照文件Base64处理"><span class="nav-number">3.5.2.</span> <span class="nav-text">3.5.2 按照文件Base64处理</span></a></li></ol></li><li class="nav-item nav-level-3"><a class="nav-link" href="#3-6-添加水印"><span class="nav-number">3.6.</span> <span class="nav-text">3.6 添加水印</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#3-6-1-按照文件路径添加水印"><span class="nav-number">3.7.</span> <span class="nav-text">3.6.1 按照文件路径添加水印</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#3-6-2-按照流添加水印"><span class="nav-number">3.8.</span> <span class="nav-text">3.6.2 按照流添加水印</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#3-6-3-按照base64添加水印"><span class="nav-number">3.9.</span> <span class="nav-text">3.6.3 按照base64添加水印</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#4-待办事项"><span class="nav-number">4.</span> <span class="nav-text">4. 待办事项</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#5-注意事项"><span class="nav-number">5.</span> <span class="nav-text">5. 注意事项</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#6-参考链接"><span class="nav-number">6.</span> <span class="nav-text">6. 参考链接</span></a></li></ol></div>
+      </div>
+      <!--/noindex-->
+
+      <div class="site-overview-wrap sidebar-panel">
+        <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+  <p class="site-author-name" itemprop="name">liumapp</p>
+  <div class="site-description" itemprop="description"></div>
+</div>
+<div class="site-state-wrap motion-element">
+  <nav class="site-state">
+      <div class="site-state-item site-state-posts">
+          <a href="/archives/">
+        
+          <span class="site-state-item-count">165</span>
+          <span class="site-state-item-name">Artikel</span>
+        </a>
+      </div>
+      <div class="site-state-item site-state-tags">
+        <span class="site-state-item-count">88</span>
+        <span class="site-state-item-name">schlagwörter</span>
+      </div>
+  </nav>
+</div>
+
+
+
+      </div>
+
+    </div>
+  </aside>
+  <div id="sidebar-dimmer"></div>
+
+
+      </div>
+    </main>
+
+    <footer class="footer">
+      <div class="footer-inner">
+        
+
+<div class="copyright">
+  
+  &copy; 
+  <span itemprop="copyrightYear">2020</span>
+  <span class="with-love">
+    <i class="fa fa-user"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">liumapp.com@gmail.com</span>
+</div>
+  <div class="powered-by">Erstellt mit  <a href="https://hexo.io/" class="theme-link" rel="noopener" target="_blank">Hexo</a> v4.2.0
+  </div>
+  <span class="post-meta-divider">|</span>
+  <div class="theme-info">Design – <a href="https://theme-next.org/" class="theme-link" rel="noopener" target="_blank">NexT.Gemini</a> v7.7.0
+  </div>
+
+        
+
+
+
+
+
+
+
+
+      </div>
+    </footer>
+  </div>
+
+  
+  <script src="/lib/anime.min.js"></script>
+  <script src="/lib/velocity/velocity.min.js"></script>
+  <script src="/lib/velocity/velocity.ui.min.js"></script>
+
+<script src="/js/utils.js"></script>
+
+<script src="/js/motion.js"></script>
+
+
+<script src="/js/schemes/pisces.js"></script>
+
+
+<script src="/js/next-boot.js"></script>
+
+
+
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+
+  
+
+</body>
+</html>

@@ -1,0 +1,1331 @@
+<!DOCTYPE html>
+<html lang="zh-Hans">
+<head>
+  <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=2">
+<meta name="theme-color" content="#222">
+<meta name="generator" content="Hexo 4.2.0">
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png">
+  <link rel="mask-icon" href="/images/logo.svg" color="#222">
+
+<link rel="stylesheet" href="/css/main.css">
+
+
+<link rel="stylesheet" href="/lib/font-awesome/css/font-awesome.min.css">
+
+
+<script id="hexo-configurations">
+  var NexT = window.NexT || {};
+  var CONFIG = {
+    hostname: new URL('http://www.liumapp.com').hostname,
+    root: '/',
+    scheme: 'Gemini',
+    version: '7.7.0',
+    exturl: false,
+    sidebar: {"position":"left","display":"post","padding":18,"offset":12,"onmobile":false},
+    copycode: {"enable":false,"show_result":false,"style":null},
+    back2top: {"enable":true,"sidebar":false,"scrollpercent":false},
+    bookmark: {"enable":false,"color":"#222","save":"auto"},
+    fancybox: false,
+    mediumzoom: false,
+    lazyload: false,
+    pangu: false,
+    comments: {"style":"tabs","active":null,"storage":true,"lazyload":false,"nav":null},
+    algolia: {
+      appID: '',
+      apiKey: '',
+      indexName: '',
+      hits: {"per_page":10},
+      labels: {"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}
+    },
+    localsearch: {"enable":false,"trigger":"auto","top_n_per_article":1,"unescape":false,"preload":false},
+    path: '',
+    motion: {"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}}
+  };
+</script>
+
+  <meta name="description" content="CentOS自动化部署LNMP环境  因为公司项目较多，而且每一个项目一般都部署在一台独立的服务器上，每台服务器的环境部署其实是一个重复的工作，所以就用shell做了一个LNMP环境的自动化部署。  预期目标通过执行一个shell脚本，暂且命名为install.sh，自动在CentOS系统上安装php-5.6.30，nginx-1.12.0，mysql-5.5.37，同时完成相关配置文件的调整、目">
+<meta property="og:type" content="article">
+<meta property="og:title" content="CentOS自动化部署LNMP环境">
+<meta property="og:url" content="http://www.liumapp.com/articles/2017/04/20/1492658108249.html/index.html">
+<meta property="og:site_name" content="liumapp">
+<meta property="og:description" content="CentOS自动化部署LNMP环境  因为公司项目较多，而且每一个项目一般都部署在一台独立的服务器上，每台服务器的环境部署其实是一个重复的工作，所以就用shell做了一个LNMP环境的自动化部署。  预期目标通过执行一个shell脚本，暂且命名为install.sh，自动在CentOS系统上安装php-5.6.30，nginx-1.12.0，mysql-5.5.37，同时完成相关配置文件的调整、目">
+<meta property="og:image" content="http://om40sen9v.bkt.clouddn.com//file/2017/4/bf8b910235c747099d3699c57d19dcec-2.pic.jpg">
+<meta property="article:published_time" content="2017-04-20T06:35:30.000Z">
+<meta property="article:modified_time" content="2017-06-09T07:14:31.000Z">
+<meta property="article:author" content="liumapp">
+<meta property="article:tag" content="CentOS">
+<meta property="article:tag" content="Shell">
+<meta property="article:tag" content="自动化部署">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="http://om40sen9v.bkt.clouddn.com//file/2017/4/bf8b910235c747099d3699c57d19dcec-2.pic.jpg">
+
+<link rel="canonical" href="http://www.liumapp.com/articles/2017/04/20/1492658108249.html/">
+
+
+<script id="page-configurations">
+  // https://hexo.io/docs/variables.html
+  CONFIG.page = {
+    sidebar: "",
+    isHome: false,
+    isPost: true
+  };
+</script>
+
+  <title>CentOS自动化部署LNMP环境 | liumapp</title>
+  
+
+
+
+
+
+
+  <noscript>
+  <style>
+  .use-motion .brand,
+  .use-motion .menu-item,
+  .sidebar-inner,
+  .use-motion .post-block,
+  .use-motion .pagination,
+  .use-motion .comments,
+  .use-motion .post-header,
+  .use-motion .post-body,
+  .use-motion .collection-header { opacity: initial; }
+
+  .use-motion .site-title,
+  .use-motion .site-subtitle {
+    opacity: initial;
+    top: initial;
+  }
+
+  .use-motion .logo-line-before i { left: initial; }
+  .use-motion .logo-line-after i { right: initial; }
+  </style>
+</noscript>
+
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage">
+  <div class="container use-motion">
+    <div class="headband"></div>
+
+    <header class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-container">
+  <div class="site-meta">
+
+    <div>
+      <a href="/" class="brand" rel="start">
+        <span class="logo-line-before"><i></i></span>
+        <span class="site-title">liumapp</span>
+        <span class="logo-line-after"><i></i></span>
+      </a>
+    </div>
+  </div>
+
+  <div class="site-nav-toggle">
+    <div class="toggle" aria-label="Navigationsleiste an/ausschalten">
+      <span class="toggle-line toggle-line-first"></span>
+      <span class="toggle-line toggle-line-middle"></span>
+      <span class="toggle-line toggle-line-last"></span>
+    </div>
+  </div>
+</div>
+
+
+<nav class="site-nav">
+  
+  <ul id="menu" class="menu">
+        <li class="menu-item menu-item-home">
+
+    <a href="/" rel="section"><i class="fa fa-fw fa-home"></i>Startseite</a>
+
+  </li>
+        <li class="menu-item menu-item-archives">
+
+    <a href="/archives/" rel="section"><i class="fa fa-fw fa-archive"></i>Archiv</a>
+
+  </li>
+  </ul>
+
+</nav>
+</div>
+    </header>
+
+    
+  <div class="back-to-top">
+    <i class="fa fa-arrow-up"></i>
+    <span>0%</span>
+  </div>
+
+  <a href="https://github.com/liumapp" class="github-corner" title="Follow me on GitHub" aria-label="Follow me on GitHub" rel="noopener" target="_blank"><svg width="80" height="80" viewBox="0 0 250 250" aria-hidden="true"><path d="M0,0 L115,115 L130,115 L142,142 L250,250 L250,0 Z"></path><path d="M128.3,109.0 C113.8,99.7 119.0,89.6 119.0,89.6 C122.0,82.7 120.5,78.6 120.5,78.6 C119.2,72.0 123.4,76.3 123.4,76.3 C127.3,80.9 125.5,87.3 125.5,87.3 C122.9,97.6 130.6,101.9 134.4,103.2" fill="currentColor" style="transform-origin: 130px 106px;" class="octo-arm"></path><path d="M115.0,115.0 C114.9,115.1 118.7,116.5 119.8,115.4 L133.7,101.6 C136.9,99.2 139.9,98.4 142.2,98.6 C133.8,88.0 127.5,74.4 143.8,58.0 C148.5,53.4 154.0,51.2 159.7,51.0 C160.3,49.4 163.2,43.6 171.4,40.1 C171.4,40.1 176.1,42.5 178.8,56.2 C183.1,58.6 187.2,61.8 190.9,65.4 C194.5,69.0 197.7,73.2 200.1,77.6 C213.8,80.2 216.3,84.9 216.3,84.9 C212.7,93.1 206.9,96.0 205.4,96.6 C205.1,102.4 203.0,107.8 198.3,112.5 C181.9,128.9 168.3,122.5 157.7,114.1 C157.9,116.9 156.7,120.9 152.7,124.9 L141.0,136.5 C139.8,137.7 141.6,141.9 141.8,141.8 Z" fill="currentColor" class="octo-body"></path></svg></a>
+
+
+    <main class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          
+
+          <div class="content">
+            
+
+  <div class="posts-expand">
+      
+  
+  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block " lang="zh-Hans">
+    <link itemprop="mainEntityOfPage" href="http://www.liumapp.com/articles/2017/04/20/1492658108249.html/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/avatar.gif">
+      <meta itemprop="name" content="liumapp">
+      <meta itemprop="description" content="">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="liumapp">
+    </span>
+      <header class="post-header">
+        <h1 class="post-title" itemprop="name headline">
+          CentOS自动化部署LNMP环境
+        </h1>
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              <span class="post-meta-item-text">Veröffentlicht am</span>
+
+              <time title="Erstellt: 2017-04-20 14:35:30" itemprop="dateCreated datePublished" datetime="2017-04-20T14:35:30+08:00">2017-04-20</time>
+            </span>
+              <span class="post-meta-item">
+                <span class="post-meta-item-icon">
+                  <i class="fa fa-calendar-check-o"></i>
+                </span>
+                <span class="post-meta-item-text">Bearbeitet am</span>
+                <time title="Geändert am: 2017-06-09 15:14:31" itemprop="dateModified" datetime="2017-06-09T15:14:31+08:00">2017-06-09</time>
+              </span>
+
+          
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+        <h2 id="CentOS自动化部署LNMP环境"><a href="#CentOS自动化部署LNMP环境" class="headerlink" title="CentOS自动化部署LNMP环境"></a>CentOS自动化部署LNMP环境</h2><hr>
+<blockquote>
+<p>因为公司项目较多，而且每一个项目一般都部署在一台独立的服务器上，每台服务器的环境部署其实是一个重复的工作，所以就用shell做了一个LNMP环境的自动化部署。</p>
+</blockquote>
+<h3 id="预期目标"><a href="#预期目标" class="headerlink" title="预期目标"></a>预期目标</h3><p>通过执行一个shell脚本，暂且命名为install.sh，自动在CentOS系统上安装php-5.6.30，nginx-1.12.0，mysql-5.5.37，同时完成相关配置文件的调整、目录的索引、依赖库的安装、ftp、jpeg、libevent、libiconv、libmycrypt、libpng、pcre、openssl、zlib等CentOS常用程序的安装。</p>
+<p>通过执行一个shell脚本，暂且命名为uninstall.sh，自动删除安装过的所有程序。</p>
+<h3 id="设计思路"><a href="#设计思路" class="headerlink" title="设计思路"></a>设计思路</h3><p>1.使用固定的版本</p>
+<p>2.所有程序的源代码跟shell脚本部署在相同目录下</p>
+<p>3.shell脚本使用以程序名称命名的目录来分别运行，install.sh作为入口文件和主文件，具体的安装脚本分割开来</p>
+<p>最终得到的目录结构如下图所示</p>
+<p><img src="//om40sen9v.bkt.clouddn.com//file/2017/4/bf8b910235c747099d3699c57d19dcec-2.pic.jpg" alt="bf8b910235c747099d3699c57d19dcec-2.pic.jpg"> </p>
+<h3 id="代码讲解"><a href="#代码讲解" class="headerlink" title="代码讲解"></a>代码讲解</h3><p>源代码： <strong><a href="https://github.com/liumapp/lnmp" target="_blank" rel="noopener">lnmp</a></strong></p>
+<blockquote>
+<p>代码部分分为安装和卸载两个部分进行解读</p>
+</blockquote>
+<h4 id="安装"><a href="#安装" class="headerlink" title="安装"></a>安装</h4><p>直接上install.sh的代码</p>
+<pre><code>#!/bin/bash
+
+####---- global variables ----begin####
+export nginx_version=1.12.0
+export mysql_version=5.5.37
+export php_version=5.6.30
+export vsftpd_version=3.0.2
+export install_ftp_version=0.0.0
+####---- global variables ----end####
+
+web=nginx
+install_log=/alidata/website-info.log
+
+####---- version report ----begin####
+
+tmp=1
+echo &quot;&quot;
+echo &quot;You select the version :&quot;
+echo &quot;web    : $web&quot;
+if echo $web |grep &quot;nginx&quot; &gt; /dev/null;then
+  echo &quot;nginx : $nginx_version&quot;
+else
+  echo &quot;false&quot;
+  exit 0
+fi
+echo &quot;php    : $php_version&quot;
+echo &quot;mysql  : $mysql_version&quot;
+
+read -p &quot;Enter the y or Y to continue:&quot; isY
+if [ &quot;${isY}&quot; != &quot;y&quot; ] &amp;&amp; [ &quot;${isY}&quot; != &quot;Y&quot; ];then
+   exit 1
+fi
+####---- version report ----end####
+
+
+####---- Clean up the environment ----begin####
+echo &quot;will be installed, wait ...&quot;
+./uninstall.sh in &amp;&gt; /dev/null
+####---- Clean up the environment ----end####
+
+
+if echo $web|grep &quot;nginx&quot; &gt; /dev/null;then
+web_dir=nginx-${nginx_version}
+else
+echo &quot;false&quot;
+exit 0
+fi
+
+php_dir=php-${php_version}
+
+if [ `uname -m` == &quot;x86_64&quot; ];then
+machine=x86_64
+else
+machine=i686
+fi
+
+####---- global variables ----begin####
+export web
+export web_dir
+export php_dir
+export mysql_dir=mysql-${mysql_version}
+export vsftpd_dir=vsftpd-${vsftpd_version}
+####---- global variables ----end####
+
+ifcentos=$(cat /proc/version | grep centos)
+
+####---- install dependencies ----begin####
+if [ &quot;$ifcentos&quot; != &quot;&quot; ] || [ &quot;$machine&quot; == &quot;i686&quot; ];then
+rpm -e httpd-2.2.3-31.el5.centos gnome-user-share &amp;&gt; /dev/null
+fi
+
+\cp /etc/rc.local /etc/rc.local.bak
+if [ &quot;$ifredhat&quot; != &quot;&quot; ];then
+rpm -e --allmatches mysql MySQL-python perl-DBD-MySQL dovecot exim qt-MySQL perl-DBD-MySQL dovecot qt-MySQL mysql-server mysql-connector-odbc php-mysql mysql-bench libdbi-dbd-mysql mysql-devel-5.0.77-3.el5 httpd php mod_auth_mysql mailman squirrelmail php-pdo php-common php-mbstring php-cli &amp;&gt; /dev/null
+fi
+
+if [ &quot;$ifcentos&quot; != &quot;&quot; ];then
+  sed -i &apos;s/^exclude/#exclude/&apos; /etc/yum.conf
+  yum makecache
+  yum -y remove mysql MySQL-python perl-DBD-MySQL dovecot exim qt-MySQL perl-DBD-MySQL dovecot qt-MySQL mysql-server mysql-connector-odbc php-mysql mysql-bench libdbi-dbd-mysql mysql-devel-5.0.77-3.el5 httpd php mod_auth_mysql mailman squirrelmail php-pdo php-common php-mbstring php-cli &amp;&gt; /dev/null
+  yum -y install gcc gcc-c++ gcc-g77 make libtool autoconf patch unzip automake libxml2 libxml2-devel ncurses ncurses-devel libtool-ltdl-devel libtool-ltdl libmcrypt libmcrypt-devel libpng libpng-devel libjpeg-devel openssl openssl-devel curl curl-devel libxml2 libxml2-devel ncurses ncurses-devel libtool-ltdl-devel libtool-ltdl autoconf automake libaio*
+  iptables -F
+else
+  echo &quot;error !! Your system is not centos!&quot;
+  exit 0    
+fi
+####---- install dependencies ----end####
+
+####---- openssl update---begin####
+./env/update_openssl.sh
+####---- openssl update---end####
+
+####---- install software ----begin####
+rm -f tmp.log
+echo tmp.log
+
+./env/install_set_ulimit.sh
+
+./env/install_dir.sh
+echo &quot;---------- make dir ok ----------&quot; &gt;&gt; tmp.log
+
+./env/install_env.sh
+echo &quot;---------- env ok ----------&quot; &gt;&gt; tmp.log
+
+./mysql/install_${mysql_dir}.sh
+echo &quot;---------- ${mysql_dir} ok ----------&quot; &gt;&gt; tmp.log
+
+if echo $web |grep &quot;nginx&quot; &gt; /dev/null;then
+    ./nginx/install_nginx-${nginx_version}.sh
+    echo &quot;---------- ${web_dir} ok ----------&quot; &gt;&gt; tmp.log
+    ./php/install_nginx_php-${php_version}.sh
+    echo &quot;---------- ${php_dir} ok ----------&quot; &gt;&gt; tmp.log
+else
+    ./apache/install_httpd-${httpd_version}.sh
+    echo &quot;---------- ${web_dir} ok ----------&quot; &gt;&gt; tmp.log
+    ./php/install_httpd_php-${php_version}.sh
+    echo &quot;---------- ${php_dir} ok ----------&quot; &gt;&gt; tmp.log
+fi
+
+./php/install_php_extension.sh
+echo &quot;---------- php extension ok ----------&quot; &gt;&gt; tmp.log
+
+./ftp/install_${vsftpd_dir}.sh
+echo &quot;---------- vsftpd-$vsftpd_version  ok ----------&quot; &gt;&gt; tmp.log
+
+mkdir -p /alidata/www/default
+if echo $web |grep &quot;nginx&quot; &gt; /dev/null;then
+    \cp ./res/index-nginx.html /alidata/www/default/index.html
+else
+    \cp ./res/index-apache.html /alidata/www/default/index.html
+fi
+
+cat &gt; /alidata/www/default/info.php &lt;&lt; EOF
+&lt;?php
+phpinfo();
+?&gt;
+EOF
+
+chown www:www -R /alidata/www/
+
+\cp ./res/initPasswd.sh /alidata/init/
+chmod 755 /alidata/init/initPasswd.sh
+
+echo &quot;---------- web init ok ----------&quot; &gt;&gt; tmp.log
+####---- install software ----end####
+
+
+####---- Start command is written to the rc.local ----begin####
+if ! cat /etc/rc.local | grep &quot;/etc/init.d/mysqld&quot; &gt; /dev/null;then 
+    echo &quot;/etc/init.d/mysqld start&quot; &gt;&gt; /etc/rc.local
+fi
+if echo $web|grep &quot;nginx&quot; &gt; /dev/null;then
+  if ! cat /etc/rc.local | grep &quot;/etc/init.d/nginx&quot; &gt; /dev/null;then 
+     echo &quot;/etc/init.d/nginx start&quot; &gt;&gt; /etc/rc.local
+     echo &quot;/etc/init.d/php-fpm start&quot; &gt;&gt; /etc/rc.local
+  fi
+else
+  if ! cat /etc/rc.local | grep &quot;/etc/init.d/httpd&quot; &gt; /dev/null;then 
+     echo &quot;/etc/init.d/httpd start&quot; &gt;&gt; /etc/rc.local
+  fi
+fi
+if ! cat /etc/rc.local | grep &quot;/etc/init.d/vsftpd&quot; &gt; /dev/null;then 
+    echo &quot;/etc/init.d/vsftpd start&quot; &gt;&gt; /etc/rc.local
+fi
+if ! cat /etc/rc.local | grep &quot;/alidata/init/initPasswd.sh&quot; &gt; /dev/null;then 
+    echo &quot;/alidata/init/initPasswd.sh&quot; &gt;&gt; /etc/rc.local
+fi
+####---- Start command is written to the rc.local ----end####
+
+
+####---- centos yum configuration----begin####
+if [ &quot;$ifcentos&quot; != &quot;&quot; ] &amp;&amp; [ &quot;$machine&quot; == &quot;x86_64&quot; ];then
+sed -i &apos;s/^#exclude/exclude/&apos; /etc/yum.conf
+mkdir -p /var/lock/subsys/
+fi
+####---- centos yum configuration ----end####
+
+####---- mysql password initialization ----begin####
+echo &quot;---------- rc init ok ----------&quot; &gt;&gt; tmp.log
+TMP_PASS=$(date | md5sum |head -c 10)
+/alidata/server/mysql/bin/mysqladmin -u root password &quot;$TMP_PASS&quot;
+sed -i s/&apos;mysql_password&apos;/${TMP_PASS}/g account.log
+echo &quot;---------- mysql init ok ----------&quot; &gt;&gt; tmp.log
+####---- mysql password initialization ----end####
+
+
+####---- Environment variable settings ----begin####
+\cp /etc/profile /etc/profile.bak
+if echo $web|grep &quot;nginx&quot; &gt; /dev/null;then
+  echo &apos;export PATH=$PATH:/alidata/server/mysql/bin:/alidata/server/nginx/sbin:/alidata/server/php/sbin:/alidata/server/php/bin&apos; &gt;&gt; /etc/profile
+  export PATH=$PATH:/alidata/server/mysql/bin:/alidata/server/nginx/sbin:/alidata/server/php/sbin:/alidata/server/php/bin
+else
+  echo &apos;export PATH=$PATH:/alidata/server/mysql/bin:/alidata/server/httpd/bin:/alidata/server/php/sbin:/alidata/server/php/bin&apos; &gt;&gt; /etc/profile
+  export PATH=$PATH:/alidata/server/mysql/bin:/alidata/server/httpd/bin:/alidata/server/php/sbin:/alidata/server/php/bin
+fi
+####---- Environment variable settings ----end####
+
+
+####---- restart ----begin####
+if echo $web|grep &quot;nginx&quot; &gt; /dev/null;then
+/etc/init.d/php-fpm restart &gt; /dev/null
+/etc/init.d/nginx restart &gt; /dev/null
+else
+/etc/init.d/httpd restart &gt; /dev/null
+/etc/init.d/httpd start &amp;&gt; /dev/null
+fi
+/etc/init.d/vsftpd restart
+####---- restart ----end####
+
+####---- log ----begin####
+\cp tmp.log $install_log
+cat $install_log
+\cp -a account.log /alidata/
+####---- log ----end####
+bash</code></pre><p>通过上面的脚本我们可以知道，它在安装不同程序的时候，是调用不同的shell脚本来进行安装的。</p>
+<p>比如，安装环境的脚本：</p>
+<blockquote>
+<p>请注意，安装环境的脚本文件是部署在env目录下方</p>
+</blockquote>
+<h4 id="install-dir-sh"><a href="#install-dir-sh" class="headerlink" title="install_dir.sh"></a>install_dir.sh</h4><p>#!/bin/bash</p>
+<pre><code>userdel www
+groupadd www
+useradd -g www -M -d /alidata/www -s /sbin/nologin www &amp;&gt; /dev/null
+
+mkdir -p /alidata
+mkdir -p /alidata/server
+mkdir -p /alidata/server/openssl
+mkdir -p /alidata/www
+mkdir -p /alidata/init
+mkdir -p /alidata/log
+mkdir -p /alidata/log/php
+mkdir -p /alidata/log/mysql
+chown -R www:www /alidata/log
+
+mkdir -p /alidata/server/${mysql_dir}
+ln -s /alidata/server/${mysql_dir} /alidata/server/mysql
+
+mkdir -p /alidata/server/${php_dir}
+ln -s /alidata/server/${php_dir} /alidata/server/php
+
+
+mkdir -p /alidata/server/${web_dir}
+if echo $web |grep &quot;nginx&quot; &gt; /dev/null;then
+mkdir -p /alidata/log/nginx
+mkdir -p /alidata/log/nginx/access
+ln -s /alidata/server/${web_dir} /alidata/server/nginx
+else
+mkdir -p /alidata/log/httpd
+mkdir -p /alidata/log/httpd/access
+ln -s /alidata/server/${web_dir} /alidata/server/httpd
+fi</code></pre><h4 id="install-env-sh"><a href="#install-env-sh" class="headerlink" title="install_env.sh"></a>install_env.sh</h4><pre><code>#!/bin/sh
+
+CPU_NUM=$(cat /proc/cpuinfo | grep processor | wc -l)
+if [ ! -f libiconv-1.13.1.tar.gz ];then
+    wget http://oss.aliyuncs.com/aliyunecs/onekey/libiconv-1.13.1.tar.gz
+fi
+rm -rf libiconv-1.13.1
+tar zxvf libiconv-1.13.1.tar.gz
+cd libiconv-1.13.1
+./configure --prefix=/usr/local
+if [ $CPU_NUM -gt 1 ];then
+    make -j$CPU_NUM
+else
+    make
+fi
+make install
+cd ..
+
+if [ ! -f zlib-1.2.3.tar.gz ];then
+    wget http://oss.aliyuncs.com/aliyunecs/onekey/zlib-1.2.3.tar.gz
+fi
+rm -rf zlib-1.2.3
+tar zxvf zlib-1.2.3.tar.gz
+cd zlib-1.2.3
+./configure
+if [ $CPU_NUM -gt 1 ];then
+    make CFLAGS=-fpic -j$CPU_NUM
+else
+    make CFLAGS=-fpic
+fi
+make install
+cd ..
+
+if [ ! -f freetype-2.1.10.tar.gz ];then
+    wget http://oss.aliyuncs.com/aliyunecs/onekey/freetype-2.1.10.tar.gz
+fi
+rm -rf freetype-2.1.10
+tar zxvf freetype-2.1.10.tar.gz
+cd freetype-2.1.10
+./configure --prefix=/usr/local/freetype.2.1.10
+if [ $CPU_NUM -gt 1 ];then
+    make -j$CPU_NUM
+else
+    make
+fi
+make install
+cd ..
+
+if [ ! -f libpng-1.2.50.tar.gz ];then
+    #wget http://soft.phpwind.me/web/libpng-1.2.8.tar.gz
+    wget http://oss.aliyuncs.com/aliyunecs/onekey/libpng-1.2.50.tar.gz
+fi
+rm -rf libpng-1.2.50
+tar zxvf libpng-1.2.50.tar.gz
+cd libpng-1.2.50
+./configure --prefix=/usr/local/libpng.1.2.50
+if [ $CPU_NUM -gt 1 ];then
+    make CFLAGS=-fpic -j$CPU_NUM
+else
+    make CFLAGS=-fpic
+fi
+make install
+cd ..
+
+if [ ! -f libevent-1.4.14b.tar.gz ];then
+    wget http://oss.aliyuncs.com/aliyunecs/onekey/libevent-1.4.14b.tar.gz
+fi
+rm -rf libevent-1.4.14b
+tar zxvf libevent-1.4.14b.tar.gz
+cd libevent-1.4.14b
+./configure
+if [ $CPU_NUM -gt 1 ];then
+    make -j$CPU_NUM
+else
+    make
+fi
+make install
+cd ..
+
+if [ ! -f libmcrypt-2.5.8.tar.gz ];then
+    wget http://oss.aliyuncs.com/aliyunecs/onekey/libmcrypt-2.5.8.tar.gz
+fi
+rm -rf libmcrypt-2.5.8
+tar zxvf libmcrypt-2.5.8.tar.gz
+cd libmcrypt-2.5.8
+./configure --disable-posix-threads
+if [ $CPU_NUM -gt 1 ];then
+    make -j$CPU_NUM
+else
+    make
+fi
+make install
+/sbin/ldconfig
+cd libltdl/
+./configure --enable-ltdl-install
+make
+make install
+cd ../..
+
+if [ ! -f pcre-8.12.tar.gz ];then
+    wget http://oss.aliyuncs.com/aliyunecs/onekey/pcre-8.12.tar.gz
+fi
+rm -rf pcre-8.12
+tar zxvf pcre-8.12.tar.gz
+cd pcre-8.12
+./configure
+if [ $CPU_NUM -gt 1 ];then
+    make -j$CPU_NUM
+else
+    make
+fi
+make install
+cd ..
+
+if [ ! -f jpegsrc.v6b.tar.gz ];then
+    wget http://oss.aliyuncs.com/aliyunecs/onekey/jpegsrc.v6b.tar.gz
+fi
+rm -rf jpeg-6b
+tar zxvf jpegsrc.v6b.tar.gz
+cd jpeg-6b
+if [ -e /usr/share/libtool/config.guess ];then
+cp -f /usr/share/libtool/config.guess .
+elif [ -e /usr/share/libtool/config/config.guess ];then
+cp -f /usr/share/libtool/config/config.guess .
+fi
+if [ -e /usr/share/libtool/config.sub ];then
+cp -f /usr/share/libtool/config.sub .
+elif [ -e /usr/share/libtool/config/config.sub ];then
+cp -f /usr/share/libtool/config/config.sub .
+fi
+./configure --prefix=/usr/local/jpeg.6 --enable-shared --enable-static
+mkdir -p /usr/local/jpeg.6/include
+mkdir /usr/local/jpeg.6/lib
+mkdir /usr/local/jpeg.6/bin
+mkdir -p /usr/local/jpeg.6/man/man1
+if [ $CPU_NUM -gt 1 ];then
+    make -j$CPU_NUM
+else
+    make
+fi
+make install-lib
+make install
+cd ..
+
+#load /usr/local/lib .so
+touch /etc/ld.so.conf.d/usrlib.conf
+echo &quot;/usr/local/lib&quot; &gt; /etc/ld.so.conf.d/usrlib.conf
+/sbin/ldconfig
+
+#create account.log
+cat &gt; account.log &lt;&lt; END
+##########################################################################
+# 
+# thank you for using aliyun virtual machine
+# 
+##########################################################################
+
+FTP:
+account:www
+password:ftp_password
+
+MySQL:
+account:root
+password:mysql_password
+END</code></pre><h4 id="install-set-ulimit-sh"><a href="#install-set-ulimit-sh" class="headerlink" title="install_set_ulimit.sh"></a>install_set_ulimit.sh</h4><p>#!/bin/sh</p>
+<pre><code>if cat /etc/security/limits.conf | grep &quot;* soft nofile 65535&quot; &gt; /dev/null;then
+    echo &quot;&quot;
+else
+    echo &quot;* soft nofile 65535&quot; &gt;&gt; /etc/security/limits.conf
+fi
+
+if cat /etc/security/limits.conf | grep &quot;* hard nofile 65535&quot; &gt; /dev/null ;then
+    echo &quot;&quot;
+else
+    echo &quot;* hard nofile 65535&quot; &gt;&gt; /etc/security/limits.conf
+fi</code></pre><h4 id="update-openssl-sh"><a href="#update-openssl-sh" class="headerlink" title="update_openssl.sh"></a>update_openssl.sh</h4><pre><code>#!/bin/bash
+if ls /usr/local/ssl &gt; /dev/null ;then
+    if openssl version -a |grep &quot;OpenSSL 1.0.1h&quot;  &gt; /dev/null;then 
+        exit 0
+    fi
+fi
+CPU_NUM=$(cat /proc/cpuinfo | grep processor | wc -l)
+yum install zlib -y
+rm -rf openssl-1.0.1h
+if [ ! -f openssl-1.0.1h.tar.gz ];then
+    wget http://t-down.oss-cn-hangzhou.aliyuncs.com/openssl-1.0.1h.tar.gz
+fi
+tar zxvf openssl-1.0.1h.tar.gz
+\mv /usr/local/ssl /usr/local/ssl.OFF
+cd openssl-1.0.1h
+./config shared zlib
+if [ $CPU_NUM -gt 1 ];then
+    make -j$CPU_NUM
+else
+    make
+fi
+make install
+\mv /usr/bin/openssl /usr/bin/openssl.OFF
+\mv /usr/include/openssl /usr/include/openssl.OFF
+ln -s /usr/local/ssl/bin/openssl /usr/bin/openssl
+ln -s /usr/local/ssl/include/openssl /usr/include/openssl
+if ! cat /etc/ld.so.conf| grep &quot;/usr/local/ssl/lib&quot; &gt;&gt; /dev/null;then
+    echo &quot;/usr/local/ssl/lib&quot; &gt;&gt; /etc/ld.so.conf
+fi
+ldconfig -v
+openssl version -a</code></pre><p>安装ftp的脚本</p>
+<blockquote>
+<p>请注意，安装ftp的脚本是部署在ftp目录下</p>
+</blockquote>
+<h4 id="install-vsftpd-3-0-2-sh"><a href="#install-vsftpd-3-0-2-sh" class="headerlink" title="install_vsftpd-3.0.2.sh"></a>install_vsftpd-3.0.2.sh</h4><p>#!/bin/bash</p>
+<pre><code>if [ `uname -m` == &quot;x86_64&quot; ];then
+machine=x86_64
+else
+machine=i686
+fi
+ifrpm=$(cat /proc/version | grep -E &quot;redhat|centos&quot;)
+ifdpkg=$(cat /proc/version | grep -Ei &quot;ubuntu|debian&quot;)
+ifcentos=$(cat /proc/version | grep centos)
+
+if [ &quot;$ifrpm&quot; != &quot;&quot; ];then
+    if [ ! -f vsftpd-3.0.2-2.el6.x86_64.rpm ];then
+        wget http://test-oracle.oss-cn-hangzhou.aliyuncs.com/vsftpd-3.0.2-2.el6.x86_64.rpm
+    fi
+    rpm -ivh vsftpd-3.0.2-2.el6.x86_64.rpm
+    \cp -f ./ftp/config-ftp/rpm_ftp/* /etc/vsftpd/
+fi
+
+if [ &quot;$ifcentos&quot; != &quot;&quot; ] &amp;&amp; [ &quot;$machine&quot; == &quot;i686&quot; ];then
+    rm -rf /etc/vsftpd/vsftpd.conf
+    \cp -f ./ftp/config-ftp/vsftpdcentosi686.conf /etc/vsftpd/vsftpd.conf
+fi
+
+/etc/init.d/vsftpd start
+
+chown -R www:www /alidata/www
+
+#bug kill: &apos;500 OOPS: vsftpd: refusing to run with writable root inside chroot()&apos;
+chmod a-w /alidata/www
+
+MATRIX=&quot;0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz&quot;
+LENGTH=&quot;9&quot;
+while [ &quot;${n:=1}&quot; -le &quot;$LENGTH&quot; ]
+do
+    PASS=&quot;$PASS${MATRIX:$(($RANDOM%${#MATRIX})):1}&quot;
+    let n+=1
+done
+if [ &quot;$ifrpm&quot; != &quot;&quot; ];then
+echo $PASS | passwd --stdin www
+else
+echo &quot;www:$PASS&quot; | chpasswd
+fi
+
+sed -i s/&apos;ftp_password&apos;/${PASS}/g account.log</code></pre><p>安装mysql的脚本</p>
+<blockquote>
+<p> 请注意，mysql的安装是部署在mysql目录下</p>
+</blockquote>
+<h4 id="install-mysql-5-5-37-sh"><a href="#install-mysql-5-5-37-sh" class="headerlink" title="install_mysql-5.5.37.sh"></a>install_mysql-5.5.37.sh</h4><pre><code>#!/bin/bash
+if [ `uname -m` == &quot;x86_64&quot; ];then
+machine=x86_64
+else
+machine=i686
+fi
+if [ $machine == &quot;x86_64&quot; ];then
+  rm -rf mysql-5.5.37-linux2.6-x86_64
+  if [ ! -f mysql-5.5.37-linux2.6-x86_64.tar.gz ];then
+     wget http://test-oracle.oss-cn-hangzhou.aliyuncs.com/mysql-5.5.37-linux2.6-x86_64.tar.gz
+  fi
+  tar -xzvf mysql-5.5.37-linux2.6-x86_64.tar.gz
+  mv mysql-5.5.37-linux2.6-x86_64/* /alidata/server/mysql
+else
+  rm -rf mysql-5.5.37-linux2.6-i686
+  if [ ! -f mysql-5.5.37-linux2.6-i686.tar.gz ];then
+    wget http://test-oracle.oss-cn-hangzhou.aliyuncs.com/mysql-5.5.37-linux2.6-i686.tar.gz
+  fi
+  tar -xzvf mysql-5.5.37-linux2.6-i686.tar.gz
+  mv mysql-5.5.37-linux2.6-i686/* /alidata/server/mysql
+fi
+
+groupadd mysql
+useradd -g mysql -s /sbin/nologin mysql
+/alidata/server/mysql/scripts/mysql_install_db --datadir=/alidata/server/mysql/data/ --basedir=/alidata/server/mysql --user=mysql
+chown -R mysql:mysql /alidata/server/mysql/
+chown -R mysql:mysql /alidata/server/mysql/data/
+chown -R mysql:mysql /alidata/log/mysql
+\cp -f /alidata/server/mysql/support-files/mysql.server /etc/init.d/mysqld
+sed -i &apos;s#^basedir=$#basedir=/alidata/server/mysql#&apos; /etc/init.d/mysqld
+sed -i &apos;s#^datadir=$#datadir=/alidata/server/mysql/data#&apos; /etc/init.d/mysqld
+\cp -f /alidata/server/mysql/support-files/my-medium.cnf /etc/my.cnf
+sed -i &apos;s#skip-external-locking#skip-external-locking\nlog-error=/alidata/log/mysql/error.log#&apos; /etc/my.cnf
+chmod 755 /etc/init.d/mysqld
+/etc/init.d/mysqld start</code></pre><p>安装nginx的脚本</p>
+<blockquote>
+<p> nginx的安装脚本部署在nginx目录下</p>
+</blockquote>
+<h4 id="install-nginx-1-12-0-sh"><a href="#install-nginx-1-12-0-sh" class="headerlink" title="install_nginx-1.12.0.sh"></a>install_nginx-1.12.0.sh</h4><pre><code>#!/bin/bash
+rm -rf nginx-1.12.0
+if [ ! -f nginx-1.12.0.tar.gz ];then
+  echo &quot;you lost your nginx file !&quot;
+  exit 0    
+fi
+tar zxvf nginx-1.12.0.tar.gz
+cd nginx-1.12.0
+./configure --user=www \
+--group=www \
+--prefix=/alidata/server/nginx \
+--with-http_stub_status_module \
+--without-http-cache \
+--with-http_ssl_module \
+--with-http_gzip_static_module
+CPU_NUM=$(cat /proc/cpuinfo | grep processor | wc -l)
+if [ $CPU_NUM -gt 1 ];then
+    make -j$CPU_NUM
+else
+    make
+fi
+make install
+chmod 775 /alidata/server/nginx/logs
+chown -R www:www /alidata/server/nginx/logs
+chmod -R 775 /alidata/www
+chown -R www:www /alidata/www
+cd ..
+cp -fR ./nginx/config-nginx/* /alidata/server/nginx/conf/
+chmod 755 /alidata/server/nginx/sbin/nginx
+#/alidata/server/nginx/sbin/nginx
+mv /alidata/server/nginx/conf/nginx /etc/init.d/
+chmod +x /etc/init.d/nginx
+/etc/init.d/nginx start</code></pre><p>安装php的脚本</p>
+<blockquote>
+<p>PHP的安装脚本在php目录下</p>
+</blockquote>
+<h4 id="install-nginx-php-5-6-30-sh"><a href="#install-nginx-php-5-6-30-sh" class="headerlink" title="install_nginx_php-5.6.30.sh"></a>install_nginx_php-5.6.30.sh</h4><pre><code>#!/bin/bash
+rm -rf php-5.6.30
+if [ ! -f php-5.6.30.tar.gz ];then
+  echo &quot;you lost your php file!&quot;
+  exit
+fi
+tar zxvf php-5.6.30.tar.gz
+cd php-5.6.30
+./configure --prefix=/alidata/server/php \
+--with-config-file-path=/alidata/server/php/etc \
+--with-mysql=mysqlnd \
+--with-mysqli=mysqlnd \
+--with-pdo-mysql=mysqlnd \
+--enable-fpm \
+--enable-fastcgi \
+--enable-static \
+--enable-inline-optimization \
+--enable-sockets \
+--enable-wddx \
+--enable-zip \
+--enable-calendar \
+--enable-bcmath \
+--enable-soap \
+--with-zlib \
+--with-iconv \
+--with-gd \
+--with-xmlrpc \
+--enable-mbstring \
+--without-sqlite \
+--with-curl \
+--enable-ftp \
+--with-mcrypt  \
+--with-freetype-dir=/usr/local/freetype.2.1.10 \
+--with-jpeg-dir=/usr/local/jpeg.6 \
+--with-png-dir=/usr/local/libpng.1.2.50 \
+--disable-ipv6 \
+--disable-debug \
+--disable-maintainer-zts \
+--disable-safe-mode \
+--disable-fileinfo
+
+CPU_NUM=$(cat /proc/cpuinfo | grep processor | wc -l)
+if [ $CPU_NUM -gt 1 ];then
+    make ZEND_EXTRA_LIBS=&apos;-liconv&apos; -j$CPU_NUM
+else
+    make ZEND_EXTRA_LIBS=&apos;-liconv&apos;
+fi
+make install
+cd ..
+cp ./php-5.6.30/php.ini-production /alidata/server/php/etc/php.ini
+#adjust php.ini
+sed -i &apos;s#; extension_dir = \&quot;\.\/\&quot;#extension_dir = &quot;/alidata/server/php/lib/php/extensions/no-debug-non-zts-20131226/&quot;#&apos;  /alidata/server/php/etc/php.ini
+sed -i &apos;s/post_max_size = 8M/post_max_size = 64M/g&apos; /alidata/server/php/etc/php.ini
+sed -i &apos;s/upload_max_filesize = 2M/upload_max_filesize = 64M/g&apos; /alidata/server/php/etc/php.ini
+sed -i &apos;s/;date.timezone =/date.timezone = PRC/g&apos; /alidata/server/php/etc/php.ini
+sed -i &apos;s/;cgi.fix_pathinfo=1/cgi.fix_pathinfo=1/g&apos; /alidata/server/php/etc/php.ini
+sed -i &apos;s/max_execution_time = 30/max_execution_time = 300/g&apos; /alidata/server/php/etc/php.ini
+#adjust php-fpm
+cp /alidata/server/php/etc/php-fpm.conf.default /alidata/server/php/etc/php-fpm.conf
+sed -i &apos;s,user = nobody,user=www,g&apos;   /alidata/server/php/etc/php-fpm.conf
+sed -i &apos;s,group = nobody,group=www,g&apos;   /alidata/server/php/etc/php-fpm.conf
+sed -i &apos;s,^pm.min_spare_servers = 1,pm.min_spare_servers = 5,g&apos;   /alidata/server/php/etc/php-fpm.conf
+sed -i &apos;s,^pm.max_spare_servers = 3,pm.max_spare_servers = 35,g&apos;   /alidata/server/php/etc/php-fpm.conf
+sed -i &apos;s,^pm.max_children = 5,pm.max_children = 100,g&apos;   /alidata/server/php/etc/php-fpm.conf
+sed -i &apos;s,^pm.start_servers = 2,pm.start_servers = 20,g&apos;   /alidata/server/php/etc/php-fpm.conf
+sed -i &apos;s,;pid = run/php-fpm.pid,pid = run/php-fpm.pid,g&apos;   /alidata/server/php/etc/php-fpm.conf
+sed -i &apos;s,;error_log = log/php-fpm.log,error_log = /alidata/log/php/php-fpm.log,g&apos;   /alidata/server/php/etc/php-fpm.conf
+sed -i &apos;s,;slowlog = log/$pool.log.slow,slowlog = /alidata/log/php/\$pool.log.slow,g&apos;   /alidata/server/php/etc/php-fpm.conf
+#self start
+install -v -m755 ./php-5.6.30/sapi/fpm/init.d.php-fpm  /etc/init.d/php-fpm
+/etc/init.d/php-fpm start
+sleep 5</code></pre><h4 id="install-php-extension-sh"><a href="#install-php-extension-sh" class="headerlink" title="install_php_extension.sh"></a>install_php_extension.sh</h4><pre><code>#!/bin/bash
+
+if [ `uname -m` == &quot;x86_64&quot; ];then
+machine=x86_64
+else
+machine=i686
+fi
+
+#memcache
+#if [ ! -f memcache-3.0.6.tgz ];then
+#    wget http://oss.aliyuncs.com/aliyunecs/onekey/php_extend/memcache-3.0.6.tgz
+#fi
+#rm -rf memcache-3.0.6
+#tar -xzvf memcache-3.0.6.tgz
+#cd memcache-3.0.6
+#/alidata/server/php/bin/phpize
+#./configure --enable-memcache --with-php-config=/alidata/server/php/bin/php-config
+#CPU_NUM=$(cat /proc/cpuinfo | grep processor | wc -l)
+#if [ $CPU_NUM -gt 1 ];then
+#    make -j$CPU_NUM
+#else
+#    make
+#fi
+#make install
+#cd ..
+#echo &quot;extension=memcache.so&quot; &gt;&gt; /alidata/server/php/etc/php.ini
+
+#zend
+if ls -l /alidata/server/ |grep &quot;5.3.18&quot; &gt; /dev/null;then
+  mkdir -p /alidata/server/php/lib/php/extensions/no-debug-non-zts-20090626/
+  if [ $machine == &quot;x86_64&quot; ];then
+      if [ ! -f ZendGuardLoader-php-5.3-linux-glibc23-x86_64.tar.gz ];then
+        wget http://oss.aliyuncs.com/aliyunecs/onekey/php_extend/ZendGuardLoader-php-5.3-linux-glibc23-x86_64.tar.gz
+      fi
+      tar zxvf ZendGuardLoader-php-5.3-linux-glibc23-x86_64.tar.gz
+      mv ./ZendGuardLoader-php-5.3-linux-glibc23-x86_64/php-5.3.x/ZendGuardLoader.so /alidata/server/php/lib/php/extensions/no-debug-non-zts-20090626/
+  else
+      if [ ! -f ZendGuardLoader-php-5.3-linux-glibc23-i386.tar.gz ];then
+        wget http://oss.aliyuncs.com/aliyunecs/onekey/php_extend/ZendGuardLoader-php-5.3-linux-glibc23-i386.tar.gz
+      fi
+      tar zxvf ZendGuardLoader-php-5.3-linux-glibc23-i386.tar.gz
+      mv ./ZendGuardLoader-php-5.3-linux-glibc23-i386/php-5.3.x/ZendGuardLoader.so /alidata/server/php/lib/php/extensions/no-debug-non-zts-20090626/
+  fi
+  echo &quot;zend_extension=/alidata/server/php/lib/php/extensions/no-debug-non-zts-20090626/ZendGuardLoader.so&quot; &gt;&gt; /alidata/server/php/etc/php.ini
+  echo &quot;zend_loader.enable=1&quot; &gt;&gt; /alidata/server/php/etc/php.ini
+  echo &quot;zend_loader.disable_licensing=0&quot; &gt;&gt; /alidata/server/php/etc/php.ini
+  echo &quot;zend_loader.obfuscation_level_support=3&quot; &gt;&gt; /alidata/server/php/etc/php.ini
+  echo &quot;zend_loader.license_path=&quot; &gt;&gt; /alidata/server/php/etc/php.ini 
+elif ls -l /alidata/server/ |grep -E &quot;5.4.23|5.4.27&quot; &gt; /dev/null;then
+  mkdir -p /alidata/server/php/lib/php/extensions/no-debug-non-zts-20100525/
+  if [ $machine == &quot;x86_64&quot; ];then
+      if [ ! -f ZendGuardLoader-70429-PHP-5.4-linux-glibc23-x86_64.tar.gz ];then 
+        wget http://oss.aliyuncs.com/aliyunecs/onekey/php_extend/ZendGuardLoader-70429-PHP-5.4-linux-glibc23-x86_64.tar.gz
+      fi
+      tar zxvf ZendGuardLoader-70429-PHP-5.4-linux-glibc23-x86_64.tar.gz
+      mv ./ZendGuardLoader-70429-PHP-5.4-linux-glibc23-x86_64/php-5.4.x/ZendGuardLoader.so /alidata/server/php/lib/php/extensions/no-debug-non-zts-20100525/
+  else
+      if [ ! -f ZendGuardLoader-70429-PHP-5.4-linux-glibc23-i386.tar.gz ];then 
+        wget http://oss.aliyuncs.com/aliyunecs/onekey/php_extend/ZendGuardLoader-70429-PHP-5.4-linux-glibc23-i386.tar.gz
+      fi
+      tar zxvf ZendGuardLoader-70429-PHP-5.4-linux-glibc23-i386.tar.gz
+      mv ./ZendGuardLoader-70429-PHP-5.4-linux-glibc23-i386/php-5.4.x/ZendGuardLoader.so /alidata/server/php/lib/php/extensions/no-debug-non-zts-20100525/
+  fi
+  echo &quot;zend_extension=/alidata/server/php/lib/php/extensions/no-debug-non-zts-20100525/ZendGuardLoader.so&quot; &gt;&gt; /alidata/server/php/etc/php.ini
+  echo &quot;zend_loader.enable=1&quot; &gt;&gt; /alidata/server/php/etc/php.ini
+  echo &quot;zend_loader.disable_licensing=0&quot; &gt;&gt; /alidata/server/php/etc/php.ini
+  echo &quot;zend_loader.obfuscation_level_support=3&quot; &gt;&gt; /alidata/server/php/etc/php.ini
+  echo &quot;zend_loader.license_path=&quot; &gt;&gt; /alidata/server/php/etc/php.ini 
+elif ls -l /alidata/server/ |grep &quot;5.5.7&quot; &gt; /dev/null;then
+  mkdir -p /alidata/server/php/lib/php/extensions/no-debug-non-zts-20121212/
+  sed -i &apos;s#\[opcache\]#\[opcache\]\nzend_extension=opcache.so#&apos; /alidata/server/php/etc/php.ini
+  sed -i &apos;s#;opcache.enable=0#opcache.enable=1#&apos; /alidata/server/php/etc/php.ini
+elif ls -l /alidata/server/ |grep &quot;5.6.30&quot; &gt; /dev/null;then
+  mkdir -p /alidata/server/php/lib/php/extensions/no-debug-non-zts-20131226/
+  sed -i &apos;s#\[opcache\]#\[opcache\]\nzend_extension=opcache.so#&apos; /alidata/server/php/etc/php.ini
+  sed -i &apos;s#;opcache.enable=0#opcache.enable=1#&apos; /alidata/server/php/etc/php.ini
+fi
+
+cd php-5.6.30/ext/openssl/
+\cp -a config0.m4 config.m4
+/alidata/server/php/bin/phpize
+./configure --with-openssl=/usr/local/ssl/ --with-php-config=/alidata/server/php/bin/php-config
+make
+make install
+echo &quot;extension=openssl.so&quot; &gt;&gt; /alidata/server/php/etc/php.ini
+cd ../../../</code></pre><p>最后是密码的配置</p>
+<blockquote>
+<p>密码的配置部署在res目录下</p>
+</blockquote>
+<h4 id="initPasswd-sh"><a href="#initPasswd-sh" class="headerlink" title="initPasswd.sh"></a>initPasswd.sh</h4><pre><code>#!/bin/bash
+ifrpm=$(cat /proc/version | grep -E &quot;redhat|centos&quot;)
+ifdpkg=$(cat /proc/version | grep -Ei &quot;ubuntu|debian&quot;)
+
+#modify ftp passwd
+PASS=$(date | md5sum |head -c 9)
+if [ &quot;$ifrpm&quot; != &quot;&quot; ];then
+    echo $PASS | passwd --stdin www
+else
+    echo &quot;www:$PASS&quot; | chpasswd
+fi
+
+sed -i &quot;9s/.*/password:${PASS}/&quot; /alidata/account.log
+sleep 1
+
+#modify mysql passwd
+PASS=$(date | md5sum |head -c 10)
+OLDPASSWD=$(sed -n &apos;13p&apos; /alidata/account.log |awk -F: &apos;{print $2}&apos;)
+/alidata/server/mysql/bin/mysqladmin -uroot -p$OLDPASSWD password $PASS
+sed -i &quot;13s/.*/password:${PASS}/&quot; /alidata/account.log
+
+if [ &quot;$ifrpm&quot; != &quot;&quot; ];then
+        sed -i &quot;/\/alidata\/init.*/d&quot; /etc/rc.d/rc.local
+else
+        sed -i &quot;/\/alidata\/init.*/d&quot; /etc/rc.local
+fi</code></pre><h4 id="卸载"><a href="#卸载" class="headerlink" title="卸载"></a>卸载</h4><h4 id="uninstall-sh"><a href="#uninstall-sh" class="headerlink" title="uninstall.sh"></a>uninstall.sh</h4><p>#!/bin/bash</p>
+<pre><code>if [ &quot;$1&quot; != &quot;in&quot; ];then
+    echo &quot;Before cleaning the installation script environment !&quot;
+    echo &quot;Please backup your data !!&quot;
+    read -p &quot;Enter the y or Y to continue:&quot; isY
+    if [ &quot;${isY}&quot; != &quot;y&quot; ] &amp;&amp; [ &quot;${isY}&quot; != &quot;Y&quot; ];then
+       exit 1
+    fi
+fi
+
+mkdir -p /alidata
+
+/etc/init.d/mysqld stop &amp;&gt; /dev/null
+/etc/init.d/nginx stop &amp;&gt; /dev/null
+/etc/init.d/php-fpm stop &amp;&gt; /dev/null
+/etc/init.d/vsftpd stop &amp;&gt; /dev/null
+/etc/init.d/httpd stop &amp;&gt; /dev/null
+killall mysqld &amp;&gt; /dev/null
+killall nginx &amp;&gt; /dev/null
+killall httpd &amp;&gt; /dev/null
+killall apache2 &amp;&gt; /dev/null
+killall vsftpd &amp;&gt; /dev/null
+killall php-fpm &amp;&gt; /dev/null
+
+echo &quot;--------&gt; Clean up the installation environment&quot;
+rm -rf /usr/local/freetype.2.1.10
+rm -rf /usr/local/libpng.1.2.50
+rm -rf /usr/local/freetype.2.1.10
+rm -rf /usr/local/libpng.1.2.50
+rm -rf /usr/local/jpeg.6
+
+echo &quot;&quot;
+echo &quot;--------&gt; Delete directory&quot;
+echo &quot;/alidata/server/mysql             delete ok!&quot; 
+rm -rf /alidata/server/mysql
+echo &quot;rm -rf /alidata/server/mysql-*    delete ok!&quot;
+rm -rf /alidata/server/mysql-*
+echo &quot;/alidata/server/php               delete ok!&quot;
+rm -rf /alidata/server/php
+echo &quot;/alidata/server/php-*             delete ok!&quot;
+rm -rf /alidata/server/php-*
+echo &quot;/alidata/server/nginx             delete ok!&quot;
+rm -rf /alidata/server/nginx
+echo &quot;rm -rf /alidata/server/nginx-*    delete ok!&quot;
+rm -rf /alidata/server/nginx-*
+echo &quot;/alidata/server/httpd             delete ok!&quot;
+rm -rf /alidata/server/httpd
+echo &quot;/alidata/server/httpd-*           delete ok!&quot;
+rm -rf /alidata/server/httpd-*
+echo &quot;&quot;
+echo &quot;/alidata/log/php                  delete ok!&quot;
+rm -rf /alidata/log/php
+echo &quot;/alidata/log/mysql                delete ok!&quot;
+rm -rf /alidata/log/mysql
+echo &quot;/alidata/log/nginx                delete ok!&quot;
+rm -rf /alidata/log/nginx
+echo &quot;/alidata/log/httpd                delete ok!&quot;
+rm -rf /alidata/log/httpd
+echo &quot;&quot;
+
+echo &quot;/alidata/www                      delete ok!&quot;
+rm -rf /alidata/www
+echo &quot;/alidata/init                     delete ok!&quot;
+rm -rf /alidata/init
+
+echo &quot;&quot;
+echo &quot;--------&gt; Delete file&quot;
+echo &quot;/etc/my.cnf                delete ok!&quot;
+rm -f /etc/my.cnf
+echo &quot;/etc/init.d/mysqld         delete ok!&quot;
+rm -f /etc/init.d/mysqld
+echo &quot;/etc/init.d/nginx          delete ok!&quot;
+rm -f /etc/init.d/nginx
+echo &quot;/etc/init.d/php-fpm        delete ok!&quot;
+rm -r /etc/init.d/php-fpm
+echo &quot;/etc/init.d/httpd          delete ok!&quot;
+rm -f /etc/init.d/httpd
+
+echo &quot;&quot;
+ifrpm=$(cat /proc/version | grep -E &quot;redhat|centos&quot;)
+ifdpkg=$(cat /proc/version | grep -Ei &quot;ubuntu|debian&quot;)
+ifcentos=$(cat /proc/version | grep centos)
+echo &quot;--------&gt; Clean up files&quot;
+echo &quot;/etc/rc.local                   clean ok!&quot;
+if [ &quot;$ifrpm&quot; != &quot;&quot; ];then
+    if [ -L /etc/rc.local ];then
+        echo &quot;&quot;
+    else
+        \cp /etc/rc.local /etc/rc.local.bak
+        rm -rf /etc/rc.local
+        ln -s /etc/rc.d/rc.local /etc/rc.local
+    fi
+    sed -i &quot;/\/etc\/init\.d\/mysqld.*/d&quot; /etc/rc.d/rc.local
+    sed -i &quot;/\/etc\/init\.d\/nginx.*/d&quot; /etc/rc.d/rc.local
+    sed -i &quot;/\/etc\/init\.d\/php-fpm.*/d&quot; /etc/rc.d/rc.local
+    sed -i &quot;/\/etc\/init\.d\/vsftpd.*/d&quot; /etc/rc.d/rc.local
+    sed -i &quot;/\/etc\/init\.d\/httpd.*/d&quot; /etc/rc.d/rc.local
+    sed -i &quot;/\/alidata\/init\/initPasswd\.sh.*/d&quot; /etc/rc.d/rc.local
+else
+    sed -i &quot;/\/etc\/init\.d\/mysqld.*/d&quot; /etc/rc.local
+    sed -i &quot;/\/etc\/init\.d\/nginx.*/d&quot; /etc/rc.local
+    sed -i &quot;/\/etc\/init\.d\/php-fpm.*/d&quot; /etc/rc.local
+    sed -i &quot;/\/etc\/init\.d\/vsftpd.*/d&quot; /etc/rc.local
+    sed -i &quot;/\/etc\/init\.d\/httpd.*/d&quot; /etc/rc.local
+    sed -i &quot;/\/alidata\/init\/initPasswd\.sh.*/d&quot; /etc/rc.local
+fi
+
+echo &quot;&quot;
+echo &quot;/etc/profile                    clean ok!&quot;
+sed -i &quot;/export PATH=\$PATH\:\/alidata\/server\/mysql\/bin.*/d&quot; /etc/profile
+source /etc/profile
+
+echo &quot;&quot;
+if [ &quot;$ifrpm&quot; != &quot;&quot; ];then
+    yum -y remove vsftpd  &amp;&gt; /dev/null
+    rpm -e vsftpd
+    rm -f /etc/vsftpd/chroot_list
+    rm -f /etc/vsftpd/ftpusers
+    rm -f /etc/vsftpd/user_list
+    rm -f /etc/vsftpd/vsftpd.conf
+else
+    apt-get -y remove vsftpd
+    rm -f /etc/vsftpd.conf
+    rm -f /etc/vsftpd.chroot_list
+    rm -f /etc/vsftpd.user_list
+    rm -rf /etc/pam.d/vsftpd
+fi
+echo &quot;vsftpd                    remove ok!&quot;
+
+rm -rf /alidata/account.log
+rm -rf /alidata/website-info.log
+if [ &quot;$1&quot; != &quot;in&quot; ];then
+    bash
+fi</code></pre><p>代码有点多，不过一次部署，到处执行，哈哈哈</p>
+
+    </div>
+
+    
+    
+    
+
+      <footer class="post-footer">
+          <div class="post-tags">
+              <a href="/tags/CentOS/" rel="tag"># CentOS</a>
+              <a href="/tags/Shell/" rel="tag"># Shell</a>
+              <a href="/tags/%E8%87%AA%E5%8A%A8%E5%8C%96%E9%83%A8%E7%BD%B2/" rel="tag"># 自动化部署</a>
+          </div>
+
+        
+
+
+        
+    <div class="post-nav">
+      <div class="post-nav-item">
+    <a href="/articles/2017/04/19/1492569053223.html/" rel="prev" title="通过Github与Packagist建立联动关系来解决Github上composer资源包的依赖问题">
+      <i class="fa fa-chevron-left"></i> 通过Github与Packagist建立联动关系来解决Github上composer资源包的依赖问题
+    </a></div>
+      <div class="post-nav-item">
+    <a href="/articles/2017/04/24/1493020965357.html/" rel="next" title="CentOS7默认使用Firewall作为防火墙及其常用命令">
+      CentOS7默认使用Firewall作为防火墙及其常用命令 <i class="fa fa-chevron-right"></i>
+    </a></div>
+    </div>
+      </footer>
+    
+  </article>
+  
+  
+  
+
+  </div>
+
+
+          </div>
+          
+
+<script>
+  window.addEventListener('tabs:register', () => {
+    let activeClass = CONFIG.comments.activeClass;
+    if (CONFIG.comments.storage) {
+      activeClass = localStorage.getItem('comments_active') || activeClass;
+    }
+    if (activeClass) {
+      let activeTab = document.querySelector(`a[href="#comment-${activeClass}"]`);
+      if (activeTab) {
+        activeTab.click();
+      }
+    }
+  });
+  if (CONFIG.comments.storage) {
+    window.addEventListener('tabs:click', event => {
+      if (!event.target.matches('.tabs-comment .tab-content .tab-pane')) return;
+      let commentClass = event.target.classList[1];
+      localStorage.setItem('comments_active', commentClass);
+    });
+  }
+</script>
+
+        </div>
+          
+  
+  <div class="toggle sidebar-toggle">
+    <span class="toggle-line toggle-line-first"></span>
+    <span class="toggle-line toggle-line-middle"></span>
+    <span class="toggle-line toggle-line-last"></span>
+  </div>
+
+  <aside class="sidebar">
+    <div class="sidebar-inner">
+
+      <ul class="sidebar-nav motion-element">
+        <li class="sidebar-nav-toc">
+          Inhaltsverzeichnis
+        </li>
+        <li class="sidebar-nav-overview">
+          Übersicht
+        </li>
+      </ul>
+
+      <!--noindex-->
+      <div class="post-toc-wrap sidebar-panel">
+          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#CentOS自动化部署LNMP环境"><span class="nav-number">1.</span> <span class="nav-text">CentOS自动化部署LNMP环境</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#预期目标"><span class="nav-number">1.1.</span> <span class="nav-text">预期目标</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#设计思路"><span class="nav-number">1.2.</span> <span class="nav-text">设计思路</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#代码讲解"><span class="nav-number">1.3.</span> <span class="nav-text">代码讲解</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#安装"><span class="nav-number">1.3.1.</span> <span class="nav-text">安装</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#install-dir-sh"><span class="nav-number">1.3.2.</span> <span class="nav-text">install_dir.sh</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#install-env-sh"><span class="nav-number">1.3.3.</span> <span class="nav-text">install_env.sh</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#install-set-ulimit-sh"><span class="nav-number">1.3.4.</span> <span class="nav-text">install_set_ulimit.sh</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#update-openssl-sh"><span class="nav-number">1.3.5.</span> <span class="nav-text">update_openssl.sh</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#install-vsftpd-3-0-2-sh"><span class="nav-number">1.3.6.</span> <span class="nav-text">install_vsftpd-3.0.2.sh</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#install-mysql-5-5-37-sh"><span class="nav-number">1.3.7.</span> <span class="nav-text">install_mysql-5.5.37.sh</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#install-nginx-1-12-0-sh"><span class="nav-number">1.3.8.</span> <span class="nav-text">install_nginx-1.12.0.sh</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#install-nginx-php-5-6-30-sh"><span class="nav-number">1.3.9.</span> <span class="nav-text">install_nginx_php-5.6.30.sh</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#install-php-extension-sh"><span class="nav-number">1.3.10.</span> <span class="nav-text">install_php_extension.sh</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#initPasswd-sh"><span class="nav-number">1.3.11.</span> <span class="nav-text">initPasswd.sh</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#卸载"><span class="nav-number">1.3.12.</span> <span class="nav-text">卸载</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#uninstall-sh"><span class="nav-number">1.3.13.</span> <span class="nav-text">uninstall.sh</span></a></li></ol></li></ol></li></ol></div>
+      </div>
+      <!--/noindex-->
+
+      <div class="site-overview-wrap sidebar-panel">
+        <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+  <p class="site-author-name" itemprop="name">liumapp</p>
+  <div class="site-description" itemprop="description"></div>
+</div>
+<div class="site-state-wrap motion-element">
+  <nav class="site-state">
+      <div class="site-state-item site-state-posts">
+          <a href="/archives/">
+        
+          <span class="site-state-item-count">165</span>
+          <span class="site-state-item-name">Artikel</span>
+        </a>
+      </div>
+      <div class="site-state-item site-state-tags">
+        <span class="site-state-item-count">88</span>
+        <span class="site-state-item-name">schlagwörter</span>
+      </div>
+  </nav>
+</div>
+
+
+
+      </div>
+
+    </div>
+  </aside>
+  <div id="sidebar-dimmer"></div>
+
+
+      </div>
+    </main>
+
+    <footer class="footer">
+      <div class="footer-inner">
+        
+
+<div class="copyright">
+  
+  &copy; 
+  <span itemprop="copyrightYear">2020</span>
+  <span class="with-love">
+    <i class="fa fa-user"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">liumapp.com@gmail.com</span>
+</div>
+  <div class="powered-by">Erstellt mit  <a href="https://hexo.io/" class="theme-link" rel="noopener" target="_blank">Hexo</a> v4.2.0
+  </div>
+  <span class="post-meta-divider">|</span>
+  <div class="theme-info">Design – <a href="https://theme-next.org/" class="theme-link" rel="noopener" target="_blank">NexT.Gemini</a> v7.7.0
+  </div>
+
+        
+
+
+
+
+
+
+
+
+      </div>
+    </footer>
+  </div>
+
+  
+  <script src="/lib/anime.min.js"></script>
+  <script src="/lib/velocity/velocity.min.js"></script>
+  <script src="/lib/velocity/velocity.ui.min.js"></script>
+
+<script src="/js/utils.js"></script>
+
+<script src="/js/motion.js"></script>
+
+
+<script src="/js/schemes/pisces.js"></script>
+
+
+<script src="/js/next-boot.js"></script>
+
+
+
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+
+  
+
+</body>
+</html>

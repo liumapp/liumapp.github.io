@@ -1,0 +1,590 @@
+<!DOCTYPE html>
+<html lang="zh-Hans">
+<head>
+  <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=2">
+<meta name="theme-color" content="#222">
+<meta name="generator" content="Hexo 4.2.0">
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png">
+  <link rel="mask-icon" href="/images/logo.svg" color="#222">
+
+<link rel="stylesheet" href="/css/main.css">
+
+
+<link rel="stylesheet" href="/lib/font-awesome/css/font-awesome.min.css">
+
+
+<script id="hexo-configurations">
+  var NexT = window.NexT || {};
+  var CONFIG = {
+    hostname: new URL('http://www.liumapp.com').hostname,
+    root: '/',
+    scheme: 'Gemini',
+    version: '7.7.0',
+    exturl: false,
+    sidebar: {"position":"left","display":"post","padding":18,"offset":12,"onmobile":false},
+    copycode: {"enable":false,"show_result":false,"style":null},
+    back2top: {"enable":true,"sidebar":false,"scrollpercent":false},
+    bookmark: {"enable":false,"color":"#222","save":"auto"},
+    fancybox: false,
+    mediumzoom: false,
+    lazyload: false,
+    pangu: false,
+    comments: {"style":"tabs","active":null,"storage":true,"lazyload":false,"nav":null},
+    algolia: {
+      appID: '',
+      apiKey: '',
+      indexName: '',
+      hits: {"per_page":10},
+      labels: {"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}
+    },
+    localsearch: {"enable":false,"trigger":"auto","top_n_per_article":1,"unescape":false,"preload":false},
+    path: '',
+    motion: {"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}}
+  };
+</script>
+
+  <meta name="description" content="whmcs-plugin之域名解析 通过对whmcs域名解析的功能开发，来记录一下工作上遇到的whmcs插件开发。  成果话不多说，先看看最终完成的作品 首先，我们锁定功能的入口是在域名管理中心里面，然后在二级导航栏里面添加一栏“域名解析”，用户点击后，跳转到我自己定义的解析页面上。  在这个解析页面上，用户可以对自己域名的A记录和CNAME记录进行解析，解析是及时生效的。（这里使用的DNS解析服">
+<meta property="og:type" content="article">
+<meta property="og:title" content="whmcs-plugin之域名解析">
+<meta property="og:url" content="http://www.liumapp.com/articles/2017/05/23/1495503001523.html/index.html">
+<meta property="og:site_name" content="liumapp">
+<meta property="og:description" content="whmcs-plugin之域名解析 通过对whmcs域名解析的功能开发，来记录一下工作上遇到的whmcs插件开发。  成果话不多说，先看看最终完成的作品 首先，我们锁定功能的入口是在域名管理中心里面，然后在二级导航栏里面添加一栏“域名解析”，用户点击后，跳转到我自己定义的解析页面上。  在这个解析页面上，用户可以对自己域名的A记录和CNAME记录进行解析，解析是及时生效的。（这里使用的DNS解析服">
+<meta property="og:image" content="http://oss.fangxinqian.cn/fdc8a2b3551a438c95a2fbe307df95db.jpg">
+<meta property="og:image" content="http://oss.fangxinqian.cn/8430f6e7a9944aa894234f5d9c72d99e.jpg">
+<meta property="og:image" content="http://oss.fangxinqian.cn/fb1b6df546b24cdb87de9ff681c4739d.jpg">
+<meta property="og:image" content="http://oss.fangxinqian.cn/6ba22d0b586a4626911865b00972b0bf.jpg">
+<meta property="og:image" content="http://oss.fangxinqian.cn/8ce4dec03c1a42feb767da552daa57f4.jpg">
+<meta property="article:published_time" content="2017-05-23T01:48:53.000Z">
+<meta property="article:modified_time" content="2017-05-23T01:48:53.000Z">
+<meta property="article:author" content="liumapp">
+<meta property="article:tag" content="whmcs">
+<meta property="article:tag" content="Webnic">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="http://oss.fangxinqian.cn/fdc8a2b3551a438c95a2fbe307df95db.jpg">
+
+<link rel="canonical" href="http://www.liumapp.com/articles/2017/05/23/1495503001523.html/">
+
+
+<script id="page-configurations">
+  // https://hexo.io/docs/variables.html
+  CONFIG.page = {
+    sidebar: "",
+    isHome: false,
+    isPost: true
+  };
+</script>
+
+  <title>whmcs-plugin之域名解析 | liumapp</title>
+  
+
+
+
+
+
+
+  <noscript>
+  <style>
+  .use-motion .brand,
+  .use-motion .menu-item,
+  .sidebar-inner,
+  .use-motion .post-block,
+  .use-motion .pagination,
+  .use-motion .comments,
+  .use-motion .post-header,
+  .use-motion .post-body,
+  .use-motion .collection-header { opacity: initial; }
+
+  .use-motion .site-title,
+  .use-motion .site-subtitle {
+    opacity: initial;
+    top: initial;
+  }
+
+  .use-motion .logo-line-before i { left: initial; }
+  .use-motion .logo-line-after i { right: initial; }
+  </style>
+</noscript>
+
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage">
+  <div class="container use-motion">
+    <div class="headband"></div>
+
+    <header class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-container">
+  <div class="site-meta">
+
+    <div>
+      <a href="/" class="brand" rel="start">
+        <span class="logo-line-before"><i></i></span>
+        <span class="site-title">liumapp</span>
+        <span class="logo-line-after"><i></i></span>
+      </a>
+    </div>
+  </div>
+
+  <div class="site-nav-toggle">
+    <div class="toggle" aria-label="Navigationsleiste an/ausschalten">
+      <span class="toggle-line toggle-line-first"></span>
+      <span class="toggle-line toggle-line-middle"></span>
+      <span class="toggle-line toggle-line-last"></span>
+    </div>
+  </div>
+</div>
+
+
+<nav class="site-nav">
+  
+  <ul id="menu" class="menu">
+        <li class="menu-item menu-item-home">
+
+    <a href="/" rel="section"><i class="fa fa-fw fa-home"></i>Startseite</a>
+
+  </li>
+        <li class="menu-item menu-item-archives">
+
+    <a href="/archives/" rel="section"><i class="fa fa-fw fa-archive"></i>Archiv</a>
+
+  </li>
+  </ul>
+
+</nav>
+</div>
+    </header>
+
+    
+  <div class="back-to-top">
+    <i class="fa fa-arrow-up"></i>
+    <span>0%</span>
+  </div>
+
+  <a href="https://github.com/liumapp" class="github-corner" title="Follow me on GitHub" aria-label="Follow me on GitHub" rel="noopener" target="_blank"><svg width="80" height="80" viewBox="0 0 250 250" aria-hidden="true"><path d="M0,0 L115,115 L130,115 L142,142 L250,250 L250,0 Z"></path><path d="M128.3,109.0 C113.8,99.7 119.0,89.6 119.0,89.6 C122.0,82.7 120.5,78.6 120.5,78.6 C119.2,72.0 123.4,76.3 123.4,76.3 C127.3,80.9 125.5,87.3 125.5,87.3 C122.9,97.6 130.6,101.9 134.4,103.2" fill="currentColor" style="transform-origin: 130px 106px;" class="octo-arm"></path><path d="M115.0,115.0 C114.9,115.1 118.7,116.5 119.8,115.4 L133.7,101.6 C136.9,99.2 139.9,98.4 142.2,98.6 C133.8,88.0 127.5,74.4 143.8,58.0 C148.5,53.4 154.0,51.2 159.7,51.0 C160.3,49.4 163.2,43.6 171.4,40.1 C171.4,40.1 176.1,42.5 178.8,56.2 C183.1,58.6 187.2,61.8 190.9,65.4 C194.5,69.0 197.7,73.2 200.1,77.6 C213.8,80.2 216.3,84.9 216.3,84.9 C212.7,93.1 206.9,96.0 205.4,96.6 C205.1,102.4 203.0,107.8 198.3,112.5 C181.9,128.9 168.3,122.5 157.7,114.1 C157.9,116.9 156.7,120.9 152.7,124.9 L141.0,136.5 C139.8,137.7 141.6,141.9 141.8,141.8 Z" fill="currentColor" class="octo-body"></path></svg></a>
+
+
+    <main class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          
+
+          <div class="content">
+            
+
+  <div class="posts-expand">
+      
+  
+  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block " lang="zh-Hans">
+    <link itemprop="mainEntityOfPage" href="http://www.liumapp.com/articles/2017/05/23/1495503001523.html/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/avatar.gif">
+      <meta itemprop="name" content="liumapp">
+      <meta itemprop="description" content="">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="liumapp">
+    </span>
+      <header class="post-header">
+        <h1 class="post-title" itemprop="name headline">
+          whmcs-plugin之域名解析
+        </h1>
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              <span class="post-meta-item-text">Veröffentlicht am</span>
+
+              <time title="Erstellt: 2017-05-23 09:48:53" itemprop="dateCreated datePublished" datetime="2017-05-23T09:48:53+08:00">2017-05-23</time>
+            </span>
+
+          
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+        <h3 id="whmcs-plugin之域名解析"><a href="#whmcs-plugin之域名解析" class="headerlink" title="whmcs-plugin之域名解析"></a>whmcs-plugin之域名解析</h3><blockquote>
+<p>通过对whmcs域名解析的功能开发，来记录一下工作上遇到的whmcs插件开发。</p>
+</blockquote>
+<h3 id="成果"><a href="#成果" class="headerlink" title="成果"></a>成果</h3><p>话不多说，先看看最终完成的作品</p>
+<p>首先，我们锁定功能的入口是在域名管理中心里面，然后在二级导航栏里面添加一栏“域名解析”，用户点击后，跳转到我自己定义的解析页面上。</p>
+<p><img src="http://oss.fangxinqian.cn/fdc8a2b3551a438c95a2fbe307df95db.jpg" alt="2.pic.jpg"></p>
+<p>在这个解析页面上，用户可以对自己域名的A记录和CNAME记录进行解析，解析是及时生效的。（这里使用的DNS解析服务器是由Webnic提供，相应细节暂不透露，这里只针对whmcs插件开发来讲）</p>
+<p><img src="http://oss.fangxinqian.cn/8430f6e7a9944aa894234f5d9c72d99e.jpg" alt="3.pic.jpg"></p>
+<h3 id="开发过程"><a href="#开发过程" class="headerlink" title="开发过程"></a>开发过程</h3><p>首先这里涉及到一个域名解析面板，和一个域名解析功能，在开发过程中，我把这两个模块拆分成两个独立的项目，分别命名为 dnspannel 和 dns，项目源码请见：<a href="https://github.com/liumapp/dns.git" target="_blank" rel="noopener">dns</a> 和 <a href="https://github.com/liumapp/dnspannel.git" target="_blank" rel="noopener">dnspannel</a>。</p>
+<p>然后回到whmcs系统本身上来，首先是功能的入口，也就是说，我如何让用户跳转到我写的这个新页面里来：</p>
+<p>首先在whmcs系统根目录下，我新建两个文件，分别为dns.php和lmConfig.php，然后在includes/hooks/下，新建一个AddDnsMenu.php文件</p>
+<p><img src="http://oss.fangxinqian.cn/fb1b6df546b24cdb87de9ff681c4739d.jpg" alt="4.pic.jpg"></p>
+<p><img src="http://oss.fangxinqian.cn/6ba22d0b586a4626911865b00972b0bf.jpg" alt="5.pic.jpg"></p>
+<p>AddDnsMenu.php定义了一个钩子，在用户进入一个域名的详情时，去修改二级导航栏，把我们的“域名解析”加入导航中，其代码如下：</p>
+<pre><code>/**
+ * Created by PhpStorm.
+ * User: liumapp 
+ * Email: liumapp.com@gmail.com
+ * homePage: http://www.liumapp.com
+ * Date: 5/8/17
+ * Time: 3:44 PM */
+
+use WHMCS\View\Menu\Item as MenuItem;
+
+add_hook(&apos;ClientAreaPrimarySidebar&apos;, 1, function (MenuItem $primarySidebar)
+
+{
+  if (!is_null($primarySidebar-&gt;getChild(&apos;Domain Details Management&apos;))) {
+  $domainId = addslashes($_GET[&apos;id&apos;]);
+  $domainId = ($domainId == &apos;&apos; ) ? addslashes($_GET[&apos;domainid&apos;]) : $domainId;
+  $primarySidebar-&gt;getChild(&apos;Domain Details Management&apos;)
+ -&gt;addChild(&apos;DNS&apos;)
+ -&gt;setLabel(&apos;域名解析&apos;)
+ -&gt;setUri(&apos;dns.php?id=&apos; . $domainId)
+ -&gt;setOrder(100);
+  }
+});</code></pre><p>lmConfig.php定义了我们需要的额外配置信息，这里进行保密。</p>
+<p>dns.php则是具体的页面了，但这只是用户点击域名解析后跳转执行的后台脚本，真正的模板文件还是要在template/lmsix/目录下，新建一个dns.tpl文件。</p>
+<p>我相信大部分人的template目录下应该没有lmsix目录，因为这是我自己根据six进行修改的一套模板，暂时没有对外开放源码。</p>
+<p><img src="http://oss.fangxinqian.cn/8ce4dec03c1a42feb767da552daa57f4.jpg" alt="6.pic.jpg"></p>
+<p>dns.php脚本的代码如下：</p>
+<pre><code>/**
+ * Created by PhpStorm. 
+ * User: liumapp 
+ * Email: liumapp.com@gmail.com
+ * homePage: http://www.liumapp.com
+ * Date: 5/8/17
+ * Time: 4:19 PM */
+
+use WHMCS\ClientArea;
+use WHMCS\Database\Capsule;
+use WHMCS\View\Menu\Item as MenuItem;
+
+define(&apos;CLIENTAREA&apos;, true);
+
+require __DIR__ . &apos;/init.php&apos;;
+
+$ca = new ClientArea();
+
+$ca-&gt;setPageTitle(&apos;域名解析&apos;);
+
+$ca-&gt;addToBreadCrumb(&apos;index.php&apos;, Lang::trans(&apos;globalsystemname&apos;));
+
+$ca-&gt;addToBreadCrumb(&apos;dns.php&apos;, &apos;域名解析&apos;);
+
+$ca-&gt;initPage();
+
+$ca-&gt;requireLogin(); // Uncomment this line to require a login to access this page
+
+// To assign variables to the template system use the following syntax.
+// These can then be referenced using {$variablename} in the template.
+
+//$ca-&gt;assign(&apos;variablename&apos;, $value);
+
+// Check login status
+if ($ca-&gt;isLoggedIn()) {
+
+  /**
+ * User is logged in - put any code you like here * * Here&apos;s an example to get the currently logged in clients first name */  $clientName = Capsule::table(&apos;tblclients&apos;)
+ -&gt;where(&apos;id&apos;, &apos;=&apos;, $ca-&gt;getUserID())-&gt;pluck(&apos;firstname&apos;);
+  // &apos;pluck&apos; was renamed within WHMCS 7.0.  Replace it with &apos;value&apos; instead.
+ // -&gt;where(&apos;id&apos;, &apos;=&apos;, $ca-&gt;getUserID())-&gt;value(&apos;firstname&apos;);  $ca-&gt;assign(&apos;clientname&apos;, $clientName);
+
+} else {
+
+// User is not logged in
+$ca-&gt;assign(&apos;clientname&apos;, &apos;Random User&apos;);
+
+}
+
+//auto load
+
+function classLoadDns ($class)
+{
+  $path = str_replace(&apos;\\&apos;, DIRECTORY_SEPARATOR, $class);
+  $path = str_replace(&apos;liumapp&apos; . DIRECTORY_SEPARATOR, &apos;&apos;, $path);
+  $path = str_replace(&apos;dns&apos; . DIRECTORY_SEPARATOR , &apos;&apos; , $path);
+  $file = &apos;/alidata/www/default/whmcs/vendor2/vendor/liumapp/dns/src/&apos; . $path . &apos;.php&apos;;
+  if (file_exists($file)) {
+  require_once $file;
+  }
+}
+
+spl_autoload_register(&apos;classLoadDns&apos;);
+$dns = new \liumapp\dns\dns();
+
+// data
+
+$domainId = addslashes($_GET[&apos;id&apos;]);
+$domainId = ($domainId == &apos;&apos; ) ? addslashes($_GET[&apos;domainid&apos;]) : $domainId;
+$dns-&gt;domainId = $domainId;
+
+$ca-&gt;assign(&apos;domainId&apos; , $domainId);
+$ca-&gt;assign(&apos;dns&apos; , $dns);
+/**
+ * Set a context for sidebars * * @link http://docs.whmcs.com/Editing_Client_Area_Menus#Context
+  */
+Menu::addContext();
+
+/**
+ * Setup the primary and secondary sidebars * * @link http://docs.whmcs.com/Editing_Client_Area_Menus#Context
+  */
+
+Menu::primarySidebar(&apos;domainView&apos;);
+Menu::secondarySidebar(&apos;domainView&apos;);
+
+add_hook(&apos;ClientAreaPrimarySidebar&apos;, 1, function (MenuItem $primarySidebar)
+{
+  if (!is_null($primarySidebar-&gt;getChild(&apos;Domain Details Management&apos;))) {
+  $child = $primarySidebar-&gt;getChild(&apos;Domain Details Management&apos;)-&gt;getChild(&apos;Overview&apos;);
+  if (is_null($child)) {
+  $domainId = addslashes($_GET[&apos;id&apos;]);
+  $domainId = ($domainId == &apos;&apos; ) ? addslashes($_GET[&apos;domainid&apos;]) : $domainId;
+  $primarySidebar-&gt;removeChild(&apos;DNS&apos;);
+  $primarySidebar-&gt;getChild(&apos;Domain Details Management&apos;)
+ -&gt;addChild(&apos;Overview&apos;)
+ -&gt;setLabel(&apos;总览&apos;)
+ -&gt;setUri(&apos;clientarea.php?action=domaindetails&amp;id=&apos;.$domainId.&apos;#tabOverview&apos;)
+ -&gt;setOrder(100);
+  $primarySidebar-&gt;getChild(&apos;Domain Details Management&apos;)
+ -&gt;addChild(&apos;Auto Renew Settings&apos;)
+ -&gt;setLabel(&apos;自助续费&apos;)
+ -&gt;setUri(&apos;clientarea.php?action=domaindetails&amp;id=&apos;.$domainId.&apos;#tabAutorenew&apos;)
+ -&gt;setOrder(110);
+  $primarySidebar-&gt;getChild(&apos;Domain Details Management&apos;)
+ -&gt;addChild(&apos;Modify Nameservers&apos;)
+ -&gt;setLabel(&apos;NS服务器&apos;)
+ -&gt;setUri(&apos;clientarea.php?action=domaindetails&amp;id=&apos;.$domainId.&apos;#tabNameservers&apos;)
+ -&gt;setOrder(120);
+  $primarySidebar-&gt;getChild(&apos;Domain Details Management&apos;)
+ -&gt;addChild(&apos;Registrar Lock Status&apos;)
+ -&gt;setLabel(&apos;域名锁定&apos;)
+ -&gt;setUri(&apos;clientarea.php?action=domaindetails&amp;id=&apos;.$domainId.&apos;#tabReglock&apos;)
+ -&gt;setOrder(130);
+  $primarySidebar-&gt;getChild(&apos;Domain Details Management&apos;)
+ -&gt;addChild(&apos;Domain Contacts&apos;)
+ -&gt;setLabel(&apos;联系人信息&apos;)
+ -&gt;setUri(&apos;clientarea.php?action=domaincontacts&amp;domainid=&apos; . $domainId)
+ -&gt;setOrder(140);
+  $primarySidebar-&gt;getChild(&apos;Domain Details Management&apos;)
+ -&gt;addChild(&apos;DNS&apos;)
+ -&gt;setLabel(&apos;域名解析&apos;)
+ -&gt;setUri(&apos;dns.php?id=&apos; . $domainId)
+ -&gt;setOrder(150);
+  }
+ }});
+
+# Define the template filename to be used without the .tpl extension
+
+$ca-&gt;setTemplate(&apos;dns&apos;);
+
+$ca-&gt;output();</code></pre><p>我们可以看到，这里我写了一个spl_autoload_register，这是为了引入dns项目，具体的业务逻辑和视图逻辑再由dns和dnspanel这两个项目去执行，一定程度上可以保持项目日后的维护性。</p>
+<p>再对于dns.tpl,其代码如下所示：</p>
+<pre><code>  type=&quot;text/javascript&quot;&gt;
+$(&apos;#Primary_Sidebar-Domain_Details_Management-DNS&apos;).addClass(&apos;active&apos;);
+
+{$dns-&gt;init()}
+  {$dns-&gt;renderTable()}
+  {$dns-&gt;renderJs()}</code></pre><p>整个whmcs的插件开发就到此结束，很抱歉不能把所有细节分享出来，因为涉及到一些商业机密，这里仅仅把自己开发过程的心得和体会进行记录，仅为学习。</p>
+
+    </div>
+
+    
+    
+    
+
+      <footer class="post-footer">
+          <div class="post-tags">
+              <a href="/tags/whmcs/" rel="tag"># whmcs</a>
+              <a href="/tags/Webnic/" rel="tag"># Webnic</a>
+          </div>
+
+        
+
+
+        
+    <div class="post-nav">
+      <div class="post-nav-item">
+    <a href="/articles/2017/05/22/1495446401994.html/" rel="prev" title="B3Log-Bug:当文章中含有大量的css样式时，进程会占满服务器100%CPU，估计有死循环在里面。">
+      <i class="fa fa-chevron-left"></i> B3Log-Bug:当文章中含有大量的css样式时，进程会占满服务器100%CPU，估计有死循环在里面。
+    </a></div>
+      <div class="post-nav-item">
+    <a href="/articles/2017/05/23/1495519927741.html/" rel="next" title="ECS挂載新的云磁盘">
+      ECS挂載新的云磁盘 <i class="fa fa-chevron-right"></i>
+    </a></div>
+    </div>
+      </footer>
+    
+  </article>
+  
+  
+  
+
+  </div>
+
+
+          </div>
+          
+
+<script>
+  window.addEventListener('tabs:register', () => {
+    let activeClass = CONFIG.comments.activeClass;
+    if (CONFIG.comments.storage) {
+      activeClass = localStorage.getItem('comments_active') || activeClass;
+    }
+    if (activeClass) {
+      let activeTab = document.querySelector(`a[href="#comment-${activeClass}"]`);
+      if (activeTab) {
+        activeTab.click();
+      }
+    }
+  });
+  if (CONFIG.comments.storage) {
+    window.addEventListener('tabs:click', event => {
+      if (!event.target.matches('.tabs-comment .tab-content .tab-pane')) return;
+      let commentClass = event.target.classList[1];
+      localStorage.setItem('comments_active', commentClass);
+    });
+  }
+</script>
+
+        </div>
+          
+  
+  <div class="toggle sidebar-toggle">
+    <span class="toggle-line toggle-line-first"></span>
+    <span class="toggle-line toggle-line-middle"></span>
+    <span class="toggle-line toggle-line-last"></span>
+  </div>
+
+  <aside class="sidebar">
+    <div class="sidebar-inner">
+
+      <ul class="sidebar-nav motion-element">
+        <li class="sidebar-nav-toc">
+          Inhaltsverzeichnis
+        </li>
+        <li class="sidebar-nav-overview">
+          Übersicht
+        </li>
+      </ul>
+
+      <!--noindex-->
+      <div class="post-toc-wrap sidebar-panel">
+          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-3"><a class="nav-link" href="#whmcs-plugin之域名解析"><span class="nav-number">1.</span> <span class="nav-text">whmcs-plugin之域名解析</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#成果"><span class="nav-number">2.</span> <span class="nav-text">成果</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#开发过程"><span class="nav-number">3.</span> <span class="nav-text">开发过程</span></a></li></ol></div>
+      </div>
+      <!--/noindex-->
+
+      <div class="site-overview-wrap sidebar-panel">
+        <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+  <p class="site-author-name" itemprop="name">liumapp</p>
+  <div class="site-description" itemprop="description"></div>
+</div>
+<div class="site-state-wrap motion-element">
+  <nav class="site-state">
+      <div class="site-state-item site-state-posts">
+          <a href="/archives/">
+        
+          <span class="site-state-item-count">165</span>
+          <span class="site-state-item-name">Artikel</span>
+        </a>
+      </div>
+      <div class="site-state-item site-state-tags">
+        <span class="site-state-item-count">88</span>
+        <span class="site-state-item-name">schlagwörter</span>
+      </div>
+  </nav>
+</div>
+
+
+
+      </div>
+
+    </div>
+  </aside>
+  <div id="sidebar-dimmer"></div>
+
+
+      </div>
+    </main>
+
+    <footer class="footer">
+      <div class="footer-inner">
+        
+
+<div class="copyright">
+  
+  &copy; 
+  <span itemprop="copyrightYear">2020</span>
+  <span class="with-love">
+    <i class="fa fa-user"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">liumapp.com@gmail.com</span>
+</div>
+  <div class="powered-by">Erstellt mit  <a href="https://hexo.io/" class="theme-link" rel="noopener" target="_blank">Hexo</a> v4.2.0
+  </div>
+  <span class="post-meta-divider">|</span>
+  <div class="theme-info">Design – <a href="https://theme-next.org/" class="theme-link" rel="noopener" target="_blank">NexT.Gemini</a> v7.7.0
+  </div>
+
+        
+
+
+
+
+
+
+
+
+      </div>
+    </footer>
+  </div>
+
+  
+  <script src="/lib/anime.min.js"></script>
+  <script src="/lib/velocity/velocity.min.js"></script>
+  <script src="/lib/velocity/velocity.ui.min.js"></script>
+
+<script src="/js/utils.js"></script>
+
+<script src="/js/motion.js"></script>
+
+
+<script src="/js/schemes/pisces.js"></script>
+
+
+<script src="/js/next-boot.js"></script>
+
+
+
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+
+  
+
+</body>
+</html>

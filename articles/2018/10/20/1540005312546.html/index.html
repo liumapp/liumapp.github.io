@@ -1,0 +1,607 @@
+<!DOCTYPE html>
+<html lang="zh-Hans">
+<head>
+  <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=2">
+<meta name="theme-color" content="#222">
+<meta name="generator" content="Hexo 4.2.0">
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png">
+  <link rel="mask-icon" href="/images/logo.svg" color="#222">
+
+<link rel="stylesheet" href="/css/main.css">
+
+
+<link rel="stylesheet" href="/lib/font-awesome/css/font-awesome.min.css">
+
+
+<script id="hexo-configurations">
+  var NexT = window.NexT || {};
+  var CONFIG = {
+    hostname: new URL('http://www.liumapp.com').hostname,
+    root: '/',
+    scheme: 'Gemini',
+    version: '7.7.0',
+    exturl: false,
+    sidebar: {"position":"left","display":"post","padding":18,"offset":12,"onmobile":false},
+    copycode: {"enable":false,"show_result":false,"style":null},
+    back2top: {"enable":true,"sidebar":false,"scrollpercent":false},
+    bookmark: {"enable":false,"color":"#222","save":"auto"},
+    fancybox: false,
+    mediumzoom: false,
+    lazyload: false,
+    pangu: false,
+    comments: {"style":"tabs","active":null,"storage":true,"lazyload":false,"nav":null},
+    algolia: {
+      appID: '',
+      apiKey: '',
+      indexName: '',
+      hits: {"per_page":10},
+      labels: {"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}
+    },
+    localsearch: {"enable":false,"trigger":"auto","top_n_per_article":1,"unescape":false,"preload":false},
+    path: '',
+    motion: {"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}}
+  };
+</script>
+
+  <meta name="description" content="译：在Docker中运行Spring Boot的高级功能测试原文链接：https:&#x2F;&#x2F;dzone.com&#x2F;articles&#x2F;advanced-functional-testing-in-spring-boot-by-usin 作者：Taras Danylchuk 译者：liumapp 想要学习更多有关Spring Boot项目的功能测试吗？阅读这篇博客可以让您掌握如何利用Docker容器进行测试。">
+<meta property="og:type" content="article">
+<meta property="og:title" content="译：在Docker中运行Spring Boot的高级功能测试">
+<meta property="og:url" content="http://www.liumapp.com/articles/2018/10/20/1540005312546.html/index.html">
+<meta property="og:site_name" content="liumapp">
+<meta property="og:description" content="译：在Docker中运行Spring Boot的高级功能测试原文链接：https:&#x2F;&#x2F;dzone.com&#x2F;articles&#x2F;advanced-functional-testing-in-spring-boot-by-usin 作者：Taras Danylchuk 译者：liumapp 想要学习更多有关Spring Boot项目的功能测试吗？阅读这篇博客可以让您掌握如何利用Docker容器进行测试。">
+<meta property="og:image" content="http://oss.fangxinqian.cn/a30d1d4e533848cb988f3ae8294ffb00.jpg">
+<meta property="og:image" content="http://oss.fangxinqian.cn/6933cf09180a436f82b2dea1fde10cc4.jpg">
+<meta property="og:image" content="http://oss.fangxinqian.cn/87689b60a0f24d24b04811b98613ea8f.jpg">
+<meta property="og:image" content="http://oss.fangxinqian.cn/ed7f48b103de4cdd99099445d084d22f.jpg">
+<meta property="og:image" content="http://oss.fangxinqian.cn/c3d1b267729d480b8e939e42ff6666ea.jpg">
+<meta property="article:published_time" content="2018-10-19T19:15:12.000Z">
+<meta property="article:modified_time" content="2018-10-19T19:15:12.000Z">
+<meta property="article:author" content="liumapp">
+<meta property="article:tag" content="Java">
+<meta property="article:tag" content="Spring">
+<meta property="article:tag" content="Docker">
+<meta property="article:tag" content="测试">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="http://oss.fangxinqian.cn/a30d1d4e533848cb988f3ae8294ffb00.jpg">
+
+<link rel="canonical" href="http://www.liumapp.com/articles/2018/10/20/1540005312546.html/">
+
+
+<script id="page-configurations">
+  // https://hexo.io/docs/variables.html
+  CONFIG.page = {
+    sidebar: "",
+    isHome: false,
+    isPost: true
+  };
+</script>
+
+  <title>译：在Docker中运行Spring Boot的高级功能测试 | liumapp</title>
+  
+
+
+
+
+
+
+  <noscript>
+  <style>
+  .use-motion .brand,
+  .use-motion .menu-item,
+  .sidebar-inner,
+  .use-motion .post-block,
+  .use-motion .pagination,
+  .use-motion .comments,
+  .use-motion .post-header,
+  .use-motion .post-body,
+  .use-motion .collection-header { opacity: initial; }
+
+  .use-motion .site-title,
+  .use-motion .site-subtitle {
+    opacity: initial;
+    top: initial;
+  }
+
+  .use-motion .logo-line-before i { left: initial; }
+  .use-motion .logo-line-after i { right: initial; }
+  </style>
+</noscript>
+
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage">
+  <div class="container use-motion">
+    <div class="headband"></div>
+
+    <header class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-container">
+  <div class="site-meta">
+
+    <div>
+      <a href="/" class="brand" rel="start">
+        <span class="logo-line-before"><i></i></span>
+        <span class="site-title">liumapp</span>
+        <span class="logo-line-after"><i></i></span>
+      </a>
+    </div>
+  </div>
+
+  <div class="site-nav-toggle">
+    <div class="toggle" aria-label="Navigationsleiste an/ausschalten">
+      <span class="toggle-line toggle-line-first"></span>
+      <span class="toggle-line toggle-line-middle"></span>
+      <span class="toggle-line toggle-line-last"></span>
+    </div>
+  </div>
+</div>
+
+
+<nav class="site-nav">
+  
+  <ul id="menu" class="menu">
+        <li class="menu-item menu-item-home">
+
+    <a href="/" rel="section"><i class="fa fa-fw fa-home"></i>Startseite</a>
+
+  </li>
+        <li class="menu-item menu-item-archives">
+
+    <a href="/archives/" rel="section"><i class="fa fa-fw fa-archive"></i>Archiv</a>
+
+  </li>
+  </ul>
+
+</nav>
+</div>
+    </header>
+
+    
+  <div class="back-to-top">
+    <i class="fa fa-arrow-up"></i>
+    <span>0%</span>
+  </div>
+
+  <a href="https://github.com/liumapp" class="github-corner" title="Follow me on GitHub" aria-label="Follow me on GitHub" rel="noopener" target="_blank"><svg width="80" height="80" viewBox="0 0 250 250" aria-hidden="true"><path d="M0,0 L115,115 L130,115 L142,142 L250,250 L250,0 Z"></path><path d="M128.3,109.0 C113.8,99.7 119.0,89.6 119.0,89.6 C122.0,82.7 120.5,78.6 120.5,78.6 C119.2,72.0 123.4,76.3 123.4,76.3 C127.3,80.9 125.5,87.3 125.5,87.3 C122.9,97.6 130.6,101.9 134.4,103.2" fill="currentColor" style="transform-origin: 130px 106px;" class="octo-arm"></path><path d="M115.0,115.0 C114.9,115.1 118.7,116.5 119.8,115.4 L133.7,101.6 C136.9,99.2 139.9,98.4 142.2,98.6 C133.8,88.0 127.5,74.4 143.8,58.0 C148.5,53.4 154.0,51.2 159.7,51.0 C160.3,49.4 163.2,43.6 171.4,40.1 C171.4,40.1 176.1,42.5 178.8,56.2 C183.1,58.6 187.2,61.8 190.9,65.4 C194.5,69.0 197.7,73.2 200.1,77.6 C213.8,80.2 216.3,84.9 216.3,84.9 C212.7,93.1 206.9,96.0 205.4,96.6 C205.1,102.4 203.0,107.8 198.3,112.5 C181.9,128.9 168.3,122.5 157.7,114.1 C157.9,116.9 156.7,120.9 152.7,124.9 L141.0,136.5 C139.8,137.7 141.6,141.9 141.8,141.8 Z" fill="currentColor" class="octo-body"></path></svg></a>
+
+
+    <main class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          
+
+          <div class="content">
+            
+
+  <div class="posts-expand">
+      
+  
+  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block " lang="zh-Hans">
+    <link itemprop="mainEntityOfPage" href="http://www.liumapp.com/articles/2018/10/20/1540005312546.html/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/avatar.gif">
+      <meta itemprop="name" content="liumapp">
+      <meta itemprop="description" content="">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="liumapp">
+    </span>
+      <header class="post-header">
+        <h1 class="post-title" itemprop="name headline">
+          译：在Docker中运行Spring Boot的高级功能测试
+        </h1>
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              <span class="post-meta-item-text">Veröffentlicht am</span>
+
+              <time title="Erstellt: 2018-10-20 03:15:12" itemprop="dateCreated datePublished" datetime="2018-10-20T03:15:12+08:00">2018-10-20</time>
+            </span>
+
+          
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+        <h1 id="译：在Docker中运行Spring-Boot的高级功能测试"><a href="#译：在Docker中运行Spring-Boot的高级功能测试" class="headerlink" title="译：在Docker中运行Spring Boot的高级功能测试"></a>译：在Docker中运行Spring Boot的高级功能测试</h1><p>原文链接：<a href="https://dzone.com/articles/advanced-functional-testing-in-spring-boot-by-usin" target="_blank" rel="noopener">https://dzone.com/articles/advanced-functional-testing-in-spring-boot-by-usin</a></p>
+<p>作者：<a href="https://dzone.com/users/2905154/tdanylchuk.html" target="_blank" rel="noopener">Taras Danylchuk</a></p>
+<p>译者：<a href="https://github.com/liumapp" target="_blank" rel="noopener">liumapp</a></p>
+<p>想要学习更多有关Spring Boot项目的功能测试吗？阅读这篇博客可以让您掌握如何利用Docker容器进行测试。</p>
+<h2 id="概览"><a href="#概览" class="headerlink" title="概览"></a>概览</h2><p>本文重点介绍如何使用Spring Boot进行功能测试的一些最佳实践。我们将演示如何在不设置模拟环境的情况下将服务作为黑盒测试的高级方法。</p>
+<p>本文是我之前这篇文章 <a href="https://dzone.com/articles/native-integration-testing-in-spring-boot" target="_blank" rel="noopener">Native Integration Testing in Spring Boot</a> 的后续。</p>
+<p>因此我将参考上一篇文章来介绍这两种测试方法的区别。</p>
+<p>我建议你在阅读这篇文章之前先了解上一篇文章。</p>
+<h2 id="理论"><a href="#理论" class="headerlink" title="理论"></a>理论</h2><p>让我们从功能测试的定义开始（来自于<a href="https://www.techopedia.com/definition/19509/functional-testing" target="_blank" rel="noopener">Techopedia</a>）：</p>
+<p> 功能测试是在软件开发过程中使用的软件测试流程，通过测试来确保软件符合所有的预期需求。     功能测试也是一种检查软件的方法，通过这种方法来确保它具有指定的所有必须功能。 </p>
+<p>虽然这个解释看起来有点让人迷惑，但不需要担心——接下来的定义提供了更进一步的解释（来自于<a href="https://www.techopedia.com/definition/19509/functional-testing" target="_blank" rel="noopener">Techopedia</a>）：</p>
+<p> 功能测试主要用于验证一个软件是否提供最终用户或业务所需要的输出。     通常，功能测试涉及评估和比较每个软件功能与业务需求。<br>     通过向软件提供一些相关输入进行测试，以便评估软件的输出并查看其与基本要求相比是符合、关联还是变化的。<br>     此外，功能测试还可以检查软件的可用性，例如确保导航功能能够按要求工作。<br> 在我们的例子中，我们将微服务作为一个软件，这个软件将根据最终用户的要求来提供一些输出。</p>
+<h2 id="目的"><a href="#目的" class="headerlink" title="目的"></a>目的</h2><p>功能测试应涵盖我们应用程序的以下方面：</p>
+<ul>
+<li><p>上下文启动 - 这可确保服务在上下文中没有冲突，并且可以在没有问题的情况下进行初始化。</p>
+</li>
+<li><p>业务需求/用户故事 - 包括所请求的功能。</p>
+</li>
+</ul>
+<p>基本上，每个（或大多数）用户的故事都应该有自己的专用功能测试。</p>
+<p>我们不需要编写上下文启动测试，因为只要有一个功能要测试，那么上下文启动无论如何都会被测试到的。</p>
+<h2 id="实践"><a href="#实践" class="headerlink" title="实践"></a>实践</h2><p>为了演示如何使用我们的最佳实践，我们需要编写一些示范服务代码。</p>
+<p>就让我们从头开始吧。</p>
+<h2 id="任务"><a href="#任务" class="headerlink" title="任务"></a>任务</h2><p>我们的新服务有以下要求：</p>
+<ul>
+<li><p>用于存储和检索用户详细信息的REST API。</p>
+</li>
+<li><p>通过REST检索联系服务中的联系人详细信息，从而检索用户详细信息的REST API。</p>
+</li>
+</ul>
+<h2 id="架构设计"><a href="#架构设计" class="headerlink" title="架构设计"></a>架构设计</h2><p>对于此任务，我们将基于Spring平台作为框架，使用Spring Boot作为应用的启动者。</p>
+<p>为了存储用户详细信息，我们将使用MariaDB数据库。</p>
+<p>由于服务应存储和检索用户详细信息，因此将其命名为用户详细信息服务是合乎逻辑的。</p>
+<p>在实现之前，应该使用组件图来更好地理解系统的主要组件：</p>
+<p><img src="http://oss.fangxinqian.cn/a30d1d4e533848cb988f3ae8294ffb00.jpg" alt="1.pic.jpg"></p>
+<h2 id="实现"><a href="#实现" class="headerlink" title="实现"></a>实现</h2><p>以下示例代码包含许多<a href="https://projectlombok.org/" target="_blank" rel="noopener">Lombok</a>注释。</p>
+<p>您可以在网站上的docs文件中找到每个注释的说明。</p>
+<h3 id="模型"><a href="#模型" class="headerlink" title="模型"></a>模型</h3><p>用户详情模型：</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">@Value</span>(staticConstructor = <span class="string">"of"</span>)</span><br><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">UserDetails</span> </span>&#123;</span><br><span class="line"> String firstName; String lastName; <span class="function"><span class="keyword">public</span> <span class="keyword">static</span> UserDetails <span class="title">fromEntity</span><span class="params">(UserDetailsEntity entity)</span> </span>&#123; <span class="keyword">return</span> UserDetails.of(entity.getFirstName(), entity.getLastName()); &#125; <span class="function"><span class="keyword">public</span> UserDetailsEntity <span class="title">toEntity</span><span class="params">(<span class="keyword">long</span> userId)</span> </span>&#123; <span class="keyword">return</span> <span class="keyword">new</span> UserDetailsEntity(userId, firstName, lastName); &#125;&#125;</span><br></pre></td></tr></table></figure>
+
+<p>用户联系人模型：</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">@Value</span></span><br><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">UserContacts</span> </span>&#123;</span><br><span class="line"> String email; String phone;&#125;</span><br></pre></td></tr></table></figure>
+
+<p>具有汇总信息的用户类：</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">@Value</span>(staticConstructor = <span class="string">"of"</span>)</span><br><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">User</span> </span>&#123;</span><br><span class="line"> UserDetails userDetails; UserContacts userContacts;&#125;</span><br></pre></td></tr></table></figure>
+
+<h3 id="REST-API"><a href="#REST-API" class="headerlink" title="REST API"></a>REST API</h3><figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">@RestController</span></span><br><span class="line"><span class="meta">@RequestMapping</span>(<span class="string">"user"</span>)</span><br><span class="line"><span class="meta">@AllArgsConstructor</span></span><br><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">UserController</span> </span>&#123;</span><br><span class="line"> <span class="keyword">private</span> <span class="keyword">final</span> UserService userService; <span class="meta">@GetMapping</span>(<span class="string">"/&#123;userId&#125;"</span>) <span class="comment">//1 public User getUser(@PathVariable("userId") long userId) &#123; return userService.getUser(userId); &#125; @PostMapping("/&#123;userId&#125;/details") //2 public void saveUserDetails(@PathVariable("userId") long userId, @RequestBody UserDetails userDetails) &#123; userService.saveDetails(userId, userDetails); &#125; @GetMapping("/&#123;userId&#125;/details") //3 public UserDetails getUserDetails(@PathVariable("userId") long userId) &#123; return userService.getDetails(userId); &#125;&#125;</span></span><br></pre></td></tr></table></figure>
+
+<ol>
+<li><p>按ID获取用户汇总数据</p>
+</li>
+<li><p>按ID保存用户的用户详细信息</p>
+</li>
+<li><p>按ID获取用户详细信息</p>
+</li>
+</ol>
+<h3 id="客户联系人服务"><a href="#客户联系人服务" class="headerlink" title="客户联系人服务"></a>客户联系人服务</h3><figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">@Component</span></span><br><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">ContactsServiceClient</span> </span>&#123;</span><br><span class="line"> <span class="keyword">private</span> <span class="keyword">final</span> RestTemplate restTemplate; <span class="keyword">private</span> <span class="keyword">final</span> String contactsServiceUrl; <span class="function"><span class="keyword">public</span> <span class="title">ContactsServiceClient</span><span class="params">(<span class="keyword">final</span> RestTemplateBuilder restTemplateBuilder, @Value(<span class="string">"$&#123;contacts.service.url&#125;"</span>)</span> <span class="keyword">final</span> String contactsServiceUrl) </span>&#123; <span class="keyword">this</span>.restTemplate = restTemplateBuilder.build(); <span class="keyword">this</span>.contactsServiceUrl = contactsServiceUrl; &#125; <span class="function"><span class="keyword">public</span> UserContacts <span class="title">getUserContacts</span><span class="params">(<span class="keyword">long</span> userId)</span> </span>&#123; URI uri = UriComponentsBuilder.fromHttpUrl(contactsServiceUrl + <span class="string">"/contacts"</span>) .queryParam(<span class="string">"userId"</span>, userId).build().toUri(); <span class="keyword">return</span> restTemplate.getForObject(uri, UserContacts<span class="class">.<span class="keyword">class</span>)</span>; &#125;&#125;</span><br></pre></td></tr></table></figure>
+
+<h3 id="详细信息实体及其存储库"><a href="#详细信息实体及其存储库" class="headerlink" title="详细信息实体及其存储库"></a>详细信息实体及其存储库</h3><figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">@Entity</span></span><br><span class="line"><span class="meta">@Data</span></span><br><span class="line"><span class="meta">@NoArgsConstructor</span></span><br><span class="line"><span class="meta">@AllArgsConstructor</span></span><br><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">UserDetailsEntity</span> </span>&#123;</span><br><span class="line"> <span class="meta">@Id</span> <span class="keyword">private</span> Long id; <span class="meta">@Column</span> <span class="keyword">private</span> String firstName; <span class="meta">@Column</span> <span class="keyword">private</span> String lastName;&#125;</span><br></pre></td></tr></table></figure>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">@Repository</span></span><br><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">interface</span> <span class="title">UserDetailsRepository</span> <span class="keyword">extends</span> <span class="title">JpaRepository</span> </span>&#123;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<h4 id="用户服务"><a href="#用户服务" class="headerlink" title="用户服务"></a>用户服务</h4><figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">@Service</span></span><br><span class="line"><span class="meta">@AllArgsConstructor</span></span><br><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">UserService</span> </span>&#123;</span><br><span class="line"> <span class="keyword">private</span> <span class="keyword">final</span> UserDetailsRepository userDetailsRepository; <span class="keyword">private</span> <span class="keyword">final</span> ContactsServiceClient contactsServiceClient; <span class="function"><span class="keyword">public</span> User <span class="title">getUser</span><span class="params">(<span class="keyword">long</span> userId)</span> </span>&#123; UserDetailsEntity userDetailsEntity = userDetailsRepository.getOne(userId); <span class="comment">//1 UserDetails userDetails = UserDetails.fromEntity(userDetailsEntity); UserContacts userContacts = contactsServiceClient.getUserContacts(userId); //2 return User.of(userDetails, userContacts); //3 &#125; public void saveDetails(long userId, UserDetails userDetails) &#123; UserDetailsEntity entity = userDetails.toEntity(userId); userDetailsRepository.save(entity); &#125; public UserDetails getDetails(long userId) &#123; UserDetailsEntity userDetailsEntity = userDetailsRepository.getOne(userId); return UserDetails.fromEntity(userDetailsEntity); &#125;&#125;</span></span><br></pre></td></tr></table></figure>
+
+<ol>
+<li><p>从DB检索用户详细信息</p>
+</li>
+<li><p>从联系人服务中检索用户联系人</p>
+</li>
+<li><p>返回具有汇总数据的用户</p>
+</li>
+</ol>
+<h3 id="应用启动类和它的配置文件"><a href="#应用启动类和它的配置文件" class="headerlink" title="应用启动类和它的配置文件"></a>应用启动类和它的配置文件</h3><p>UserDetailsServiceApplication.java</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"></span><br><span class="line"><span class="meta">@SpringBootApplication</span></span><br><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">UserDetailsServiceApplication</span> </span>&#123;</span><br><span class="line"> <span class="function"><span class="keyword">public</span> <span class="keyword">static</span> <span class="keyword">void</span> <span class="title">main</span><span class="params">(String[] args)</span> </span>&#123; SpringApplication.run(UserDetailsServiceApplication<span class="class">.<span class="keyword">class</span>, <span class="title">args</span>)</span>; &#125;&#125;</span><br></pre></td></tr></table></figure>
+
+<p>application.properties:</p>
+<figure class="highlight yaml"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">#contact service</span></span><br><span class="line"><span class="string">contacts.service.url=http://www.prod.contact.service.com</span></span><br><span class="line"><span class="comment">#database</span></span><br><span class="line"><span class="string">user.details.db.host=prod.maria.url.com</span></span><br><span class="line"><span class="string">user.details.db.port=3306</span></span><br><span class="line"><span class="string">user.details.db.schema=user_details</span></span><br><span class="line"><span class="string">spring.datasource.url=jdbc:mariadb://$&#123;user.details.db.host&#125;:$&#123;user.details.db.port&#125;/$&#123;user.details.db.schema&#125;</span></span><br><span class="line"><span class="string">spring.datasource.username=prod-username</span></span><br><span class="line"><span class="string">spring.datasource.password=prod-password</span></span><br><span class="line"><span class="string">spring.datasource.driver-class-name=org.mariadb.jdbc.Driver</span></span><br></pre></td></tr></table></figure>
+
+<h3 id="Mavan配置文件pom-xml"><a href="#Mavan配置文件pom-xml" class="headerlink" title="Mavan配置文件pom.xml"></a>Mavan配置文件pom.xml</h3><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"></span><br><span class="line">xsi&#x3D;&quot;http:&#x2F;&#x2F;www.w3.org&#x2F;2001&#x2F;XMLSchema-instance&quot;</span><br><span class="line">  xsi:schemaLocation&#x3D;&quot;http:&#x2F;&#x2F;maven.apache.org&#x2F;POM&#x2F;4.0.0 http:&#x2F;&#x2F;maven.apache.org&#x2F;xsd&#x2F;maven-4.0.0.xsd&quot;&gt;</span><br><span class="line"> 4.0.0 user-details-service 0.0.1-SNAPSHOT jar User details service  com.tdanylchuk functional-tests-best-practices 0.0.1-SNAPSHOT    org.springframework.boot spring-boot-starter-data-jpa   org.springframework.boot spring-boot-starter-web   org.projectlombok lombok provided   org.mariadb.jdbc mariadb-java-client 2.3.0      org.springframework.boot spring-boot-maven-plugin</span><br></pre></td></tr></table></figure>
+
+<p>注意：父级是自定义的functional-tests-best-practices项目，它继承了spring-boot-starter-parent。稍后将对此进行说明。 </p>
+<h3 id="目录结构"><a href="#目录结构" class="headerlink" title="目录结构"></a>目录结构</h3><p><img src="http://oss.fangxinqian.cn/6933cf09180a436f82b2dea1fde10cc4.jpg" alt="2.pic.jpg"></p>
+<p>这几乎是我们为满足初始要求所需要的一切：保存和检索用户详细信息，通过联系人检索的用户详细信息。</p>
+<h2 id="功能测试"><a href="#功能测试" class="headerlink" title="功能测试"></a>功能测试</h2><p>是时候添加功能测试了！对于TDD（测试驱动开发）是什么，您需要在具体实现之前阅读本节。</p>
+<h3 id="位置"><a href="#位置" class="headerlink" title="位置"></a>位置</h3><p>在开始之前，我们需要选择功能测试的位置； </p>
+<p>有两个相对合适的地方：</p>
+<ul>
+<li><p>通过一个独立的文件夹放在单元测试下：</p>
+<p>  <img src="http://oss.fangxinqian.cn/87689b60a0f24d24b04811b98613ea8f.jpg" alt="3.pic.jpg"></p>
+<p>  这是开始添加功能测试最简单，最快速的方法，虽然它有一个很大的缺点：如果你想单独运行单元测试，你需要排除功能测试文件夹。</p>
+<p>  那为什么不能每次修改代码时都运行所有测试呢？</p>
+<p>  因为功能测试在大多数情况下与单元测试相比具有巨大的执行时间，因此应单独运行以节省开发时间。</p>
+</li>
+<li><p>做为一个独立项目放置在父项目下：</p>
+<p>  <img src="http://oss.fangxinqian.cn/ed7f48b103de4cdd99099445d084d22f.jpg" alt="4.pic.jpg"></p>
+<ol>
+<li><p>父POM（聚合项目）</p>
+</li>
+<li><p>Service项目</p>
+</li>
+<li><p>功能测试项目</p>
+<p>这种方法优于前一种方法 - 我们在服务单元测试中有一个独立的功能测试模块，因此我们可以通过单独运行单元测试或功能测试来轻松验证逻辑。另一方面，这种方法需要一个多模块项目结构，与单模块项目相比，这种结构更加困难。</p>
+<p>您可能已经从service的pom.xml中猜到，对于我们的情况，我们将选择第二种方法。</p>
+</li>
+</ol>
+</li>
+</ul>
+<h3 id="父pom-xml文件"><a href="#父pom-xml文件" class="headerlink" title="父pom.xml文件"></a>父pom.xml文件</h3><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br></pre></td><td class="code"><pre><span class="line"></span><br><span class="line">xsi&#x3D;&quot;http:&#x2F;&#x2F;www.w3.org&#x2F;2001&#x2F;XMLSchema-instance&quot;</span><br><span class="line">  xsi:schemaLocation&#x3D;&quot;http:&#x2F;&#x2F;maven.apache.org&#x2F;POM&#x2F;4.0.0 http:&#x2F;&#x2F;maven.apache.org&#x2F;xsd&#x2F;maven-4.0.0.xsd&quot;&gt;</span><br><span class="line"> 4.0.0 com.tdanylchuk functional-tests-best-practices 0.0.1-SNAPSHOT pom Functional tests best practices parent project                                                     org.springframework.boot spring-boot-starter-parent 2.0.4.RELEASE                                                      user-details-service user-details-service-functional-tests   UTF-8 UTF-8 1.8 </span><br><span class="line">&#96;&#96;&#96;&#96;    </span><br><span class="line"></span><br><span class="line">1. spring-boot-starter-parent是父POM的父项目。通过这种方式，我们为Spring提供了依赖管理。</span><br><span class="line"></span><br><span class="line">2. 模块声明。注意：顺序很重要，功能测试应始终放置在最后。</span><br><span class="line"></span><br><span class="line">### 案例</span><br><span class="line"></span><br><span class="line">对于挑选案例以涵盖功能测试，我们需要考虑两件大事：</span><br><span class="line"></span><br><span class="line">* 功能需求 - 基本上，每个需求都应有自己的功能测试。</span><br><span class="line"></span><br><span class="line">* 执行时间长 - 案例应该侧重于应用程序的关键部分，这与单元测试相反的是它还要涵盖每个次要案例。否则，构建时间将是巨大的。</span><br><span class="line"></span><br><span class="line">### 构建</span><br><span class="line"></span><br><span class="line">是的，测试还需要考虑构建文件，尤其是那些受执行时间影响程度比较大的功能测试，比如一些业务逻辑可能会随着时间的推移变得过于复杂。</span><br><span class="line"></span><br><span class="line">此外，功能测试应该是可维护的。这意味着，在功能转换的情况下，功能测试对开发人员来说不是一件令人头疼的问题。</span><br><span class="line"></span><br><span class="line">### 步骤</span><br><span class="line"></span><br><span class="line">步骤（也称为固定节点）是一种封装每个通信通道逻辑的方法。</span><br><span class="line"></span><br><span class="line">每个通道都应有自己的步骤对象，与其他步骤隔离。</span><br><span class="line"></span><br><span class="line">在我们的例子中，我们有两个通信渠道：</span><br><span class="line"></span><br><span class="line">* 用户详细信息服务的REST API（输入频道）</span><br><span class="line"></span><br><span class="line">* 联系人服务的REST API（输出频道）</span><br><span class="line"></span><br><span class="line">对于输入频道的REST，我们将使用名为REST Assured的库。</span><br><span class="line"></span><br><span class="line">与我们之前使用MockMvc进行验证REST API的集成测试相比，这里我们使用更多的黑盒测试来避免测试模拟对象破坏Spring的上下文。</span><br><span class="line"></span><br><span class="line">至于REST输出频道，我们将使用WireMock。</span><br><span class="line"></span><br><span class="line">我们不会让Spring用REST模板替换模拟的模板。</span><br><span class="line"></span><br><span class="line">相反，WireMock引擎使用的jetty服务器将与我们的服务一起启动，以模拟真正的外部REST服务。</span><br><span class="line"></span><br><span class="line">### 用户详情步骤</span><br><span class="line"></span><br><span class="line">&#96;&#96;&#96;&#96;java</span><br><span class="line"></span><br><span class="line">@Component</span><br><span class="line">public class UserDetailsServiceSteps implements ApplicationListener &#123;</span><br><span class="line"> private int servicePort; public String getUser(long userId) &#123; return given().port(servicePort) .when().get(&quot;user&#x2F;&quot; + userId) .then().statusCode(200).contentType(ContentType.JSON).extract().asString(); &#125; public void saveUserDetails(long userId, String body) &#123; given().port(servicePort).body(body).contentType(ContentType.JSON) .when().post(&quot;user&#x2F;&quot; + userId + &quot;&#x2F;details&quot;) .then().statusCode(200); &#125; public String getUserDetails(long userId) &#123; return given().port(servicePort) .when().get(&quot;user&#x2F;&quot; + userId + &quot;&#x2F;details&quot;) .then().statusCode(200).contentType(ContentType.JSON).extract().asString(); &#125; @Override public void onApplicationEvent(@NotNull WebServerInitializedEvent webServerInitializedEvent) &#123; this.servicePort &#x3D; webServerInitializedEvent.getWebServer().getPort(); &#125;&#125;</span><br></pre></td></tr></table></figure>
+<p> 就像你从steps对象中看到的，每个API都有自己的方法。</p>
+<p>默认情况下，REST Assured将访问localhost的API，但需要指定端口号否则我们的服务将使用随机端口来启动。</p>
+<p>为了区分端口号，我们应该从WebServerInitializedEvent中去获取端口。 </p>
+<p>注意：@LocalServerPort注解不能在此处使用，因为在Spring Boot-embedded容器启动之前就初始化了步骤的bean。</p>
+<h3 id="联系人服务步骤"><a href="#联系人服务步骤" class="headerlink" title="联系人服务步骤"></a>联系人服务步骤</h3><figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">@Component</span></span><br><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">ContactsServiceSteps</span> </span>&#123;</span><br><span class="line"> <span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">expectGetUserContacts</span><span class="params">(<span class="keyword">long</span> userId, String body)</span> </span>&#123; stubFor(get(urlPathMatching(<span class="string">"/contacts"</span>)).withQueryParam(<span class="string">"userId"</span>, equalTo(String.valueOf(userId))) .willReturn(okJson(body))); &#125;&#125;</span><br></pre></td></tr></table></figure>
+
+<p>在这里，我们需要以与从我们的应用程序调用远程服务时相同的方式来模拟服务器的端口、参数等。</p>
+<h3 id="数据库"><a href="#数据库" class="headerlink" title="数据库"></a>数据库</h3><p>我们的服务是将数据存储在Maria DB中，但就功能测试而言，数据的存储位置并不重要，因此按照黑盒测试的要求，我们不需要在测试中提及数据库。</p>
+<p>假设在未来，我们考虑将Maria DB更改为某些NoSQL解决方案，那么功能测试应不需要做出改动。</p>
+<p>那么，为此解决方案是什么？</p>
+<p>当然，我们可以使用嵌入式解决方案，就像在集成测试中使用H2数据库一样，但在生产时，我们的服务又将使用Maria DB，这可能会导致某些地方出错。</p>
+<p>例如，我们有一个名为MAXVALUE的列，并针对H2运行测试，一切正常。但是，在生产中，服务失败了，因为这是MariaDB中的一个预留关键字，这意味着我们的测试不如预期的那么好，并且在将服务发布之前可能浪费大量时间来解决这个问题。</p>
+<p>避免这种情况的唯一方法是在测试中使用真正的Maria DB。同时，我们需要确保我们的测试可以在本地执行，而无需设置Maria DB的任何其他临时环境。 </p>
+<p>为了解决这个问题，我们使用testcontainers项目，该项目提供常见的轻量级数据库实例：可以在Selenium Web浏览器或Docker容器中运行的。</p>
+<p>但testcontainers库不支持Spring Boot的开箱即用。因此，我们将使用另一个名为testcontainers-spring-boot的库，而不是为MariaDB编写自定义的Generic Container并将其注入Spring Boot。testcontainers-spring-boot支持最常用的技术，并可以直接在您的服务中使用：MariaDB，Couchbase，Kafka，Aerospike，MemSQL，Redis，neo4j，Zookeeper，PostgreSQL，ElasticSearch等等。 </p>
+<p>要将真正的Maria DB注入我们的测试，我们只需要将相应的依赖项添加到我们的user-details-service-functional-tests项目pom.xml文件中，如下所示：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"></span><br><span class="line">com.playtika.testcontainers embedded-mariadb 1.9 test</span><br></pre></td></tr></table></figure>
+
+<p>如果您的服务不使用Spring Cloud，则应把下述依赖跟上述依赖一并添加：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"></span><br><span class="line">org.springframework.cloud spring-cloud-context 2.0.1.RELEASE test</span><br></pre></td></tr></table></figure>
+
+<p>它需要在Spring Boot上下文启动之前为dockerized资源进行引导。</p>
+<p>这种方法显然有很多优点。</p>
+<p>由于我们拥有“真实”资源，因此如果无法对所需资源进行真正的连接测试，则无需在代码中编写解决办法。</p>
+<p>不幸的是，这个解决方案带来了一个巨大的缺点 - 测试只能在安装Docker的环境中运行。</p>
+<p>这意味着您的工作站和CI工具应该安装Docker。</p>
+<p>此外，您应该准备好更多的时间来执行您的测试。</p>
+<h4 id="父测试类"><a href="#父测试类" class="headerlink" title="父测试类"></a>父测试类</h4><p>因为执行时间很重要，所以我们需要避免对每个测试进行多个上下文加载，因此Docker容器将对所有测试仅启动一次。</p>
+<p>Spring默认启用了上下文缓存功能，但我们需要小心使用：通过添加简单的@MockBean注解，我们将强制Spring为模拟的bean创建一个新的上下文而不是重用现有的上下文。</p>
+<p>此问题的解决方案是创建单个父抽象类，该类将包含所有需要的Spring注解，以确保所有测试套件重用单个上下文：</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">@RunWith</span>(SpringRunner<span class="class">.<span class="keyword">class</span>)</span></span><br><span class="line"><span class="class">@<span class="title">SpringBootTest</span>(</span></span><br><span class="line"><span class="class"> <span class="title">classes</span> </span>= UserDetailsServiceApplication<span class="class">.<span class="keyword">class</span>,               //1 <span class="title">webEnvironment</span> </span>= SpringBootTest.WebEnvironment.RANDOM_PORT)  <span class="comment">//2@ActiveProfiles("test")                                              //3</span></span><br><span class="line"><span class="keyword">public</span> <span class="keyword">abstract</span> <span class="class"><span class="keyword">class</span> <span class="title">BaseFunctionalTest</span> </span>&#123;</span><br><span class="line"> <span class="meta">@Rule</span> <span class="keyword">public</span> WireMockRule contactsServiceMock = <span class="keyword">new</span> WireMockRule(options().port(<span class="number">8777</span>)); <span class="comment">//4 @Autowired                                                       //5 protected UserDetailsServiceSteps userDetailsServiceSteps; @Autowired protected ContactsServiceSteps contactsServiceSteps; @TestConfiguration                                               //6 @ComponentScan("com.tdanylchuk.user.details.steps") public static class StepsConfiguration &#123; &#125;&#125;</span></span><br></pre></td></tr></table></figure>
+
+<ol>
+<li><p>指定Spring Boot的测试注解以加载我们服务的主要配置类。</p>
+</li>
+<li><p>引导使用Web生产环境（默认情况下将使用模拟的环境）。</p>
+</li>
+<li><p>测试环境的配置项被加载在了application-test.properties文件中，其中包含了一些生产环境的属性，例如URL，用户，密码等。</p>
+</li>
+<li><p>WireMockRulet通过启动jetty服务器以便在提供的端口上进行连接。</p>
+</li>
+<li><p>步骤是自动加载为protected属性的，这样每一个步骤会在每一个测试得到访问。</p>
+</li>
+<li><p>@TestConfiguration注解会通过扫描包名来加载上下文的步骤。</p>
+</li>
+</ol>
+<p>在这里，我们试图不修改上下文，这样的好处时在后期用于生产环境时，只需要往上下文添加一些util项就可以了，例如步骤和属性覆盖。</p>
+<p>使用@MockBean注解是不好的做法，因为它会用mock替换部分应用程序，所以这部分程序将是没有经过测试的。</p>
+<p>在不可避免的情况下 - 例如在业务中获取当前时间System.currentTimeMillis()，这样的代码应该被重构，最好使用Clock对象：clock.millis()。并且，在功能测试中，应该模拟Clock对象以便验证结果。</p>
+<h3 id="测试属性"><a href="#测试属性" class="headerlink" title="测试属性"></a>测试属性</h3><p>application-test.properties:</p>
+<figure class="highlight properties"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">#contact service                                          #1</span></span><br><span class="line"><span class="meta">contacts.service.url</span>=<span class="string">http://localhost:8777</span></span><br><span class="line"><span class="comment">#database                                                 #2</span></span><br><span class="line"><span class="meta">user.details.db.host</span>=<span class="string">$&#123;embedded.mariadb.host&#125;</span></span><br><span class="line"><span class="meta">user.details.db.port</span>=<span class="string">$&#123;embedded.mariadb.port&#125;</span></span><br><span class="line"><span class="meta">user.details.db.schema</span>=<span class="string">$&#123;embedded.mariadb.schema&#125;</span></span><br><span class="line"><span class="meta">spring.datasource.username</span>=<span class="string">$&#123;embedded.mariadb.user&#125;</span></span><br><span class="line"><span class="meta">spring.datasource.password</span>=<span class="string">$&#123;embedded.mariadb.password&#125;</span></span><br><span class="line"><span class="comment"> #3spring.jpa.hibernate.ddl-auto=create-drop</span></span><br></pre></td></tr></table></figure>
+
+<ol>
+<li><p>使用WireMock jetty服务器节点而不是生产环境下的联系人服务URL。</p>
+</li>
+<li><p>数据库属性的重载。注意：这些属性由spring-boo-test-containers库提供。</p>
+</li>
+<li><p>在测试中，数据库的表将由Hibernate创建。</p>
+</li>
+</ol>
+<h3 id="自我测试"><a href="#自我测试" class="headerlink" title="自我测试"></a>自我测试</h3><p>为了进行这项测试，我们做了很多准备工作，让我们先瞅一眼：</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">RestUserDetailsTest</span> <span class="keyword">extends</span> <span class="title">BaseFunctionalTest</span> </span>&#123;</span><br><span class="line"> <span class="keyword">private</span> <span class="keyword">static</span> <span class="keyword">final</span> <span class="keyword">long</span> USER_ID = <span class="number">32343L</span>; <span class="keyword">private</span> <span class="keyword">final</span> String userContactsResponse = readFile(<span class="string">"json/user-contacts.json"</span>); <span class="keyword">private</span> <span class="keyword">final</span> String userDetails = readFile(<span class="string">"json/user-details.json"</span>); <span class="keyword">private</span> <span class="keyword">final</span> String expectedUserResponse = readFile(<span class="string">"json/user.json"</span>); <span class="meta">@Test</span> <span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">shouldSaveUserDetailsAndRetrieveUser</span><span class="params">()</span> <span class="keyword">throws</span> Exception </span>&#123; <span class="comment">//when userDetailsServiceSteps.saveUserDetails(USER_ID, userDetails); //and contactsServiceSteps.expectGetUserContacts(USER_ID, userContactsResponse); //then String actualUserResponse = userDetailsServiceSteps.getUser(USER_ID); //expect JSONAssert.assertEquals(expectedUserResponse, actualUserResponse, false); &#125;&#125;</span></span><br></pre></td></tr></table></figure>
+
+<p>在以前，打桩和断言都是通过JSON文件来创建使用的。这种方式，把请求和响应的格式同时进行了验证。但在功能测试里，我们最好不要使用确定格式的测试数据，而是使用生产环境中请求/响应数据的副本。</p>
+<p>由于整个逻辑封装在步骤、配置和JSON文件中，如果改动与功能无关，那么测试将保持不变。例如：</p>
+<ul>
+<li><p>响应数据格式的更改 - 只应修改JSON测试文件。</p>
+</li>
+<li><p>联系人服务节点更改 -  应修改ContactsServiceSteps对象。</p>
+</li>
+<li><p>Maria DB替换为No SQL DB - 应修改pom.xml和test properties文件。</p>
+</li>
+</ul>
+<h3 id="功能测试项目的POM文件"><a href="#功能测试项目的POM文件" class="headerlink" title="功能测试项目的POM文件"></a>功能测试项目的POM文件</h3><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"></span><br><span class="line">xsi&#x3D;&quot;http:&#x2F;&#x2F;www.w3.org&#x2F;2001&#x2F;XMLSchema-instance&quot;</span><br><span class="line">  xsi:schemaLocation&#x3D;&quot;http:&#x2F;&#x2F;maven.apache.org&#x2F;POM&#x2F;4.0.0 http:&#x2F;&#x2F;maven.apache.org&#x2F;xsd&#x2F;maven-4.0.0.xsd&quot;&gt;</span><br><span class="line"> 4.0.0 user-details-service-functional-tests 0.0.1-SNAPSHOT User details service functional tests  com.tdanylchuk functional-tests-best-practices 0.0.1-SNAPSHOT                                          com.tdanylchuk user-details-service $&#123;project.version&#125; test   org.springframework.boot spring-boot-starter-test test   org.springframework.cloud spring-cloud-context 2.0.1.RELEASE test   com.playtika.testcontainers embedded-mariadb 1.9 test   com.github.tomakehurst wiremock 2.18.0 test   io.rest-assured rest-assured test</span><br></pre></td></tr></table></figure>
+
+<p>用户详细信息服务作为依赖项添加，因此它可以由SpringBootTest进行加载。</p>
+<h3 id="目录结构-1"><a href="#目录结构-1" class="headerlink" title="目录结构"></a>目录结构</h3><p><img src="http://oss.fangxinqian.cn/c3d1b267729d480b8e939e42ff6666ea.jpg" alt="5.pic.jpg"></p>
+<p>总而言之，我们有了下一个项目的目录结构。</p>
+<p>向服务添加功能不会改变当前目录结构，只会扩展它。</p>
+<p>通过添加额外的步骤，比如添加了更多的通信渠道，那么utils文件夹下可以添加很多常用方法; </p>
+<p>比如带有测试数据的新文件; 当然还有针对每个功能要求的附加测试。</p>
+<h2 id="总结"><a href="#总结" class="headerlink" title="总结"></a>总结</h2><p>在本文中，我们基于给定的要求构建了一个新的微服务，并通过功能测试来满足这些要求。</p>
+<p>在测试中，我们使用黑盒类型的测试，我们尝试不改变应用程序的内部部分，而是作为普通客户端从外部与它进行通信，以尽可能多地模拟生产行为。</p>
+<p>同时，我们奠定了功能测试架构的基础，因此未来的服务更改不需要重构现有测试，并且尽可能将添加新的测试简单化。</p>
+<p>这个项目的源代码都可以在<a href="https://github.com/tdanylchuk/functional-tests-best-practices" target="_blank" rel="noopener">GitHub</a>上找到。</p>
+
+    </div>
+
+    
+    
+    
+
+      <footer class="post-footer">
+          <div class="post-tags">
+              <a href="/tags/Java/" rel="tag"># Java</a>
+              <a href="/tags/Spring/" rel="tag"># Spring</a>
+              <a href="/tags/Docker/" rel="tag"># Docker</a>
+              <a href="/tags/%E6%B5%8B%E8%AF%95/" rel="tag"># 测试</a>
+          </div>
+
+        
+
+
+        
+    <div class="post-nav">
+      <div class="post-nav-item">
+    <a href="/articles/2018/09/18/1537239301796.html/" rel="prev" title="SpringBoot2.x下使用Redis报ClassNotFoundException: redis.clients.jedis.JedisPoolConfig">
+      <i class="fa fa-chevron-left"></i> SpringBoot2.x下使用Redis报ClassNotFoundException: redis.clients.jedis.JedisPoolConfig
+    </a></div>
+      <div class="post-nav-item">
+    <a href="/articles/2018/10/22/1540175336242.html/" rel="next" title="译：Java中生产者与消费者问题的演变">
+      译：Java中生产者与消费者问题的演变 <i class="fa fa-chevron-right"></i>
+    </a></div>
+    </div>
+      </footer>
+    
+  </article>
+  
+  
+  
+
+  </div>
+
+
+          </div>
+          
+
+<script>
+  window.addEventListener('tabs:register', () => {
+    let activeClass = CONFIG.comments.activeClass;
+    if (CONFIG.comments.storage) {
+      activeClass = localStorage.getItem('comments_active') || activeClass;
+    }
+    if (activeClass) {
+      let activeTab = document.querySelector(`a[href="#comment-${activeClass}"]`);
+      if (activeTab) {
+        activeTab.click();
+      }
+    }
+  });
+  if (CONFIG.comments.storage) {
+    window.addEventListener('tabs:click', event => {
+      if (!event.target.matches('.tabs-comment .tab-content .tab-pane')) return;
+      let commentClass = event.target.classList[1];
+      localStorage.setItem('comments_active', commentClass);
+    });
+  }
+</script>
+
+        </div>
+          
+  
+  <div class="toggle sidebar-toggle">
+    <span class="toggle-line toggle-line-first"></span>
+    <span class="toggle-line toggle-line-middle"></span>
+    <span class="toggle-line toggle-line-last"></span>
+  </div>
+
+  <aside class="sidebar">
+    <div class="sidebar-inner">
+
+      <ul class="sidebar-nav motion-element">
+        <li class="sidebar-nav-toc">
+          Inhaltsverzeichnis
+        </li>
+        <li class="sidebar-nav-overview">
+          Übersicht
+        </li>
+      </ul>
+
+      <!--noindex-->
+      <div class="post-toc-wrap sidebar-panel">
+          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#译：在Docker中运行Spring-Boot的高级功能测试"><span class="nav-number">1.</span> <span class="nav-text">译：在Docker中运行Spring Boot的高级功能测试</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#概览"><span class="nav-number">1.1.</span> <span class="nav-text">概览</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#理论"><span class="nav-number">1.2.</span> <span class="nav-text">理论</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#目的"><span class="nav-number">1.3.</span> <span class="nav-text">目的</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#实践"><span class="nav-number">1.4.</span> <span class="nav-text">实践</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#任务"><span class="nav-number">1.5.</span> <span class="nav-text">任务</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#架构设计"><span class="nav-number">1.6.</span> <span class="nav-text">架构设计</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#实现"><span class="nav-number">1.7.</span> <span class="nav-text">实现</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#模型"><span class="nav-number">1.7.1.</span> <span class="nav-text">模型</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#REST-API"><span class="nav-number">1.7.2.</span> <span class="nav-text">REST API</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#客户联系人服务"><span class="nav-number">1.7.3.</span> <span class="nav-text">客户联系人服务</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#详细信息实体及其存储库"><span class="nav-number">1.7.4.</span> <span class="nav-text">详细信息实体及其存储库</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#用户服务"><span class="nav-number">1.7.4.1.</span> <span class="nav-text">用户服务</span></a></li></ol></li><li class="nav-item nav-level-3"><a class="nav-link" href="#应用启动类和它的配置文件"><span class="nav-number">1.7.5.</span> <span class="nav-text">应用启动类和它的配置文件</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#Mavan配置文件pom-xml"><span class="nav-number">1.7.6.</span> <span class="nav-text">Mavan配置文件pom.xml</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#目录结构"><span class="nav-number">1.7.7.</span> <span class="nav-text">目录结构</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#功能测试"><span class="nav-number">1.8.</span> <span class="nav-text">功能测试</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#位置"><span class="nav-number">1.8.1.</span> <span class="nav-text">位置</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#父pom-xml文件"><span class="nav-number">1.8.2.</span> <span class="nav-text">父pom.xml文件</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#联系人服务步骤"><span class="nav-number">1.8.3.</span> <span class="nav-text">联系人服务步骤</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#数据库"><span class="nav-number">1.8.4.</span> <span class="nav-text">数据库</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#父测试类"><span class="nav-number">1.8.4.1.</span> <span class="nav-text">父测试类</span></a></li></ol></li><li class="nav-item nav-level-3"><a class="nav-link" href="#测试属性"><span class="nav-number">1.8.5.</span> <span class="nav-text">测试属性</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#自我测试"><span class="nav-number">1.8.6.</span> <span class="nav-text">自我测试</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#功能测试项目的POM文件"><span class="nav-number">1.8.7.</span> <span class="nav-text">功能测试项目的POM文件</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#目录结构-1"><span class="nav-number">1.8.8.</span> <span class="nav-text">目录结构</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#总结"><span class="nav-number">1.9.</span> <span class="nav-text">总结</span></a></li></ol></li></ol></div>
+      </div>
+      <!--/noindex-->
+
+      <div class="site-overview-wrap sidebar-panel">
+        <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+  <p class="site-author-name" itemprop="name">liumapp</p>
+  <div class="site-description" itemprop="description"></div>
+</div>
+<div class="site-state-wrap motion-element">
+  <nav class="site-state">
+      <div class="site-state-item site-state-posts">
+          <a href="/archives/">
+        
+          <span class="site-state-item-count">165</span>
+          <span class="site-state-item-name">Artikel</span>
+        </a>
+      </div>
+      <div class="site-state-item site-state-tags">
+        <span class="site-state-item-count">88</span>
+        <span class="site-state-item-name">schlagwörter</span>
+      </div>
+  </nav>
+</div>
+
+
+
+      </div>
+
+    </div>
+  </aside>
+  <div id="sidebar-dimmer"></div>
+
+
+      </div>
+    </main>
+
+    <footer class="footer">
+      <div class="footer-inner">
+        
+
+<div class="copyright">
+  
+  &copy; 
+  <span itemprop="copyrightYear">2020</span>
+  <span class="with-love">
+    <i class="fa fa-user"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">liumapp.com@gmail.com</span>
+</div>
+  <div class="powered-by">Erstellt mit  <a href="https://hexo.io/" class="theme-link" rel="noopener" target="_blank">Hexo</a> v4.2.0
+  </div>
+  <span class="post-meta-divider">|</span>
+  <div class="theme-info">Design – <a href="https://theme-next.org/" class="theme-link" rel="noopener" target="_blank">NexT.Gemini</a> v7.7.0
+  </div>
+
+        
+
+
+
+
+
+
+
+
+      </div>
+    </footer>
+  </div>
+
+  
+  <script src="/lib/anime.min.js"></script>
+  <script src="/lib/velocity/velocity.min.js"></script>
+  <script src="/lib/velocity/velocity.ui.min.js"></script>
+
+<script src="/js/utils.js"></script>
+
+<script src="/js/motion.js"></script>
+
+
+<script src="/js/schemes/pisces.js"></script>
+
+
+<script src="/js/next-boot.js"></script>
+
+
+
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+
+  
+
+</body>
+</html>

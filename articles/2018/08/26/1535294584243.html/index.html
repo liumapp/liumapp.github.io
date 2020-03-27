@@ -1,0 +1,436 @@
+<!DOCTYPE html>
+<html lang="zh-Hans">
+<head>
+  <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=2">
+<meta name="theme-color" content="#222">
+<meta name="generator" content="Hexo 4.2.0">
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png">
+  <link rel="mask-icon" href="/images/logo.svg" color="#222">
+
+<link rel="stylesheet" href="/css/main.css">
+
+
+<link rel="stylesheet" href="/lib/font-awesome/css/font-awesome.min.css">
+
+
+<script id="hexo-configurations">
+  var NexT = window.NexT || {};
+  var CONFIG = {
+    hostname: new URL('http://www.liumapp.com').hostname,
+    root: '/',
+    scheme: 'Gemini',
+    version: '7.7.0',
+    exturl: false,
+    sidebar: {"position":"left","display":"post","padding":18,"offset":12,"onmobile":false},
+    copycode: {"enable":false,"show_result":false,"style":null},
+    back2top: {"enable":true,"sidebar":false,"scrollpercent":false},
+    bookmark: {"enable":false,"color":"#222","save":"auto"},
+    fancybox: false,
+    mediumzoom: false,
+    lazyload: false,
+    pangu: false,
+    comments: {"style":"tabs","active":null,"storage":true,"lazyload":false,"nav":null},
+    algolia: {
+      appID: '',
+      apiKey: '',
+      indexName: '',
+      hits: {"per_page":10},
+      labels: {"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}
+    },
+    localsearch: {"enable":false,"trigger":"auto","top_n_per_article":1,"unescape":false,"preload":false},
+    path: '',
+    motion: {"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}}
+  };
+</script>
+
+  <meta name="description" content="出于某种原因，原先在GitHub上设定的ssh key无法使用了，因此每一次在我本地提交代码都需要输入username&amp;password，神一般的烦，恰巧又忘记之前是怎么设置的….索性写篇博文记录一下…  其实总共的操作只需要两步，换成人话来说，就是我们自己整一个证明我自己的凭证，然后复制一份给GitHub，告诉它，下次我提交代码给你看这个凭证，你看了后就以我的名义记录这次提交，不要再问">
+<meta property="og:type" content="article">
+<meta property="og:title" content="GitHub——ssh免密登录">
+<meta property="og:url" content="http://www.liumapp.com/articles/2018/08/26/1535294584243.html/index.html">
+<meta property="og:site_name" content="liumapp">
+<meta property="og:description" content="出于某种原因，原先在GitHub上设定的ssh key无法使用了，因此每一次在我本地提交代码都需要输入username&amp;password，神一般的烦，恰巧又忘记之前是怎么设置的….索性写篇博文记录一下…  其实总共的操作只需要两步，换成人话来说，就是我们自己整一个证明我自己的凭证，然后复制一份给GitHub，告诉它，下次我提交代码给你看这个凭证，你看了后就以我的名义记录这次提交，不要再问">
+<meta property="article:published_time" content="2018-08-26T06:43:04.000Z">
+<meta property="article:modified_time" content="2018-08-26T06:43:04.000Z">
+<meta property="article:author" content="liumapp">
+<meta property="article:tag" content="Github">
+<meta property="article:tag" content="GitLab">
+<meta name="twitter:card" content="summary">
+
+<link rel="canonical" href="http://www.liumapp.com/articles/2018/08/26/1535294584243.html/">
+
+
+<script id="page-configurations">
+  // https://hexo.io/docs/variables.html
+  CONFIG.page = {
+    sidebar: "",
+    isHome: false,
+    isPost: true
+  };
+</script>
+
+  <title>GitHub——ssh免密登录 | liumapp</title>
+  
+
+
+
+
+
+
+  <noscript>
+  <style>
+  .use-motion .brand,
+  .use-motion .menu-item,
+  .sidebar-inner,
+  .use-motion .post-block,
+  .use-motion .pagination,
+  .use-motion .comments,
+  .use-motion .post-header,
+  .use-motion .post-body,
+  .use-motion .collection-header { opacity: initial; }
+
+  .use-motion .site-title,
+  .use-motion .site-subtitle {
+    opacity: initial;
+    top: initial;
+  }
+
+  .use-motion .logo-line-before i { left: initial; }
+  .use-motion .logo-line-after i { right: initial; }
+  </style>
+</noscript>
+
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage">
+  <div class="container use-motion">
+    <div class="headband"></div>
+
+    <header class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-container">
+  <div class="site-meta">
+
+    <div>
+      <a href="/" class="brand" rel="start">
+        <span class="logo-line-before"><i></i></span>
+        <span class="site-title">liumapp</span>
+        <span class="logo-line-after"><i></i></span>
+      </a>
+    </div>
+  </div>
+
+  <div class="site-nav-toggle">
+    <div class="toggle" aria-label="Navigationsleiste an/ausschalten">
+      <span class="toggle-line toggle-line-first"></span>
+      <span class="toggle-line toggle-line-middle"></span>
+      <span class="toggle-line toggle-line-last"></span>
+    </div>
+  </div>
+</div>
+
+
+<nav class="site-nav">
+  
+  <ul id="menu" class="menu">
+        <li class="menu-item menu-item-home">
+
+    <a href="/" rel="section"><i class="fa fa-fw fa-home"></i>Startseite</a>
+
+  </li>
+        <li class="menu-item menu-item-archives">
+
+    <a href="/archives/" rel="section"><i class="fa fa-fw fa-archive"></i>Archiv</a>
+
+  </li>
+  </ul>
+
+</nav>
+</div>
+    </header>
+
+    
+  <div class="back-to-top">
+    <i class="fa fa-arrow-up"></i>
+    <span>0%</span>
+  </div>
+
+  <a href="https://github.com/liumapp" class="github-corner" title="Follow me on GitHub" aria-label="Follow me on GitHub" rel="noopener" target="_blank"><svg width="80" height="80" viewBox="0 0 250 250" aria-hidden="true"><path d="M0,0 L115,115 L130,115 L142,142 L250,250 L250,0 Z"></path><path d="M128.3,109.0 C113.8,99.7 119.0,89.6 119.0,89.6 C122.0,82.7 120.5,78.6 120.5,78.6 C119.2,72.0 123.4,76.3 123.4,76.3 C127.3,80.9 125.5,87.3 125.5,87.3 C122.9,97.6 130.6,101.9 134.4,103.2" fill="currentColor" style="transform-origin: 130px 106px;" class="octo-arm"></path><path d="M115.0,115.0 C114.9,115.1 118.7,116.5 119.8,115.4 L133.7,101.6 C136.9,99.2 139.9,98.4 142.2,98.6 C133.8,88.0 127.5,74.4 143.8,58.0 C148.5,53.4 154.0,51.2 159.7,51.0 C160.3,49.4 163.2,43.6 171.4,40.1 C171.4,40.1 176.1,42.5 178.8,56.2 C183.1,58.6 187.2,61.8 190.9,65.4 C194.5,69.0 197.7,73.2 200.1,77.6 C213.8,80.2 216.3,84.9 216.3,84.9 C212.7,93.1 206.9,96.0 205.4,96.6 C205.1,102.4 203.0,107.8 198.3,112.5 C181.9,128.9 168.3,122.5 157.7,114.1 C157.9,116.9 156.7,120.9 152.7,124.9 L141.0,136.5 C139.8,137.7 141.6,141.9 141.8,141.8 Z" fill="currentColor" class="octo-body"></path></svg></a>
+
+
+    <main class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          
+
+          <div class="content">
+            
+
+  <div class="posts-expand">
+      
+  
+  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block " lang="zh-Hans">
+    <link itemprop="mainEntityOfPage" href="http://www.liumapp.com/articles/2018/08/26/1535294584243.html/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/avatar.gif">
+      <meta itemprop="name" content="liumapp">
+      <meta itemprop="description" content="">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="liumapp">
+    </span>
+      <header class="post-header">
+        <h1 class="post-title" itemprop="name headline">
+          GitHub——ssh免密登录
+        </h1>
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              <span class="post-meta-item-text">Veröffentlicht am</span>
+
+              <time title="Erstellt: 2018-08-26 14:43:04" itemprop="dateCreated datePublished" datetime="2018-08-26T14:43:04+08:00">2018-08-26</time>
+            </span>
+
+          
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+        <blockquote>
+<p>出于某种原因，原先在GitHub上设定的ssh key无法使用了，因此每一次在我本地提交代码都需要输入username&amp;password，神一般的烦，恰巧又忘记之前是怎么设置的….索性写篇博文记录一下…</p>
+</blockquote>
+<p>其实总共的操作只需要两步，换成人话来说，就是我们自己整一个证明我自己的凭证，然后复制一份给GitHub，告诉它，下次我提交代码给你看这个凭证，你看了后就以我的名义记录这次提交，不要再问账号密码这些鬼东西了…</p>
+<p>接下来用实战来介绍</p>
+<h2 id="在本地创建登录凭证"><a href="#在本地创建登录凭证" class="headerlink" title="在本地创建登录凭证"></a>在本地创建登录凭证</h2><p>这里假设您使用的操作系统为Mac OS（如果看官还在使用Windows的话，请弃坑吧）</p>
+<p>打开terminal，执行下述命令</p>
+<pre><code>ssh-keygen -t rsa -b 4096 -C &quot;liumapp.com@gmail.com&quot;</code></pre><p>此处邮箱地址请填写您的GitHub邮箱地址</p>
+<p>接下来一切按照默认值敲回车即可，但是在设置口令的时候，还请留意一下，请千万不要设置口令（不然每次提交都要输入凭证口令，想想都烦）</p>
+<p>接下来创建好的ssk key默认会存放在</p>
+<pre><code>/Users/you/.ssh/id_rsa    </code></pre><p>这个位置下，但是现在我们还不能直接使用它，使用命令</p>
+<pre><code>eval &quot;$(ssh-agent -s)&quot;    </code></pre><p>启动ssh-agent</p>
+<p>然后使用命令</p>
+<pre><code>ssh-add -K ~/.ssh/id_rsa</code></pre><p>将ssh key加载到ssh-agent工具下，此处的id_rsa为您创建的ssh-key保存文件    </p>
+<p>通过检查相关的输出信息，您基本可以确定自己的操作步骤是否成功</p>
+<h2 id="上传凭证到GitHub"><a href="#上传凭证到GitHub" class="headerlink" title="上传凭证到GitHub"></a>上传凭证到GitHub</h2><p>上传凭证只需要三步</p>
+<ul>
+<li><p>复制这个文件的内容</p>
+<pre><code>~/.ssh/id_rsa.pub</code></pre><p>  这个文件是您的ssh key公钥的内容</p>
+<p>  具体复制文件内容命令可以使用</p>
+<pre><code>pbcopy &lt; ~/.ssh/id_rsa.pub</code></pre></li>
+<li><p>打开GitHub的配置页面，选择ssh and gpg keys，创建一个ssh</p>
+<p>  标题随便您填，只要内容是复制粘贴过来的即可</p>
+</li>
+<li><p>保存收功</p>
+</li>
+</ul>
+<h2 id="友情提示"><a href="#友情提示" class="headerlink" title="友情提示"></a>友情提示</h2><p>如果要直接通过ssh上传代码的话，可能您需要对项目做一点点配置</p>
+<p>比如，您在项目根目录下，输入命令：</p>
+<pre><code>git remote -v</code></pre><p>如果包含了https的话，那么您可能需要切换到ssh进行连接</p>
+<p>具体命令为</p>
+<pre><code>git remote set-url origin git@github.com:USERNAME/REPOSITORY.git</code></pre>
+    </div>
+
+    
+    
+    
+
+      <footer class="post-footer">
+          <div class="post-tags">
+              <a href="/tags/Github/" rel="tag"># Github</a>
+              <a href="/tags/GitLab/" rel="tag"># GitLab</a>
+          </div>
+
+        
+
+
+        
+    <div class="post-nav">
+      <div class="post-nav-item">
+    <a href="/articles/2018/08/22/1534905949519.html/" rel="prev" title="Maven在Java8下忽略Javadoc的编译错误">
+      <i class="fa fa-chevron-left"></i> Maven在Java8下忽略Javadoc的编译错误
+    </a></div>
+      <div class="post-nav-item">
+    <a href="/articles/2018/09/08/1536376279620.html/" rel="next" title="Docker容器内Mysql的数据导入/导出">
+      Docker容器内Mysql的数据导入/导出 <i class="fa fa-chevron-right"></i>
+    </a></div>
+    </div>
+      </footer>
+    
+  </article>
+  
+  
+  
+
+  </div>
+
+
+          </div>
+          
+
+<script>
+  window.addEventListener('tabs:register', () => {
+    let activeClass = CONFIG.comments.activeClass;
+    if (CONFIG.comments.storage) {
+      activeClass = localStorage.getItem('comments_active') || activeClass;
+    }
+    if (activeClass) {
+      let activeTab = document.querySelector(`a[href="#comment-${activeClass}"]`);
+      if (activeTab) {
+        activeTab.click();
+      }
+    }
+  });
+  if (CONFIG.comments.storage) {
+    window.addEventListener('tabs:click', event => {
+      if (!event.target.matches('.tabs-comment .tab-content .tab-pane')) return;
+      let commentClass = event.target.classList[1];
+      localStorage.setItem('comments_active', commentClass);
+    });
+  }
+</script>
+
+        </div>
+          
+  
+  <div class="toggle sidebar-toggle">
+    <span class="toggle-line toggle-line-first"></span>
+    <span class="toggle-line toggle-line-middle"></span>
+    <span class="toggle-line toggle-line-last"></span>
+  </div>
+
+  <aside class="sidebar">
+    <div class="sidebar-inner">
+
+      <ul class="sidebar-nav motion-element">
+        <li class="sidebar-nav-toc">
+          Inhaltsverzeichnis
+        </li>
+        <li class="sidebar-nav-overview">
+          Übersicht
+        </li>
+      </ul>
+
+      <!--noindex-->
+      <div class="post-toc-wrap sidebar-panel">
+          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#在本地创建登录凭证"><span class="nav-number">1.</span> <span class="nav-text">在本地创建登录凭证</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#上传凭证到GitHub"><span class="nav-number">2.</span> <span class="nav-text">上传凭证到GitHub</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#友情提示"><span class="nav-number">3.</span> <span class="nav-text">友情提示</span></a></li></ol></div>
+      </div>
+      <!--/noindex-->
+
+      <div class="site-overview-wrap sidebar-panel">
+        <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+  <p class="site-author-name" itemprop="name">liumapp</p>
+  <div class="site-description" itemprop="description"></div>
+</div>
+<div class="site-state-wrap motion-element">
+  <nav class="site-state">
+      <div class="site-state-item site-state-posts">
+          <a href="/archives/">
+        
+          <span class="site-state-item-count">165</span>
+          <span class="site-state-item-name">Artikel</span>
+        </a>
+      </div>
+      <div class="site-state-item site-state-tags">
+        <span class="site-state-item-count">88</span>
+        <span class="site-state-item-name">schlagwörter</span>
+      </div>
+  </nav>
+</div>
+
+
+
+      </div>
+
+    </div>
+  </aside>
+  <div id="sidebar-dimmer"></div>
+
+
+      </div>
+    </main>
+
+    <footer class="footer">
+      <div class="footer-inner">
+        
+
+<div class="copyright">
+  
+  &copy; 
+  <span itemprop="copyrightYear">2020</span>
+  <span class="with-love">
+    <i class="fa fa-user"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">liumapp.com@gmail.com</span>
+</div>
+  <div class="powered-by">Erstellt mit  <a href="https://hexo.io/" class="theme-link" rel="noopener" target="_blank">Hexo</a> v4.2.0
+  </div>
+  <span class="post-meta-divider">|</span>
+  <div class="theme-info">Design – <a href="https://theme-next.org/" class="theme-link" rel="noopener" target="_blank">NexT.Gemini</a> v7.7.0
+  </div>
+
+        
+
+
+
+
+
+
+
+
+      </div>
+    </footer>
+  </div>
+
+  
+  <script src="/lib/anime.min.js"></script>
+  <script src="/lib/velocity/velocity.min.js"></script>
+  <script src="/lib/velocity/velocity.ui.min.js"></script>
+
+<script src="/js/utils.js"></script>
+
+<script src="/js/motion.js"></script>
+
+
+<script src="/js/schemes/pisces.js"></script>
+
+
+<script src="/js/next-boot.js"></script>
+
+
+
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+
+  
+
+</body>
+</html>
